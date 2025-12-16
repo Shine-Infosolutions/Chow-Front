@@ -38,24 +38,30 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="bg-gray-200 py-16">
-        <div className="container mx-auto px-4">
+      <div className="bg-gray-100 py-8 relative">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center text-sm mb-4">
-            <Link to="/" className="text-gray-600 hover:text-red-600">Home</Link>
+            <Link to="/" className="text-gray-600 hover:text-[#d80a4e]">Home</Link>
             <span className="mx-2 text-gray-400">/</span>
             <span className="text-gray-800">Login</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-800">Login</h1>
         </div>
+        <div className="absolute top-8 right-16 hidden lg:block">
+          <div className="bg-[#d80a4e] text-white px-8 py-4 rounded-full">
+            <span className="text-2xl font-bold">Chowdhry</span>
+            <div className="text-xs">Love at First Bite</div>
+          </div>
+        </div>
       </div>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="flex justify-center">
           <div className="w-full max-w-md">
             <div className="bg-white rounded-lg shadow-lg p-8">
               <div className="mb-6">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                  <i className="fas fa-user text-red-600 text-xl"></i>
+                <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-4">
+                  <i className="fas fa-user text-[#d80a4e] text-xl"></i>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Login</h2>
                 <p className="text-gray-600 text-sm">
@@ -73,7 +79,7 @@ const Login = () => {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="Email address"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
                       required
                     />
                   </div>
@@ -88,7 +94,7 @@ const Login = () => {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="Password"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
                       required
                     />
                   </div>
@@ -100,13 +106,13 @@ const Login = () => {
 
                 <div className="text-sm">
                   <span className="text-gray-600">Don't have an account? </span>
-                  <Link to="/signup" className="text-red-600 hover:underline">Sign up</Link>
+                  <Link to="/signup" className="text-[#d80a4e] hover:underline">Sign up</Link>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
+                  className="w-full bg-[#d80a4e] text-white py-3 rounded-lg hover:bg-[#b8083e] transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
                 >
                   {loading ? 'Logging in...' : 'Login'}
                   <i className="fas fa-arrow-right ml-2"></i>

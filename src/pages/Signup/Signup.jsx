@@ -37,22 +37,25 @@ const Signup = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Breadcrumb */}
-      <div className="bg-gray-200 py-16">
-        <div className="container mx-auto px-4">
+      <div className="bg-gray-100 py-8 relative">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center text-sm mb-4">
-            <Link to="/" className="text-gray-600 hover:text-red-600">Home</Link>
+            <Link to="/" className="text-gray-600 hover:text-[#d80a4e]">Home</Link>
             <span className="mx-2 text-gray-400">/</span>
-            <span className="text-gray-800">Login / Signup</span>
+            <span className="text-gray-800">Sign Up</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-800">Sign Up</h1>
         </div>
-        <div className="absolute top-0 right-0 mt-16 mr-16 hidden lg:block">
-          <div className="w-64 h-32 bg-gradient-to-r from-orange-200 to-blue-200 rounded-lg opacity-50"></div>
+        <div className="absolute top-8 right-16 hidden lg:block">
+          <div className="bg-[#d80a4e] text-white px-8 py-4 rounded-full">
+            <span className="text-2xl font-bold">Chowdhry</span>
+            <div className="text-xs">Love at First Bite</div>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="flex justify-center">
           <div className="w-full max-w-4xl">
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -69,8 +72,8 @@ const Signup = () => {
                 {/* Right Side - Form */}
                 <div className="w-full md:w-1/2 p-8">
                   <div className="mb-6">
-                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                      <i className="fas fa-user-plus text-red-600 text-xl"></i>
+                    <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-4">
+                      <i className="fas fa-user-plus text-[#d80a4e] text-xl"></i>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Sign Up</h2>
                     <p className="text-gray-600 text-sm">
@@ -89,7 +92,7 @@ const Signup = () => {
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="Email address"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
                           required
                         />
                       </div>
@@ -104,7 +107,7 @@ const Signup = () => {
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder="Enter Phone Number eg: 9923998344"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -118,7 +121,7 @@ const Signup = () => {
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="Password"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
                           required
                         />
                       </div>
@@ -130,13 +133,13 @@ const Signup = () => {
 
                     <div className="text-sm">
                       <span className="text-gray-600">Already Have Account? </span>
-                      <Link to="/login" className="text-red-600 hover:underline">Login</Link>
+                      <Link to="/login" className="text-[#d80a4e] hover:underline">Login</Link>
                     </div>
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
+                      className="w-full bg-[#d80a4e] text-white py-3 rounded-lg hover:bg-[#b8083e] transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
                     >
                       {loading ? 'Registering...' : 'Register Now'}
                       <i className="fas fa-arrow-right ml-2"></i>

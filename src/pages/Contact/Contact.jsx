@@ -13,14 +13,11 @@ const Contact = () => {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -33,154 +30,151 @@ const Contact = () => {
         message: formData.message
       });
       setSuccess(true);
-      setFormData({ fullName: '', email: '', phone: '', subject: '', message: '' });
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
     } catch (error) {
-      console.error('Error creating ticket:', error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       {/* Breadcrumb */}
       <div className="bg-gray-100 py-8">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center text-sm mb-4">
-            <Link to="/" className="text-gray-600 hover:text-red-600">Home</Link>
+            <Link to="/" className="text-gray-600 hover:text-[#d80a4e]">Home</Link>
             <span className="mx-2 text-gray-400">/</span>
             <span className="text-gray-800">Contact</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-800">Contact Us</h1>
-        </div>
-        <div className="absolute top-0 right-0 mt-8 mr-16 hidden lg:block">
-          <div className="bg-red-600 text-white px-8 py-4 rounded-full">
-            <span className="text-2xl font-bold">Chowdhry</span>
-            <div className="text-xs">Love at First Bite</div>
-          </div>
+          <h1 className="text-4xl font-bold">Contact Us</h1>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14">
+
           {/* Contact Info */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-8">Get In Touch</h2>
-            
-            <div className="space-y-6">
-              <div className="flex items-start">
-                <i className="fas fa-map-marker-alt text-red-600 mt-1 mr-4"></i>
-                <div>
-                  <p className="text-gray-700">
-                    Vijay Chowk, In front of Vijay Talkies,<br/>
-                    Golghar, Gorakhpur, Uttar Pradesh<br/>
-                    273001
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <i className="fas fa-phone text-red-600 mt-1 mr-4"></i>
-                <div>
-                  <p className="text-gray-700">+91 7525025100</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <i className="fas fa-clock text-red-600 mt-1 mr-4"></i>
-                <div>
-                  <p className="text-gray-700">
-                    Store Hours:<br/>
-                    08 am - 11:30 pm EST, 7 days a week
-                  </p>
-                </div>
-              </div>
+            <h2 className="text-2xl font-bold mb-8">Get In Touch</h2>
+
+            <div className="space-y-6 text-gray-700">
+              <p>
+                <strong>📍 Address:</strong><br />
+                Vijay Chowk, In front of Vijay Talkies,<br />
+                Golghar, Gorakhpur, Uttar Pradesh – 273001
+              </p>
+
+              <p>
+                <strong>📞 Phone:</strong><br />
+                +91 7525025100
+              </p>
+
+              <p>
+                <strong>⏰ Store Hours:</strong><br />
+                08:00 AM – 11:30 PM (7 Days)
+              </p>
             </div>
 
-            <div className="mt-8">
-              <button className="bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 transition-colors mb-4 block">
+            <div className="mt-8 space-y-3">
+              <button className="bg-[#d80a4e] text-white px-6 py-3 rounded w-fit">
                 Get Support On Call
               </button>
-              <button className="bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 transition-colors block">
+              <button className="bg-[#d80a4e] text-white px-6 py-3 rounded w-fit">
                 Get Direction
               </button>
             </div>
           </div>
-          
+
           {/* Contact Form */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Make Custom Request</h2>
-            <p className="text-gray-600 text-sm mb-6">
+            <h2 className="text-2xl font-bold mb-2">Make Custom Request</h2>
+            <p className="text-sm text-gray-600 mb-6">
               Must have please selected every month sugar style ideas and Treats?
             </p>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
-                  type="text"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Full name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="border px-4 py-3 w-full"
                   required
                 />
                 <input
-                  type="email"
                   name="email"
+                  type="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email address"
-                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="border px-4 py-3 w-full"
                   required
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
-                  type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Phone number"
-                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="border px-4 py-3 w-full"
                 />
                 <input
-                  type="text"
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
                   placeholder="Subject"
-                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="border px-4 py-3 w-full"
                 />
               </div>
-              
+
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
+                rows="5"
                 placeholder="Enter message"
-                rows={5}
-                className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
-              ></textarea>
-              
+                className="border px-4 py-3 w-full"
+              />
+
               {success && (
-                <div className="text-green-600 text-sm">Message sent successfully!</div>
+                <p className="text-green-600 text-sm">
+                  Message sent successfully!
+                </p>
               )}
-              
+
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-red-600 text-white px-8 py-3 rounded hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
+                className="bg-[#d80a4e] text-white px-8 py-3 font-semibold"
               >
-                {loading ? 'Sending...' : 'Get A Quote →'}
+                {loading ? "Sending..." : "Get A Quote →"}
               </button>
             </form>
           </div>
-          
         </div>
+      </div>
+
+      {/* ✅ Google Map Section */}
+      <div className="w-full h-[500px]">
+        <iframe
+          title="Chowdhry Sweet House Location"
+          src="https://www.google.com/maps?q=Chowdhry%20Sweet%20House%20Vijay%20Chowk%20Gorakhpur&output=embed"
+          className="w-full h-full border-0"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
       </div>
     </div>
   );

@@ -60,8 +60,8 @@ const Specials = () => {
                       onClick={() => handleCategoryFilter('all')}
                       className={`flex items-center p-2 rounded cursor-pointer ${
                         activeCategory === 'all' 
-                          ? 'text-red-600 bg-red-50' 
-                          : 'text-red-600 hover:bg-red-50'
+                          ? 'text-[#d80a4e] bg-pink-50' 
+                          : 'text-[#d80a4e] hover:bg-pink-50'
                       }`}
                     >
                       <i className="fas fa-star mr-3 text-red-500"></i>
@@ -73,8 +73,8 @@ const Specials = () => {
                         onClick={() => handleCategoryFilter(category._id)}
                         className={`flex items-center p-2 rounded cursor-pointer ${
                           activeCategory === category._id 
-                            ? 'text-red-600 bg-red-50' 
-                            : 'text-red-600 hover:bg-red-50'
+                            ? 'text-[#d80a4e] bg-pink-50' 
+                            : 'text-[#d80a4e] hover:bg-pink-50'
                         }`}
                       >
                         <i className="fas fa-gift mr-3 text-red-500"></i>
@@ -85,9 +85,9 @@ const Specials = () => {
                   
                   <div className="mt-6 pt-4 border-t border-gray-200">
                     <div className="space-y-2 text-sm text-gray-600">
-                      <div className="hover:text-red-600 cursor-pointer">Value of the Day</div>
-                      <div className="hover:text-red-600 cursor-pointer">Top 100 Offers</div>
-                      <div className="hover:text-red-600 cursor-pointer">New Arrivals</div>
+                      <div className="hover:text-[#d80a4e] cursor-pointer">Value of the Day</div>
+                      <div className="hover:text-[#d80a4e] cursor-pointer">Top 100 Offers</div>
+                      <div className="hover:text-[#d80a4e] cursor-pointer">New Arrivals</div>
                     </div>
                   </div>
                 </div>
@@ -106,7 +106,7 @@ const Specials = () => {
                   <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                 </div>
                 <div className="relative z-10 p-8 h-full flex flex-col justify-center">
-                  <h4 className="text-red-600 text-sm mb-2 font-medium">Deliciously Crafted Treats</h4>
+                  <h4 className="text-[#d80a4e] text-sm mb-2 font-medium">Deliciously Crafted Treats</h4>
                   <h3 className="text-4xl font-bold text-white mb-6 leading-tight">
                     Premium Sweets<br/>
                     <span className="text-yellow-400">& Exquisite</span><br/>
@@ -114,7 +114,7 @@ const Specials = () => {
                   </h3>
                   <Link 
                     to="/shop" 
-                    className="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 inline-flex items-center w-fit transition-colors"
+                    className="bg-[#d80a4e] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#b8083e] inline-flex items-center w-fit transition-colors"
                   >
                     Shop Now <i className="fas fa-long-arrow-right ml-2"></i>
                   </Link>

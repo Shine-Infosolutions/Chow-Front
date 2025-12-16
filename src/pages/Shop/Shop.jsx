@@ -48,12 +48,30 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Breadcrumb */}
+      <div className="bg-gray-100 py-8 relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center text-sm mb-4">
+            <Link to="/" className="text-gray-600 hover:text-[#d80a4e]">Home</Link>
+            <span className="mx-2 text-gray-400">/</span>
+            <span className="text-gray-800">Shop</span>
+          </div>
+          <h1 className="text-4xl font-bold text-gray-800">Shop Now</h1>
+        </div>
+        <div className="absolute top-8 right-16 hidden lg:block">
+          <div className="bg-[#d80a4e] text-white px-8 py-4 rounded-full">
+            <span className="text-2xl font-bold">Chowdhry</span>
+            <div className="text-xs">Love at First Bite</div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold">
-            Popular <span className="text-red-600">Sweets</span>
+            Popular <span className="text-[#d80a4e]">Sweets</span>
           </h2>
         </div>
 
@@ -72,7 +90,7 @@ const Shop = () => {
                 }
               }}
               placeholder="Search products..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e]"  
             />
             <button
               onClick={async () => {
@@ -82,7 +100,7 @@ const Shop = () => {
                   setActiveCategory('search');
                 }
               }}
-              className="absolute right-2 top-2 text-gray-400 hover:text-red-600"
+              className="absolute right-2 top-2 text-gray-400 hover:text-[#d80a4e]"
             >
               <i className="fas fa-search"></i>
             </button>
@@ -96,8 +114,8 @@ const Shop = () => {
               onClick={() => handleCategoryFilter('all')}
               className={`font-medium pb-1 ${
                 activeCategory === 'all' 
-                  ? 'text-red-600 border-b-2 border-red-600' 
-                  : 'text-gray-600 hover:text-red-600'
+                  ? 'text-[#d80a4e] border-b-2 border-[#d80a4e]' 
+                  : 'text-gray-600 hover:text-[#d80a4e]'
               }`}
             >
               All
@@ -108,8 +126,8 @@ const Shop = () => {
                 onClick={() => handleCategoryFilter(category._id)}
                 className={`font-medium pb-1 ${
                   activeCategory === category._id 
-                    ? 'text-red-600 border-b-2 border-red-600' 
-                    : 'text-gray-600 hover:text-red-600'
+                    ? 'text-[#d80a4e] border-b-2 border-[#d80a4e]' 
+                    : 'text-gray-600 hover:text-[#d80a4e]'
                 }`}
               >
                 {category.name}
@@ -129,7 +147,7 @@ const Shop = () => {
                   className="w-full h-64 object-cover"
                 />
                 <div className="absolute top-4 left-4">
-                  <div className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  <div className="bg-[#d80a4e] text-white px-3 py-1 rounded-full text-sm font-semibold">
                     Chowdhry
                   </div>
                 </div>
@@ -151,7 +169,7 @@ const Shop = () => {
                       <span className="text-sm text-gray-500 line-through">₹{product.originalPrice}</span>
                     )}
                   </div>
-                  <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors">
+                  <button className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] transition-colors">
                     Add To Cart
                   </button>
                 </div>
@@ -165,72 +183,7 @@ const Shop = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-pink-100 py-16 mt-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Logo */}
-            <div>
-              <div className="bg-red-600 text-white px-6 py-3 rounded-full inline-block mb-4">
-                <span className="font-bold">Chowdhry</span>
-              </div>
-              <p className="text-gray-600 text-sm mb-4">
-                Experience the delightful fusion of tradition and taste at Chowdhry Sweet House.
-              </p>
-              <p className="text-gray-600 text-sm mb-4">
-                Our handcrafted sweets, made with love and the finest ingredients, bring you a perfect blend of authentic flavors and fresh sweetness.
-              </p>
-              <p className="text-gray-600 text-sm">
-                Visit us to indulge in the finest sweets and create memorable moments.
-              </p>
-            </div>
 
-            {/* Information */}
-            <div>
-              <h4 className="font-bold text-gray-800 mb-4">Information</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="#" className="hover:text-red-600">Custom Service</Link></li>
-                <li><Link to="#" className="hover:text-red-600">FAQs</Link></li>
-                <li><Link to="#" className="hover:text-red-600">Ordering Tracking</Link></li>
-                <li><Link to="/contact" className="hover:text-red-600">Contacts</Link></li>
-                <li><Link to="/about" className="hover:text-red-600">About</Link></li>
-              </ul>
-            </div>
-
-            {/* My Account */}
-            <div>
-              <h4 className="font-bold text-gray-800 mb-4">My Account</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="#" className="hover:text-red-600">Privacy Policy</Link></li>
-                <li><Link to="#" className="hover:text-red-600">Terms & Condition</Link></li>
-                <li><Link to="#" className="hover:text-red-600">Refund Policy</Link></li>
-              </ul>
-            </div>
-
-            {/* Social */}
-            <div>
-              <h4 className="font-bold text-gray-800 mb-4">Our</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><i className="fab fa-facebook mr-2"></i>Facebook</li>
-                <li><i className="fab fa-dribbble mr-2"></i>Dribbble</li>
-                <li><i className="fab fa-twitter mr-2"></i>Twitter</li>
-                <li><i className="fab fa-behance mr-2"></i>Behance</li>
-                <li><i className="fab fa-youtube mr-2"></i>YouTube</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-300 mt-8 pt-8 text-center">
-            <div className="flex items-center justify-center mb-4">
-              <i className="fas fa-phone mr-2"></i>
-              <span className="font-bold">+91 7525025100</span>
-            </div>
-            <p className="text-sm text-gray-600">
-              Copyright 2025 <span className="font-bold">Chowdhry Sweet House</span>. All rights reserved. Powered by <span className="font-bold">Shine Infosolutions</span>.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
