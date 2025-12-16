@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useApi } from '../../context/ApiContext.jsx';
+import Breadcrumb from '../../components/Breadcrumb.jsx';
 
 const Shop = () => {
   const { fetchItems, fetchCategories, getItemsByCategory, searchItems, categories, items, loading } = useApi();
@@ -48,23 +49,7 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Breadcrumb */}
-      <div className="bg-gray-100 py-8 relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center text-sm mb-4">
-            <Link to="/" className="text-gray-600 hover:text-[#d80a4e]">Home</Link>
-            <span className="mx-2 text-gray-400">/</span>
-            <span className="text-gray-800">Shop</span>
-          </div>
-          <h1 className="text-4xl font-bold text-gray-800">Shop Now</h1>
-        </div>
-        <div className="absolute top-8 right-16 hidden lg:block">
-          <div className="bg-[#d80a4e] text-white px-8 py-4 rounded-full">
-            <span className="text-2xl font-bold">Chowdhry</span>
-            <div className="text-xs">Love at First Bite</div>
-          </div>
-        </div>
-      </div>
+      <Breadcrumb currentPage="Shop Now" />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
