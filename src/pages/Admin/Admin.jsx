@@ -42,26 +42,42 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+    <div className="min-h-screen bg-gray-100">
+      {/* Breadcrumb */}
+      <div className="bg-gray-100 py-8 relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center text-sm mb-4">
+            <span className="text-gray-800">Admin Dashboard</span>
+          </div>
+          <h1 className="text-4xl font-bold text-gray-800">Admin Panel</h1>
+        </div>
+        <div className="absolute top-8 right-16 hidden lg:block">
+          <div className="bg-[#d80a4e] text-white px-8 py-4 rounded-full">
+            <span className="text-2xl font-bold">Chowdhry</span>
+            <div className="text-xs">Admin</div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">Dashboard Overview</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-semibold text-gray-700">Total Orders</h3>
-            <p className="text-3xl font-bold text-blue-600">{stats.totalOrders || 0}</p>
+            <p className="text-3xl font-bold text-[#d80a4e]">{stats.totalOrders || 0}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-semibold text-gray-700">Products</h3>
-            <p className="text-3xl font-bold text-green-600">{stats.totalProducts || items.length}</p>
+            <p className="text-3xl font-bold text-[#d80a4e]">{stats.totalProducts || items.length}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-semibold text-gray-700">Categories</h3>
-            <p className="text-3xl font-bold text-purple-600">{stats.totalCategories || categories.length}</p>
+            <p className="text-3xl font-bold text-[#d80a4e]">{stats.totalCategories || categories.length}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-semibold text-gray-700">Revenue</h3>
-            <p className="text-3xl font-bold text-yellow-600">₹{stats.totalRevenue || 0}</p>
+            <p className="text-3xl font-bold text-[#d80a4e]">₹{stats.totalRevenue || 0}</p>
           </div>
         </div>
 
@@ -69,20 +85,20 @@ const Admin = () => {
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="space-y-2">
-              <button className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded">Add Product</button>
-              <button className="w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded">View Orders</button>
-              <button className="w-full text-left p-3 bg-purple-50 hover:bg-purple-100 rounded">Manage Users</button>
+              <button className="w-full text-left p-3 bg-pink-50 hover:bg-pink-100 rounded text-[#d80a4e]">Add Product</button>
+              <button className="w-full text-left p-3 bg-pink-50 hover:bg-pink-100 rounded text-[#d80a4e]">View Orders</button>
+              <button className="w-full text-left p-3 bg-pink-50 hover:bg-pink-100 rounded text-[#d80a4e]">Manage Users</button>
             </div>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
             <div className="space-y-3">
-              <div className="border-l-4 border-blue-500 pl-3">
+              <div className="border-l-4 border-[#d80a4e] pl-3">
                 <p className="text-sm text-gray-600">New order #1234</p>
                 <p className="text-xs text-gray-400">2 minutes ago</p>
               </div>
-              <div className="border-l-4 border-green-500 pl-3">
+              <div className="border-l-4 border-[#d80a4e] pl-3">
                 <p className="text-sm text-gray-600">Product added</p>
                 <p className="text-xs text-gray-400">1 hour ago</p>
               </div>
