@@ -6,28 +6,28 @@ const Header = () => {
   return (
     <header className="w-full bg-white sticky top-0 z-50 shadow-sm">
       {/* Top Announcement Bar */}
-      <div className="bg-[#d80a4e] text-white text-sm h-10 flex items-center">
-        <div className="max-w-7xl mx-auto w-full px-4 flex justify-between">
-          <span>About Us</span>
-          <span>Enjoy free shipping on orders INR 1000 & up.</span>
+      <div className="bg-[#d80a4e] text-white text-xs sm:text-sm h-8 sm:h-10 flex items-center">
+        <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 flex justify-between">
+          <span className="hidden sm:block">About Us</span>
+          <span className="text-center w-full sm:w-auto">Enjoy free shipping on orders INR 1000 & up.</span>
         </div>
       </div>
 
       {/* Main Header */}
       <div className="border-b">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
           
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img
               src="/src/assets/logo.png"
               alt="Chowdhry Sweet House"
-              className="h-20 object-contain"
+              className="h-12 sm:h-16 lg:h-20 object-contain"
             />
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden lg:flex gap-8 font-medium text-gray-800">
+          <nav className="hidden md:flex gap-4 lg:gap-8 font-medium text-gray-800 text-sm lg:text-base">
             <Link to="/" className="hover:text-[#d80a4e]">Home</Link>
             <Link to="/specials" className="hover:text-[#d80a4e]">Our Specials</Link>
             <Link to="/about" className="hover:text-[#d80a4e]">About</Link>
@@ -36,29 +36,29 @@ const Header = () => {
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 overflow-visible mr-2">
             
             {/* Cart */}
-            <Link to="/cart" className="relative">
+            <Link to="/cart" className="relative flex-shrink-0 z-20 p-2">
               <ShoppingCart className="w-6 h-6 text-gray-700" />
-              <span className="absolute -top-2 -right-2 bg-[#d80a4e] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+              <span className="absolute top-0 right-0 bg-[#d80a4e] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center z-30">
                 0
               </span>
             </Link>
 
             {/* User */}
-            <Link to="/account">
+            <Link to="/account" className="flex-shrink-0">
               <User className="w-6 h-6 text-gray-700" />
             </Link>
 
             {/* Search */}
-            <div className="relative hidden md:block">
+            <div className="relative hidden lg:block">
               <input
                 type="text"
                 placeholder="Search products..."
-                className="pl-10 pr-4 py-2 border rounded-md w-56 text-sm focus:outline-none"
+                className="pl-8 pr-3 py-1.5 lg:py-2 border rounded-md w-40 lg:w-56 text-xs lg:text-sm focus:outline-none"
               />
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-2 lg:left-3 top-1.5 lg:top-2.5 w-3 lg:w-4 h-3 lg:h-4 text-gray-400" />
             </div>
 
           </div>

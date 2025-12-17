@@ -12,17 +12,17 @@ import {
 const Footer = () => {
   return (
     <footer className="bg-[#f6efeb] text-gray-700">
-      <div className="max-w-7xl mx-auto px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
           
           {/* Logo & Description */}
           <div>
             <img
               src="/src/assets/logo.png"
               alt="Chowdhry"
-              className="w-48 mb-4"
+              className="w-32 sm:w-40 lg:w-48 mb-4"
             />
-            <p className="text-sm leading-relaxed max-w-xs">
+            <p className="text-xs sm:text-sm leading-relaxed max-w-xs">
               Experience the delightful fusion of tradition and taste at
               Chowdhry Sweet House. <br /><br />
               Our handcrafted sweets, made with love and the finest
@@ -36,7 +36,7 @@ const Footer = () => {
           {/* Information */}
           <div>
             <h4 className="font-semibold mb-4">Information</h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-xs sm:text-sm">
               <li><Link to="#">Custom Service</Link></li>
               <li><Link to="#">FAQs</Link></li>
               <li><Link to="#">Ordering Tracking</Link></li>
@@ -48,7 +48,7 @@ const Footer = () => {
           {/* My Account */}
           <div>
             <h4 className="font-semibold mb-4">My Account</h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-xs sm:text-sm">
               <li><Link to="#">Privacy Policy</Link></li>
               <li><Link to="#">Terms & Condition</Link></li>
               <li><Link to="#">Refund Policy</Link></li>
@@ -58,7 +58,7 @@ const Footer = () => {
           {/* Social */}
           <div>
             <h4 className="font-semibold mb-4">Our</h4>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-3 text-xs sm:text-sm">
               <li className="flex items-center gap-2"><FaFacebookF /> Facebook</li>
               <li className="flex items-center gap-2"><FaDribbble /> Dribbble</li>
               <li className="flex items-center gap-2"><FaTwitter /> Twitter</li>
@@ -69,13 +69,13 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-300 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center text-sm">
+        <div className="border-t border-gray-300 mt-8 sm:mt-12 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm gap-4">
           <div className="flex items-center gap-2 font-semibold">
             <FaPhoneAlt />
             <span>+91 7525025100</span>
           </div>
 
-          <p className="mt-4 md:mt-0 text-center">
+          <p className="text-center sm:text-left">
             Copyright 2025 <strong>Chowdhry Sweet House</strong>. All rights
             reserved. Powered by <strong>Shine Infosolutions</strong>.
           </p>
