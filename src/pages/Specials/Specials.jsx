@@ -40,10 +40,10 @@ const Specials = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       <Breadcrumb currentPage="Specials" />
       
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 overflow-x-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* Categories Sidebar */}
