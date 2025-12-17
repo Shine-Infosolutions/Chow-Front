@@ -1,89 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { useApi } from '../../context/ApiContext.jsx';
+import React, { useEffect, useState } from "react";
+import { ShoppingCart, Users, CheckCircle, DollarSign } from "lucide-react";
+import { useApi } from "../../context/ApiContext.jsx";
 
 const Dashboard = () => {
-  const { getDashboardStats, fetchItems, fetchCategories, getTickets, items, categories, loading } = useApi();
-  const [stats, setStats] = useState({
-    totalOrders: 0,
-    totalProducts: 0,
-    totalUsers: 0,
-    totalRevenue: 0,
-    totalCategories: 0,
-    totalSubcategories: 0
-  });
-  const [tickets, setTickets] = useState([]);
-
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        const dashboardStats = await getDashboardStats();
-        if (dashboardStats) {
-          setStats(dashboardStats);
-        }
-        await fetchItems();
-        await fetchCategories();
-        const ticketData = await getTickets();
-        setTickets(ticketData || []);
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
-      }
-    };
-    loadDashboardData();
-  }, []);
+  const { loading } = useApi();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Dashboard...</p>
-        </div>
+        <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-red-600" />
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* New Orders Card */}
-        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-xl text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="text-lg font-medium mb-2">New Orders</h3>
-            <p className="text-4xl font-bold">3,243</p>
+    <div className="p-6">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
+        
+        {/* New Orders */}
+        <div className="relative h-36 rounded-xl bg-gradient-to-r from-purple-700 to-pink-600 text-white shadow-lg overflow-hidden">
+          <div className="relative z-10 h-full flex items-center justify-between px-6">
+            <div>
+              <p className="text-sm font-medium opacity-90">New Orders</p>
+              <h2 className="text-3xl font-bold mt-2">3,243</h2>
+            </div>
           </div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+          <ShoppingCart className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 opacity-20" />
         </div>
 
-        {/* Customers Card */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-400 p-6 rounded-xl text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="text-lg font-medium mb-2">Customers</h3>
-            <p className="text-4xl font-bold">15.07k</p>
+        {/* Customers */}
+        <div className="relative h-36 rounded-xl bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-lg overflow-hidden">
+          <div className="relative z-10 h-full flex items-center justify-between px-6">
+            <div>
+              <p className="text-sm font-medium opacity-90">Customers</p>
+              <h2 className="text-3xl font-bold mt-2">15.07k</h2>
+            </div>
           </div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+          <Users className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 opacity-20" />
         </div>
 
-        {/* Ticket Resolved Card */}
-        <div className="bg-gradient-to-r from-green-500 to-emerald-400 p-6 rounded-xl text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="text-lg font-medium mb-2">Ticket Resolved</h3>
-            <p className="text-4xl font-bold">578</p>
+        {/* Ticket Resolved */}
+        <div className="relative h-36 rounded-xl bg-gradient-to-r from-emerald-700 to-green-400 text-white shadow-lg overflow-hidden">
+          <div className="relative z-10 h-full flex items-center justify-between px-6">
+            <div>
+              <p className="text-sm font-medium opacity-90">Ticket Resolved</p>
+              <h2 className="text-3xl font-bold mt-2">578</h2>
+            </div>
           </div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+          <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 opacity-20" />
         </div>
 
-        {/* Revenue Today Card */}
-        <div className="bg-gradient-to-r from-orange-500 to-yellow-400 p-6 rounded-xl text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="text-lg font-medium mb-2">Revenue Today</h3>
-            <p className="text-4xl font-bold">INR 11.61k</p>
+        {/* Revenue Today */}
+        <div className="relative h-36 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-400 text-white shadow-lg overflow-hidden">
+          <div className="relative z-10 h-full flex items-center justify-between px-6">
+            <div>
+              <p className="text-sm font-medium opacity-90">Revenue Today</p>
+              <h2 className="text-3xl font-bold mt-2">INR 11.61k</h2>
+            </div>
           </div>
-          <div className="absolute top-4 right-4 text-6xl opacity-20">₹</div>
+          <DollarSign className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 opacity-20" />
         </div>
+
       </div>
-
-
     </div>
   );
 };
