@@ -52,7 +52,7 @@ const Shop = () => {
       <Breadcrumb currentPage="Shop Now" />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-2 py-1">
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold">

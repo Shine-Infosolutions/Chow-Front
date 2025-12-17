@@ -23,7 +23,7 @@ const AppContent = () => {
   return (
     <div className="App">
       {!isAdminRoute && <Header />}
-      <div className="route-container">
+      <div className="route-container pt-[120px]">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />

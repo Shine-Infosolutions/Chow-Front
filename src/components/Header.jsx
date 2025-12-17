@@ -4,7 +4,7 @@ import { ShoppingCart, User, Search } from "lucide-react";
 
 const Header = () => {
   return (
-    <header className="w-full bg-white sticky top-0 z-50 shadow-sm">
+    <header className="w-full bg-white fixed top-0 left-0 right-0 z-[100] shadow-sm">
       {/* Top Announcement Bar */}
       <div className="bg-[#d80a4e] text-white text-xs sm:text-sm h-8 sm:h-10 flex items-center">
         <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 flex justify-between">
@@ -14,7 +14,7 @@ const Header = () => {
       </div>
 
       {/* Main Header */}
-      <div className="border-b">
+      <div className="">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
           
           {/* Logo */}
