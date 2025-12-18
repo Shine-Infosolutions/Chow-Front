@@ -26,6 +26,11 @@ import ProductDetail from './pages/ProductDetail/ProductDetail';
 const AppContent = () => {
   const location = useLocation();
 
+  // ✅ Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname]);
+
   // ✅ Detect admin routes
   const isAdminRoute = location.pathname.startsWith('/admin');
 
