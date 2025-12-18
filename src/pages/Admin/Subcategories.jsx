@@ -11,15 +11,24 @@ const Subcategories = () => {
     description: '',
     category: ''
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    await fetchCategories();
-    const subcats = await getAllSubcategories();
-    setSubcategories(subcats);
+    try {
+      await fetchCategories();
+      const subcats = await getAllSubcategories();
+      console.log('Loaded subcategories:', subcats);
+      // Ensure we always set an array
+      setSubcategories(Array.isArray(subcats) ? subcats : subcats?.subcategories || []);
+    } catch (error) {
+      console.error('Error loading subcategories data:', error);
+      setSubcategories([]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -58,6 +67,23 @@ const Subcategories = () => {
         console.error('Error deleting subcategory:', error);
       }
     }
+  };
+
+  // Pagination functions
+  const getTotalPages = () => Math.ceil((subcategories || []).length / itemsPerPage);
+  
+  const getCurrentPageItems = () => {
+    if (!Array.isArray(subcategories)) return [];
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return subcategories.slice(startIndex, endIndex);
+  };
+  
+  const getPageInfo = () => {
+    const length = (subcategories || []).length;
+    const startIndex = (currentPage - 1) * itemsPerPage + 1;
+    const endIndex = Math.min(currentPage * itemsPerPage, length);
+    return `${startIndex} – ${endIndex} of ${length}`;
   };
 
   const getCategoryName = (categoryRef) => {
@@ -180,42 +206,62 @@ const Subcategories = () => {
 
       {/* Subcategories Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {subcategories.map((subcategory) => (
-              <tr key={subcategory._id}>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{subcategory.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{getCategoryName(subcategory.category)}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{subcategory.description || 'No description'}</td>
-                <td className="px-6 py-4 text-sm space-x-2">
-                  <button
-                    onClick={() => handleEdit(subcategory)}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(subcategory._id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-[#d80a4e] text-white">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Name</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Category Name</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Description</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {getCurrentPageItems().map((subcategory, index) => (
+                <tr key={subcategory._id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{subcategory.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{getCategoryName(subcategory.category)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{subcategory.description || 'No description'}</td>
+                  <td className="px-6 py-4 text-sm">
+                    <button
+                      onClick={() => handleEdit(subcategory)}
+                      className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] text-xs font-medium"
+                    >
+                      Update / View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Pagination */}
+        <div className="bg-white px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+          <div className="flex items-center text-sm text-gray-700">
+            <span>Items per page: {itemsPerPage}</span>
+            <span className="ml-8">{getPageInfo()}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ◀
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages()))}
+              disabled={currentPage === getTotalPages()}
+              className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
       </div>
 
-      {subcategories.length === 0 && !loading && (
+      {(subcategories || []).length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-gray-500">No subcategories found. Add your first subcategory!</p>
         </div>

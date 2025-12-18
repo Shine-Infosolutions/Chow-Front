@@ -1,10 +1,23 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ShoppingCart, User, Search } from "lucide-react";
 import { useCart } from '../context/CartContext.jsx';
 
 const Header = () => {
   const { getCartItemsCount } = useCart();
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlSearch = params.get('search');
+    if (urlSearch) {
+      setSearchQuery(urlSearch);
+    } else {
+      setSearchQuery('');
+    }
+  }, [location.search]);
   
   return (
     <header className="w-full bg-white fixed top-0 left-0 right-0 z-[100] shadow-sm">
@@ -58,10 +71,22 @@ const Header = () => {
             <div className="relative hidden lg:block">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchQuery(value);
+                  if (!value.trim()) {
+                    navigate('/shop');
+                  }
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && searchQuery.trim() && navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)}
                 placeholder="Search products..."
                 className="pl-8 pr-3 py-1.5 lg:py-2 border rounded-md w-40 lg:w-56 text-xs lg:text-sm focus:outline-none"
               />
-              <Search className="absolute left-2 lg:left-3 top-1.5 lg:top-2.5 w-3 lg:w-4 h-3 lg:h-4 text-gray-400" />
+              <Search 
+                className="absolute left-2 lg:left-3 top-1.5 lg:top-2.5 w-3 lg:w-4 h-3 lg:h-4 text-gray-400 cursor-pointer" 
+                onClick={() => searchQuery.trim() && navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)}
+              />
             </div>
 
           </div>
