@@ -11,26 +11,56 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const categoryId = searchParams.get('category');
+  const urlSearchQuery = searchParams.get('search');
 
   useEffect(() => {
     const loadData = async () => {
-      await fetchCategories();
-      if (categoryId) {
+      if (categories.length === 0) {
+        await fetchCategories();
+      }
+      
+      if (urlSearchQuery) {
+        setSearchQuery(urlSearchQuery);
+        try {
+          const results = await searchItems(urlSearchQuery);
+          if (results && results.length > 0) {
+            setFilteredItems(results);
+          } else {
+            const allItems = items.length > 0 ? items : await fetchItems();
+            const localResults = allItems.filter(item => 
+              item.name.toLowerCase().includes(urlSearchQuery.toLowerCase())
+            );
+            setFilteredItems(localResults);
+          }
+        } catch (error) {
+          const allItems = items.length > 0 ? items : await fetchItems();
+          const localResults = allItems.filter(item => 
+            item.name.toLowerCase().includes(urlSearchQuery.toLowerCase())
+          );
+          setFilteredItems(localResults);
+        }
+        setActiveCategory('search');
+      } else {
+        setSearchQuery('');
+        if (categoryId) {
         const categoryItems = await getItemsByCategory(categoryId);
         setFilteredItems(categoryItems);
         setActiveCategory(categoryId);
-      } else {
-        const allItems = await fetchItems();
-        setFilteredItems(allItems);
+        } else {
+          const allItems = items.length > 0 ? items : await fetchItems();
+          setFilteredItems(allItems);
+          setActiveCategory('all');
+        }
       }
     };
     loadData();
-  }, [categoryId]);
+  }, [categoryId, urlSearchQuery]);
 
   const handleCategoryFilter = async (catId) => {
     setActiveCategory(catId);
     if (catId === 'all') {
-      setFilteredItems(items);
+      const allItems = items.length > 0 ? items : await fetchItems();
+      setFilteredItems(allItems);
     } else {
       const categoryItems = await getItemsByCategory(catId);
       setFilteredItems(categoryItems);
@@ -67,11 +97,35 @@ const Shop = () => {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={async (e) => {
+                const value = e.target.value;
+                setSearchQuery(value);
+                if (!value.trim()) {
+                  const allItems = items.length > 0 ? items : await fetchItems();
+                  setFilteredItems(allItems);
+                  setActiveCategory('all');
+                }
+              }}
               onKeyPress={async (e) => {
                 if (e.key === 'Enter' && searchQuery.trim()) {
-                  const results = await searchItems(searchQuery);
-                  setFilteredItems(results);
+                  try {
+                    const results = await searchItems(searchQuery);
+                    if (results && results.length > 0) {
+                      setFilteredItems(results);
+                    } else {
+                      const allItems = items.length > 0 ? items : await fetchItems();
+                      const localResults = allItems.filter(item => 
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                      );
+                      setFilteredItems(localResults);
+                    }
+                  } catch (error) {
+                    const allItems = items.length > 0 ? items : await fetchItems();
+                    const localResults = allItems.filter(item => 
+                      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                    setFilteredItems(localResults);
+                  }
                   setActiveCategory('search');
                 }
               }}
@@ -81,8 +135,24 @@ const Shop = () => {
             <button
               onClick={async () => {
                 if (searchQuery.trim()) {
-                  const results = await searchItems(searchQuery);
-                  setFilteredItems(results);
+                  try {
+                    const results = await searchItems(searchQuery);
+                    if (results && results.length > 0) {
+                      setFilteredItems(results);
+                    } else {
+                      const allItems = items.length > 0 ? items : await fetchItems();
+                      const localResults = allItems.filter(item => 
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                      );
+                      setFilteredItems(localResults);
+                    }
+                  } catch (error) {
+                    const allItems = items.length > 0 ? items : await fetchItems();
+                    const localResults = allItems.filter(item => 
+                      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                    setFilteredItems(localResults);
+                  }
                   setActiveCategory('search');
                 }
               }}

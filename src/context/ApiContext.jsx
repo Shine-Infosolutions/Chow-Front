@@ -173,17 +173,6 @@ export const ApiProvider = ({ children }) => {
       }
     },
     
-    // Search
-    searchItems: async (query) => {
-      try {
-        const data = await apiService.get(`/api/search/items?q=${encodeURIComponent(query)}`);
-        return data.items || data;
-      } catch (error) {
-        console.error('Error searching items:', error);
-        return [];
-      }
-    },
-    
     // Auth
     register: async (userData) => {
       try {

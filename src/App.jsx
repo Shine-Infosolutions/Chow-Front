@@ -5,6 +5,7 @@ import { CartProvider } from './context/CartContext.jsx';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+
 import Home from './pages/Home/Home';
 import Shop from './pages/Shop/Shop';
 import About from './pages/About/About';
@@ -22,12 +23,17 @@ import Admin from './pages/Admin/Admin';
 
 const AppContent = () => {
   const location = useLocation();
+
+  // ✅ Detect admin routes
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <div className="App">
+      {/* Header only for non-admin */}
       {!isAdminRoute && <Header />}
-      <div className="route-container pt-[120px]">
+
+      {/* ✅ Conditional padding */}
+      <div className={isAdminRoute ? 'route-container' : 'route-container pt-[120px]'}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
@@ -42,13 +48,20 @@ const AppContent = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/orders" element={<Orders />} />
-          <Route path="/admin" element={
-            <ProtectedRoute requireAdmin={true}>
-              <Admin />
-            </ProtectedRoute>
-          } />
+
+          {/* Admin Route */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
+
+      {/* Footer only for non-admin */}
       {!isAdminRoute && <Footer />}
     </div>
   );
@@ -56,7 +69,6 @@ const AppContent = () => {
 
 function App() {
   useEffect(() => {
-    // Preload critical resources
     document.body.style.visibility = 'visible';
   }, []);
 
