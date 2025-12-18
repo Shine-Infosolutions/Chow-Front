@@ -110,6 +110,7 @@ export const ApiProvider = ({ children }) => {
     
     // Categories
     fetchCategories: async () => {
+      if (categories.length > 0) return categories;
       setLoading(true);
       try {
         const data = await apiService.get('/api/categories/all');
@@ -134,6 +135,7 @@ export const ApiProvider = ({ children }) => {
     
     // Items
     fetchItems: async () => {
+      if (items.length > 0) return items;
       setLoading(true);
       try {
         const data = await apiService.get('/api/items/all');
@@ -419,15 +421,7 @@ export const ApiProvider = ({ children }) => {
       }
     },
     
-    getItemsBySubcategory: async (subcategoryId) => {
-      try {
-        const data = await apiService.get(`/api/items/subcategory/${subcategoryId}`);
-        return data.items || data;
-      } catch (error) {
-        console.error('Error fetching items by subcategory:', error);
-        return [];
-      }
-    },
+
     
     addItem: async (itemData) => {
       try {

@@ -11,17 +11,29 @@ const Home = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showVideo, setShowVideo] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
+    if (dataLoaded) {
+      setPageLoading(false);
+      return;
+    }
+    
     const load = async () => {
-      await fetchItems();
-      await fetchCategories();
-      setFeatured(await getFeaturedItems("popular"));
-      const subcats = await getSubcategories();
-      setSubcategories(Array.isArray(subcats) ? subcats : subcats?.subcategories || []);
+      const [itemsData, categoriesData, featuredData, subcatsData] = await Promise.all([
+        fetchItems(),
+        fetchCategories(),
+        getFeaturedItems("popular"),
+        getSubcategories()
+      ]);
+      setFeatured(featuredData);
+      setSubcategories(Array.isArray(subcatsData) ? subcatsData : subcatsData?.subcategories || []);
+      setDataLoaded(true);
+      setPageLoading(false);
     };
     load();
-  }, []);
+  }, [dataLoaded]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -38,16 +50,13 @@ const Home = () => {
     }
   }, [items, selectedCategory]);
 
-  if (loading) {
-    return (
-      <div className="h-[60vh] flex items-center justify-center">
-        <div className="animate-spin h-14 w-14 border-b-4 border-red-600 rounded-full" />
-      </div>
-    );
-  }
-
   return (
-    <main className="bg-black">
+    <main className="bg-black relative">
+      {(loading || pageLoading) && (
+        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+          <div className="animate-spin h-14 w-14 border-b-4 border-red-600 rounded-full" />
+        </div>
+      )}
 
       {/* ================= HERO ================= */}
       <section className="max-w-[1400px] mx-auto px-6 py-8">
@@ -91,7 +100,7 @@ const Home = () => {
           <div className="lg:col-span-7 relative rounded-lg overflow-hidden h-[420px]">
             <img
               src="/src/assets/ban1.jpg"
-              className="w-full h-full object-cover"
+              className="w-full h-[420px] object-cover"
             />
             <div className="absolute inset-0" />
             <div className="absolute inset-0 p-10 flex flex-col justify-center animate-fade-in">
@@ -154,9 +163,9 @@ const Home = () => {
     {/* Header */}
     <div className="flex justify-between items-end mb-10">
       <h2 className="text-4xl font-bold text-black">
-        {categories[0]?.name || "Popular"}{" "}
+        Popular{" "}
         <span className="text-[#d80a4e] underline underline-offset-4">
-          {categories[1]?.name || "Sweets"}
+          Sweets
         </span>
       </h2>
 
