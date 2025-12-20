@@ -24,7 +24,7 @@ const Header = () => {
   return (
     <header className="w-full bg-white fixed top-0 left-0 right-0 z-[100] shadow-sm">
       {/* Top Announcement Bar */}
-      <div className="bg-[#d80a4e] text-white text-xs sm:text-sm h-8 sm:h-10 flex items-center">
+      <div className="bg-[#d80a4e] text-white text-sm sm:text-base h-10 sm:h-12 flex items-center">
         <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 flex justify-between">
           <span className="hidden sm:block">About Us</span>
           <span className="text-center w-full sm:w-auto">Enjoy free shipping on orders INR 1000 & up.</span>
@@ -45,7 +45,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-4 lg:gap-8 font-medium text-gray-800 text-sm lg:text-base">
+          <nav className="hidden md:flex gap-4 lg:gap-8 font-medium text-gray-800 text-base lg:text-lg">
             <Link to="/" className="hover:text-[#d80a4e]">Home</Link>
             <Link to="/specials" className="hover:text-[#d80a4e]">Our Specials</Link>
             <Link to="/about" className="hover:text-[#d80a4e]">About</Link>
@@ -91,7 +91,7 @@ const Header = () => {
                 }}
                 onKeyPress={(e) => e.key === 'Enter' && searchQuery.trim() && navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)}
                 placeholder="Search products..."
-                className="pl-8 pr-3 py-1.5 lg:py-2 border rounded-md w-40 lg:w-56 text-xs lg:text-sm focus:outline-none"
+                className="pl-8 pr-3 py-1.5 lg:py-2 border rounded-md w-40 lg:w-56 text-sm lg:text-base focus:outline-none"
               />
               <Search 
                 className="absolute left-2 lg:left-3 top-1.5 lg:top-2.5 w-3 lg:w-4 h-3 lg:h-4 text-gray-400 cursor-pointer" 
@@ -106,7 +106,7 @@ const Header = () => {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t shadow-lg">
-          <nav className="px-4 py-4 space-y-3">
+          <nav className="px-4 py-4 space-y-3 text-base">
             <Link to="/" className="block py-2 hover:text-[#d80a4e]" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/specials" className="block py-2 hover:text-[#d80a4e]" onClick={() => setMobileMenuOpen(false)}>Our Specials</Link>
             <Link to="/about" className="block py-2 hover:text-[#d80a4e]" onClick={() => setMobileMenuOpen(false)}>About</Link>
@@ -127,7 +127,7 @@ const Header = () => {
                     }
                   }}
                   placeholder="Search products..."
-                  className="w-full pl-8 pr-3 py-2 border rounded-md text-sm focus:outline-none"
+                  className="w-full pl-8 pr-3 py-2 border rounded-md text-base focus:outline-none"
                 />
                 <Search 
                   className="absolute left-2 top-2.5 w-4 h-4 text-gray-400 cursor-pointer" 
