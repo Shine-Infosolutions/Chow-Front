@@ -23,7 +23,7 @@ const Footer = () => {
               alt="Chowdhry"
               className="w-32 sm:w-40 lg:w-48 mb-4"
             />
-            <p className="text-xs sm:text-sm leading-relaxed max-w-xs">
+            <p className="text-sm sm:text-base leading-relaxed max-w-xs">
               Experience the delightful fusion of tradition and taste at
               Chowdhry Sweet House. <br /><br />
               Our handcrafted sweets, made with love and the finest
@@ -36,8 +36,8 @@ const Footer = () => {
 
           {/* Information */}
           <div>
-            <h4 className="font-semibold mb-4">Information</h4>
-            <ul className="space-y-2 text-xs sm:text-sm">
+            <h4 className="font-semibold mb-4 text-lg">Information</h4>
+            <ul className="space-y-2 text-sm sm:text-base">
               <li><Link to="#">Custom Service</Link></li>
               <li><Link to="#">FAQs</Link></li>
               <li><Link to="#">Ordering Tracking</Link></li>
@@ -48,8 +48,8 @@ const Footer = () => {
 
           {/* My Account */}
           <div>
-            <h4 className="font-semibold mb-4">My Account</h4>
-            <ul className="space-y-2 text-xs sm:text-sm">
+            <h4 className="font-semibold mb-4 text-lg">My Account</h4>
+            <ul className="space-y-2 text-sm sm:text-base">
               <li><Link to="#">Privacy Policy</Link></li>
               <li><Link to="#">Terms & Condition</Link></li>
               <li><Link to="#">Refund Policy</Link></li>
@@ -58,8 +58,8 @@ const Footer = () => {
 
           {/* Social */}
           <div>
-            <h4 className="font-semibold mb-4">Our</h4>
-            <ul className="space-y-3 text-xs sm:text-sm">
+            <h4 className="font-semibold mb-4 text-lg">Our</h4>
+            <ul className="space-y-3 text-sm sm:text-base">
               <li className="flex items-center gap-2"><FaFacebookF /> Facebook</li>
               <li className="flex items-center gap-2"><FaDribbble /> Dribbble</li>
               <li className="flex items-center gap-2"><FaTwitter /> Twitter</li>
@@ -70,7 +70,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-300 mt-8 sm:mt-12 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm gap-4">
+        <div className="border-t border-gray-300 mt-8 sm:mt-12 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-between items-center text-sm sm:text-base gap-4">
           <div className="flex items-center gap-2 font-semibold">
             <FaPhoneAlt />
             <span>+91 7525025100</span>

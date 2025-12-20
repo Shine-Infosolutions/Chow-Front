@@ -68,7 +68,7 @@ const Home = () => {
 
           {/* CATEGORIES - Hidden on mobile */}
           <div className="hidden lg:block lg:col-span-2 bg-white rounded-lg p-4 h-fit">
-            <h4 className="font-semibold mb-3 text-[#d80a4e] flex items-center">
+            <h4 className="font-semibold mb-3 text-[#d80a4e] flex items-center text-lg">
               <FaFolder className="mr-2" /> Categories
             </h4>
             {subcategories.slice(0, 5).map((subcat, i) => {
@@ -77,24 +77,24 @@ const Home = () => {
                 <Link 
                   key={subcat._id} 
                   to={`/shop?subcategory=${subcat._id}`}
-                  className="flex items-center gap-2 text-sm py-2 px-2 hover:bg-pink-50 hover:text-[#d80a4e] transition-colors cursor-pointer rounded"
+                  className="flex items-center gap-2 text-base py-2 px-2 hover:bg-pink-50 hover:text-[#d80a4e] transition-colors cursor-pointer rounded"
                 >
-                  <span className="text-[#d80a4e] text-sm">{icons[i] || <FaFolder />}</span>
+                  <span className="text-[#d80a4e] text-base">{icons[i] || <FaFolder />}</span>
                   {subcat.name}
                 </Link>
               );
             })}
             
             <div className="mt-4 pt-3 border-t border-gray-200">
-              <div className="space-y-1 text-sm text-black font-bold">
+              <div className="space-y-1 text-base text-black font-bold">
                 <Link to="/specials?filter=value-of-day" className="flex items-center gap-2 py-1 hover:text-[#d80a4e] cursor-pointer">
-                  <FaTags className="text-[#d80a4e] text-xs" />Value of the Day
+                  <FaTags className="text-[#d80a4e] text-sm" />Value of the Day
                 </Link>
                 <Link to="/specials?filter=top-100" className="flex items-center gap-2 py-1 hover:text-[#d80a4e] cursor-pointer">
-                  <FaCrown className="text-[#d80a4e] text-xs" />Top 100 Offers
+                  <FaCrown className="text-[#d80a4e] text-sm" />Top 100 Offers
                 </Link>
                 <Link to="/specials?filter=new-arrival" className="flex items-center gap-2 py-1 hover:text-[#d80a4e] cursor-pointer">
-                  <FaMagic className="text-[#d80a4e] text-xs" />New Arrival
+                  <FaMagic className="text-[#d80a4e] text-sm" />New Arrival
                 </Link>
               </div>
             </div>
@@ -108,14 +108,14 @@ const Home = () => {
             />
             <div className="absolute inset-0" />
             <div className="absolute inset-0 p-4 sm:p-6 lg:p-10 flex flex-col justify-center animate-fade-in">
-              <p className="text-pink-500 mb-2 text-sm sm:text-base animate-fade-in-delay-1">Deliciously Crafted Treats</p>
-              <h1 className="text-white text-xl sm:text-2xl lg:text-4xl font-bold animate-fade-in-delay-2">
+              <p className="text-pink-500 mb-2 text-base sm:text-lg animate-fade-in-delay-1">Deliciously Crafted Treats</p>
+              <h1 className="text-white text-2xl sm:text-3xl lg:text-5xl font-bold animate-fade-in-delay-2">
                 Premium Sweets <br />
                 <span className="text-pink-500">& Exquisite</span> Flavors.
               </h1>
               <Link
                 to="/shop"
-                className="mt-4 sm:mt-6 bg-white text-black px-4 sm:px-6 py-2 sm:py-3 w-fit rounded text-sm sm:text-base animate-fade-in-delay-3 hover:bg-gray-100 transition-colors"
+                className="mt-4 sm:mt-6 bg-white text-black px-4 sm:px-6 py-2 sm:py-3 w-fit rounded text-base sm:text-lg animate-fade-in-delay-3 hover:bg-gray-100 transition-colors"
               >
                 Shop Now →
               </Link>
@@ -127,13 +127,13 @@ const Home = () => {
             <div className="relative rounded-lg overflow-hidden flex-1 h-[120px] sm:h-[150px] lg:h-auto">
               <img src={compressedcard1} className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-white text-xs sm:text-sm font-medium text-center px-2 sm:px-4">Freshly Sweet Made, Every Day...</p>
+                <p className="text-white text-sm sm:text-base font-medium text-center px-2 sm:px-4">Freshly Sweet Made, Every Day...</p>
               </div>
             </div>
             <div className="relative rounded-lg overflow-hidden flex-1 h-[120px] sm:h-[150px] lg:h-auto">
               <img src={compressedcard2} className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-white text-xs sm:text-sm font-medium text-center px-2 sm:px-4">Freshly Sweet Made, Every Day...</p>
+                <p className="text-white text-sm sm:text-base font-medium text-center px-2 sm:px-4">Freshly Sweet Made, Every Day...</p>
               </div>
             </div>        
             </div>
@@ -151,10 +151,10 @@ const Home = () => {
           ].map((f, i) => (
             <div key={i} className="border border-gray-700 p-3 sm:p-4 rounded-lg">
               <div className="flex items-center gap-1 mb-1">
-                <div className="text-[#d80a4e] text-lg sm:text-xl">{f[0]}</div>
-                <h4 className="font-semibold text-sm sm:text-base">{f[1]}</h4>
+                <div className="text-[#d80a4e] text-xl sm:text-2xl">{f[0]}</div>
+                <h4 className="font-semibold text-base sm:text-lg">{f[1]}</h4>
               </div>
-              <p className="text-xs sm:text-sm text-gray-400">{f[2]}</p>
+              <p className="text-sm sm:text-base text-gray-400">{f[2]}</p>
             </div>
           ))}
         </div>
@@ -173,7 +173,7 @@ const Home = () => {
         </span>
       </h2>
 
-      <div className="flex flex-wrap gap-4 md:gap-10 text-sm md:text-[15px] font-medium">
+      <div className="flex flex-wrap gap-4 md:gap-10 text-base md:text-lg font-medium">
         <button
           onClick={() => setSelectedCategory(null)}
           className={`${!selectedCategory ? 'text-[#d80a4e] underline underline-offset-4' : 'text-black hover:text-[#d80a4e]'} whitespace-nowrap`}
