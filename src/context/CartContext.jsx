@@ -41,7 +41,14 @@ export const CartProvider = ({ children }) => {
         setCartItems([]);
       }
     } else {
-      setCartItems([]);
+      // For guest users, load from generic cart key
+      try {
+        const savedCart = localStorage.getItem('guest_cart');
+        setCartItems(savedCart ? JSON.parse(savedCart) : []);
+      } catch (error) {
+        console.error('Error loading guest cart from localStorage:', error);
+        setCartItems([]);
+      }
     }
   }, [currentUserId]);
 
@@ -52,6 +59,13 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem(`cart_${currentUserId}`, JSON.stringify(cartItems));
       } catch (error) {
         console.error('Error saving cart to localStorage:', error);
+      }
+    } else {
+      // For guest users, save to generic cart key
+      try {
+        localStorage.setItem('guest_cart', JSON.stringify(cartItems));
+      } catch (error) {
+        console.error('Error saving guest cart to localStorage:', error);
       }
     }
   }, [cartItems, currentUserId]);
@@ -105,6 +119,8 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
     if (currentUserId) {
       localStorage.removeItem(`cart_${currentUserId}`);
+    } else {
+      localStorage.removeItem('guest_cart');
     }
     showNotification('Cart cleared!');
   };
@@ -113,6 +129,22 @@ export const CartProvider = ({ children }) => {
     if (currentUserId) {
       localStorage.removeItem(`cart_${currentUserId}`);
       setCartItems([]);
+    }
+  };
+
+  const transferGuestCartToUser = (userId) => {
+    try {
+      const guestCart = localStorage.getItem('guest_cart');
+      if (guestCart && userId) {
+        const guestItems = JSON.parse(guestCart);
+        if (guestItems.length > 0) {
+          localStorage.setItem(`cart_${userId}`, guestCart);
+          localStorage.removeItem('guest_cart');
+          setCartItems(guestItems);
+        }
+      }
+    } catch (error) {
+      console.error('Error transferring guest cart:', error);
     }
   };
 
@@ -131,6 +163,7 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     clearCart,
     clearUserCart,
+    transferGuestCartToUser,
     getCartTotal,
     getCartItemsCount
   };
