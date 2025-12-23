@@ -204,7 +204,7 @@ const Specials = () => {
             <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-4 mb-4">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-                  Products ({filteredProducts.length})
+                  Products
                 </h2>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <input
