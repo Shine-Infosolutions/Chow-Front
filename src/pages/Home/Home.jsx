@@ -244,18 +244,19 @@ const Home = () => {
             {categoryItems.map(product => (
               <div
                 key={product._id}
-                className="min-w-[220px] sm:min-w-[260px] lg:min-w-[300px]"
+                className="min-w-full sm:min-w-[260px] lg:min-w-[300px] flex-shrink-0"
               >
                 <ProductCard product={product} />
               </div>
             ))}
           </div>
-          {categoryItems.length > 3 && (
+          {categoryItems.length > 1 && (
             <>
               <button
                 onClick={() => {
                   const container = document.getElementById(`products-${category._id}`);
-                  container.scrollBy({ left: -300, behavior: 'smooth' });
+                  const itemWidth = container.querySelector('div').offsetWidth + 16; // +16 for gap
+                  container.scrollBy({ left: -itemWidth, behavior: 'smooth' });
                 }}
                 className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-600 text-xl p-2 rounded-full shadow-md z-10"
               >
@@ -264,7 +265,8 @@ const Home = () => {
               <button
                 onClick={() => {
                   const container = document.getElementById(`products-${category._id}`);
-                  container.scrollBy({ left: 300, behavior: 'smooth' });
+                  const itemWidth = container.querySelector('div').offsetWidth + 16; // +16 for gap
+                  container.scrollBy({ left: itemWidth, behavior: 'smooth' });
                 }}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-600 text-xl p-2 rounded-full shadow-md z-10"
               >
