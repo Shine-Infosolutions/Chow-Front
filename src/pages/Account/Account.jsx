@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApi } from '../../context/ApiContext.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
+import amavatBarfi from '../../assets/Amavat Barfi (1).jpg';
 
 const Account = () => {
   const { register, login } = useApi();
@@ -194,7 +195,7 @@ const Account = () => {
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-1/2 hidden md:block">
                   <img 
-                    src="/assets/img/product/home-one/product-1.jpg" 
+                    src={amavatBarfi}
                     alt="Sweet Box"
                     className="w-full h-full object-cover"
                   />
