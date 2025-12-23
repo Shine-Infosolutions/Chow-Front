@@ -126,60 +126,60 @@ const AdminOrders = () => {
             <table className="min-w-[1400px] w-full">
               <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
                 <tr>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[100px]">Order ID</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[150px]">Customer</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[200px]">Address</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[300px]">Items</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[80px]">Subtotal</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[80px]">Tax (5%)</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[80px]">Delivery</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[80px]">Total</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[100px]">Order Status</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[100px]">Payment Status</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[100px]">Order Date</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[60px]">Distance</th>
-                  <th className="px-2 py-3 text-left text-xs font-semibold uppercase min-w-[150px]">Actions</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[100px]">Order ID</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[150px]">Customer</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[200px]">Address</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[300px]">Items</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Subtotal</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Tax (5%)</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Delivery</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Total</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[100px]">Order Status</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[100px]">Payment Status</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[100px]">Order Date</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[60px]">Distance</th>
+                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[150px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {orders.map((order, index) => (
                   <tr key={order.orderId} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50`}>
-                    <td className="px-2 py-2 text-xs font-medium text-gray-900">
+                    <td className="px-2 py-2 text-sm font-medium text-gray-900">
                       #{order.orderId?.slice(-8)}
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       <div className="font-medium">{order.customerName}</div>
                       <div className="text-xs text-gray-500">{order.customerEmail}</div>
                       <div className="text-xs text-gray-500">{order.customerPhone}</div>
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       <div className="max-w-[200px] truncate" title={order.deliveryAddress}>
                         {order.deliveryAddress || 'N/A'}
                       </div>
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       <div className="max-w-[300px] truncate" title={order.itemsString}>
                         {order.itemsString}
                       </div>
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       ₹{order.subtotal || 0}
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       ₹{order.tax || 0}
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       ₹{order.deliveryCharge || 0}
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700 font-semibold">
+                    <td className="px-2 py-2 text-sm text-gray-700 font-semibold">
                       ₹{order.totalAmount || 0}
                     </td>
-                    <td className="px-2 py-2 text-xs">
+                    <td className="px-2 py-2 text-sm">
                       <span className={`px-2 py-1 rounded-full text-white text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
                         {order.orderStatus?.charAt(0).toUpperCase() + order.orderStatus?.slice(1)}
                       </span>
                     </td>
-                    <td className="px-2 py-2 text-xs">
+                    <td className="px-2 py-2 text-sm">
                       <span className={`px-2 py-1 rounded-full text-white text-xs font-medium ${
                         order.paymentStatus === 'paid' ? 'bg-green-500' : 
                         order.paymentStatus === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
@@ -187,13 +187,13 @@ const AdminOrders = () => {
                         {order.paymentStatus?.charAt(0).toUpperCase() + order.paymentStatus?.slice(1)}
                       </span>
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       {new Date(order.orderDate).toLocaleDateString()}
                     </td>
-                    <td className="px-2 py-2 text-xs text-gray-700">
+                    <td className="px-2 py-2 text-sm text-gray-700">
                       {order.distance || 0} km
                     </td>
-                    <td className="px-2 py-2 text-xs">
+                    <td className="px-2 py-2 text-sm">
                       <div className="flex flex-col gap-1">
                         {order.paymentStatus === 'pending' && (
                           <button
