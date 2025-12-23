@@ -635,7 +635,7 @@ const Products = () => {
       <div className="flex-1 min-h-0 mx-4 mb-4">
         <div className="bg-white rounded-lg shadow h-full flex flex-col">
           <div className="flex-1 min-h-0 overflow-auto">
-            <table className="w-full text-xs" style={{minWidth: '600px'}}>
+            <table className="w-full text-sm" style={{minWidth: '600px'}}>
               <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
                 <tr>
                   <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '25%', minWidth: '100px'}}>Name</th>
@@ -671,7 +671,7 @@ const Products = () => {
                     <td className="px-2 py-3">
                       <button
                         onClick={() => handleEdit(product)}
-                        className="bg-[#d80a4e] text-white px-3 py-1 rounded text-xs hover:bg-[#b8083e]"
+                        className="bg-[#d80a4e] text-white px-3 py-1 rounded text-sm hover:bg-[#b8083e]"
                       >
                         Edit
                       </button>
