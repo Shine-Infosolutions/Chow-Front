@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApi } from '../../context/ApiContext.jsx';
+import { useCart } from '../../context/CartContext.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
 import amavatBarfi from '../../assets/Amavat Barfi (1).jpg';
 
 const Account = () => {
   const { register, login } = useApi();
+  const { transferGuestCartToUser } = useCart();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(false);
   const [user, setUser] = useState(null);
@@ -50,6 +52,8 @@ const Account = () => {
           if (response.user) {
             localStorage.setItem('user', JSON.stringify(response.user));
             setUser(response.user);
+            // Transfer guest cart to logged-in user
+            transferGuestCartToUser(response.user.id || response.user._id);
           }
           setIsLoggedIn(true);
           setSuccess('Login successful!');
