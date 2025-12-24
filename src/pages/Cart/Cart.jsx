@@ -80,7 +80,7 @@ const Cart = () => {
                         />
                         <div className="flex-1">
                           <h3 className="font-medium text-gray-800 mb-1">{item.name}</h3>
-                          <p className="text-sm text-gray-600 mb-2">₹{item.price}</p>
+                          <p className="text-sm text-gray-600 mb-2">₹{item.discountPrice}</p>
                           <div className="flex items-center justify-between">
                             <div className="flex border rounded">
                               <button
@@ -98,7 +98,7 @@ const Cart = () => {
                               </button>
                             </div>
                             <div className="text-right">
-                              <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="font-medium">₹{(item.discountPrice * item.quantity).toFixed(2)}</p>
                               <button
                                 onClick={() => removeFromCart(item._id)}
                                 className="text-red-500 hover:text-red-700 text-sm mt-1"
@@ -128,7 +128,7 @@ const Cart = () => {
                       </div>
 
                       {/* UNIT PRICE */}
-                      <div>₹{item.price}</div>
+                      <div>₹{item.discountPrice}</div>
 
                       {/* QUANTITY */}
                       <div className="col-span-2 flex justify-center">
@@ -157,7 +157,7 @@ const Cart = () => {
 
                       {/* TOTAL */}
                       <div>
-                        ₹{(item.price * item.quantity).toFixed(2)}
+                        ₹{(item.discountPrice * item.quantity).toFixed(2)}
                       </div>
 
                       {/* REMOVE */}
