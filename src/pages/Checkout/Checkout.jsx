@@ -264,7 +264,7 @@ const Checkout = () => {
               items: cartItems.map(item => ({
                 itemId: item._id,
                 quantity: item.quantity,
-                price: item.price
+                price: item.discountPrice
               })),
               totalAmount: totalAmount,
               distance: distance,
@@ -302,7 +302,7 @@ const Checkout = () => {
             items: cartItems.map(item => ({
               itemId: item._id,
               quantity: item.quantity,
-              price: item.price
+              price: item.discountPrice
             })),
             totalAmount: totalAmount,
             distance: distance,
@@ -339,7 +339,7 @@ const Checkout = () => {
           items: cartItems.map(item => ({
             itemId: item._id,
             quantity: item.quantity,
-            price: item.price
+            price: item.discountPrice
           })),
           totalAmount: getCartTotal() * 1.05 + deliveryFee,
           distance: distance,
@@ -601,7 +601,7 @@ const Checkout = () => {
                   <div key={item._id} className="grid grid-cols-3 gap-4 text-sm">
                     <span>{item.name}</span>
                     <span>{item.quantity}</span>
-                    <span>INR {(item.price * item.quantity).toFixed(2)}</span>
+                    <span>INR {(item.discountPrice * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>

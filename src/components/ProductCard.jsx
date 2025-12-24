@@ -36,7 +36,7 @@ const ProductCard = ({ product, showSpecialTag = false }) => {
             </h4>
           </Link>
           <span className="block text-lg font-semibold text-black mb-1">
-            ₹{product.price}
+            ₹{product.discountPrice}
           </span>
         </div>
 
