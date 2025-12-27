@@ -167,16 +167,16 @@ const AdminOrders = () => {
                       </div>
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{order.subtotal || 0}
+                      ₹{(order.subtotal || ((order.totalAmount / 100 - (order.deliveryCharge || 0)) / 1.05)).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{order.tax || 0}
+                      ₹{(order.tax || ((order.subtotal || ((order.totalAmount / 100 - (order.deliveryCharge || 0)) / 1.05)) * 0.05)).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{order.deliveryCharge || 0}
+                      ₹{(order.deliveryCharge || 0).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700 font-semibold">
-                      ₹{order.totalAmount || 0}
+                      ₹{(order.totalAmount / 100).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm">
                       <span className={`px-2 py-1 rounded-full text-white text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
@@ -298,170 +298,72 @@ const AdminOrders = () => {
             </div>
             
             <div className="space-y-6">
-              {/* Order Summary */}
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="text-lg font-semibold text-blue-900 mb-3">Order Summary</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="font-medium text-blue-700">Order ID:</span>
-                    <div className="break-all text-blue-900">#{selectedOrder.orderId}</div>
+              {/* Complete Order Data Table */}
+              <div className="bg-gradient-to-r from-slate-100 to-slate-200 p-6 rounded-xl border border-slate-300 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">📋</span>
                   </div>
-                  <div>
-                    <span className="font-medium text-blue-700">Customer:</span>
-                    <div className="text-blue-900">{selectedOrder.customerName}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-blue-700">Total Amount:</span>
-                    <div className="text-blue-900 font-bold text-lg">₹{selectedOrder.totalAmount}</div>
-                  </div>
+                  <h4 className="text-xl font-bold text-slate-800">Complete Order Data</h4>
                 </div>
-              </div>
-
-              {/* Payment Status */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Payment Status</h4>
-                <div className="flex items-center gap-4">
-                  <span className={`px-4 py-2 rounded-full text-white text-lg font-medium ${
-                    selectedOrder.paymentStatus === 'paid' ? 'bg-green-500' : 
-                    selectedOrder.paymentStatus === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
-                  }`}>
-                    {selectedOrder.paymentStatus?.charAt(0).toUpperCase() + selectedOrder.paymentStatus?.slice(1)}
-                  </span>
-                  <div className="text-sm text-gray-600">
-                    Last updated: {new Date(selectedOrder.orderDate).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-              
-              {/* Razorpay Transaction Details */}
-              <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Razorpay Transaction Details</h4>
-                <div className="space-y-4">
-                  {(selectedOrder.razorpayTransactions || selectedOrder.razorpayData) && (selectedOrder.razorpayTransactions || selectedOrder.razorpayData).length > 0 ? (
-                    (selectedOrder.razorpayTransactions || selectedOrder.razorpayData).map((transaction, idx) => (
-                      <div key={idx} className="border border-gray-200 rounded-lg p-5 bg-white shadow-sm">
-                        <div className="flex justify-between items-center mb-4">
-                          <h5 className="text-md font-semibold text-gray-800">Transaction #{idx + 1}</h5>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            transaction.paymentId ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {transaction.status === 'paid' || transaction.paymentId ? 'Completed' : 'Pending'}
-                          </span>
-                        </div>
+                <div className="bg-white rounded-lg border border-slate-300 overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-slate-600 text-white">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-semibold">Field</th>
+                        <th className="px-4 py-3 text-left font-semibold">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {Object.entries(selectedOrder).filter(([key]) => key !== 'razorpayData').map(([key, value], index) => {
+                        const formatValue = (val) => {
+                          if (val === null || val === undefined) return 'N/A';
+                          if (typeof val === 'object') {
+                            if (Array.isArray(val)) return `${val.length} items`;
+                            return JSON.stringify(val, null, 2);
+                          }
+                          if (key.includes('At') || key.includes('date') || key.includes('Date')) {
+                            try {
+                              return new Date(val).toLocaleString('en-IN');
+                            } catch { return String(val); }
+                          }
+                          if ((key.includes('amount') || key.includes('Amount') || key.includes('price') || key.includes('Price') || key.includes('fee') || key.includes('Fee') || key.includes('Charge')) && typeof val === 'number') {
+                            if (key === 'paymentAmount') {
+                              return `₹${val.toFixed(2)}`;
+                            }
+                            if (key === 'totalAmount') {
+                              return `₹${(val / 100).toFixed(2)}`;
+                            }
+                            if (key === 'deliveryFee' || key === 'deliveryCharge') {
+                              return `₹${val.toFixed(2)}`;
+                            }
+                            return val;
+                          }
+                          return String(val);
+                        };
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                          <div className="bg-gray-50 p-3 rounded">
-                            <span className="font-medium text-gray-600">Razorpay Order ID:</span>
-                            <div className="break-all text-gray-900 mt-1 font-mono text-xs">{transaction.orderId || 'N/A'}</div>
-                          </div>
-                          <div className="bg-gray-50 p-3 rounded">
-                            <span className="font-medium text-gray-600">Payment ID:</span>
-                            <div className="break-all text-gray-900 mt-1 font-mono text-xs">{transaction.paymentId || 'Not Generated'}</div>
-                          </div>
-                          <div className="bg-gray-50 p-3 rounded">
-                            <span className="font-medium text-gray-600">Payment Method:</span>
-                            <div className="text-gray-900 mt-1 capitalize">{transaction.method || 'N/A'}</div>
-                          </div>
-                          <div className="bg-gray-50 p-3 rounded">
-                            <span className="font-medium text-gray-600">Bank/Wallet:</span>
-                            <div className="text-gray-900 mt-1 capitalize">{transaction.bank || 'N/A'}</div>
-                          </div>
-                          <div className="bg-green-50 p-3 rounded">
-                            <span className="font-medium text-green-600">Amount Paid:</span>
-                            <div className="text-green-900 mt-1 font-bold">₹{transaction.amount ? (transaction.amount / 100).toFixed(2) : '0.00'}</div>
-                          </div>
-                          <div className="bg-red-50 p-3 rounded">
-                            <span className="font-medium text-red-600">Gateway Fee:</span>
-                            <div className="text-red-900 mt-1">₹{transaction.fee ? (transaction.fee / 100).toFixed(2) : '0.00'}</div>
-                          </div>
-                          <div className="bg-yellow-50 p-3 rounded">
-                            <span className="font-medium text-yellow-600">Gateway Tax:</span>
-                            <div className="text-yellow-900 mt-1">₹{transaction.tax ? (transaction.tax / 100).toFixed(2) : '0.00'}</div>
-                          </div>
-                          <div className="bg-blue-50 p-3 rounded">
-                            <span className="font-medium text-blue-600">Transaction Date:</span>
-                            <div className="text-blue-900 mt-1">{transaction.createdAt ? new Date(transaction.createdAt).toLocaleString('en-IN', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit'
-                            }) : 'N/A'}</div>
-                          </div>
-                          <div className="bg-purple-50 p-3 rounded">
-                            <span className="font-medium text-purple-600">Payment Status:</span>
-                            <div className="text-purple-900 mt-1 capitalize">{transaction.status || 'Processing'}</div>
-                          </div>
-                          <div className="bg-indigo-50 p-3 rounded">
-                            <span className="font-medium text-indigo-600">Currency:</span>
-                            <div className="text-indigo-900 mt-1">{transaction.currency || 'INR'}</div>
-                          </div>
-                        </div>
+                        const getRowColor = (idx) => idx % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+                        const getValueColor = (fieldKey, val) => {
+                          if (val === null || val === undefined) return 'text-gray-400';
+                          if (fieldKey.includes('status') || fieldKey.includes('Status')) return 'text-purple-700 font-semibold';
+                          if (fieldKey.includes('amount') || fieldKey.includes('Amount') || fieldKey.includes('price') || fieldKey.includes('Price')) return 'text-green-700 font-semibold';
+                          if (fieldKey.includes('id') || fieldKey.includes('Id') || fieldKey.includes('ID')) return 'text-blue-600 font-mono text-sm';
+                          return 'text-gray-800';
+                        };
                         
-                        {/* Payment Signature */}
-                        {transaction.signature && (
-                          <div className="mt-4 bg-gray-50 p-3 rounded">
-                            <span className="font-medium text-gray-600">Payment Signature:</span>
-                            <div className="break-all text-xs font-mono text-gray-700 mt-2 bg-white p-2 rounded border">
-                              {transaction.signature}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Additional Transaction Info */}
-                        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                          {transaction.receipt && (
-                            <div>
-                              <span className="font-medium text-gray-600">Receipt:</span>
-                              <span className="ml-2 text-gray-900 font-mono text-xs">{transaction.receipt}</span>
-                            </div>
-                          )}
-                          {transaction.notes && Object.keys(transaction.notes).length > 0 && (
-                            <div className="col-span-2">
-                              <span className="font-medium text-gray-600">Notes:</span>
-                              <div className="mt-1 text-gray-900">
-                                {Object.entries(transaction.notes).map(([key, value]) => (
-                                  <div key={key} className="text-xs">
-                                    <span className="font-medium">{key}:</span> {value}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-8 bg-gray-50 rounded-lg text-center">
-                      <div className="text-gray-400 text-4xl mb-4">💳</div>
-                      <div className="text-gray-500 text-lg">No payment transaction details available</div>
-                      <div className="text-gray-400 text-sm mt-2">Payment may be pending or failed</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* Order Financial Breakdown */}
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h4 className="text-lg font-semibold text-green-900 mb-3">Financial Breakdown</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-green-700">Subtotal:</span>
-                    <div className="text-green-900 font-semibold">₹{selectedOrder.subtotal || 0}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-green-700">Tax (5%):</span>
-                    <div className="text-green-900 font-semibold">₹{selectedOrder.tax || 0}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-green-700">Delivery:</span>
-                    <div className="text-green-900 font-semibold">₹{selectedOrder.deliveryCharge || 0}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-green-700">Total:</span>
-                    <div className="text-green-900 font-bold text-lg">₹{selectedOrder.totalAmount || 0}</div>
-                  </div>
+                        return (
+                          <tr key={key} className={getRowColor(index)}>
+                            <td className="px-4 py-3 font-medium text-slate-700 capitalize">
+                              {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
+                            </td>
+                            <td className={`px-4 py-3 ${getValueColor(key, value)} max-w-xs truncate`} title={formatValue(value)}>
+                              {formatValue(value)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -601,19 +503,19 @@ const AdminOrders = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center py-2 border-b border-purple-200">
                     <span className="font-medium text-purple-700">Subtotal:</span>
-                    <span className="text-purple-900 font-semibold">₹{selectedOrder.subtotal || 0}</span>
+                    <span className="text-purple-900 font-semibold">₹{(selectedOrder.subtotal || ((selectedOrder.totalAmount / 100 - (selectedOrder.deliveryCharge || 0)) / 1.05)).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-purple-200">
                     <span className="font-medium text-purple-700">Tax (5%):</span>
-                    <span className="text-purple-900 font-semibold">₹{selectedOrder.tax || 0}</span>
+                    <span className="text-purple-900 font-semibold">₹{(selectedOrder.tax || ((selectedOrder.subtotal || ((selectedOrder.totalAmount / 100 - (selectedOrder.deliveryCharge || 0)) / 1.05)) * 0.05)).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-purple-200">
                     <span className="font-medium text-purple-700">Delivery Charge:</span>
-                    <span className="text-purple-900 font-semibold">₹{selectedOrder.deliveryCharge || 0}</span>
+                    <span className="text-purple-900 font-semibold">₹{(selectedOrder.deliveryCharge || 0)}</span>
                   </div>
                   <div className="flex justify-between items-center py-3 bg-purple-100 rounded px-3">
                     <span className="font-bold text-purple-800 text-lg">Total Amount:</span>
-                    <span className="text-purple-900 font-bold text-xl">₹{selectedOrder.totalAmount || 0}</span>
+                    <span className="text-purple-900 font-bold text-xl">₹{(selectedOrder.totalAmount / 100).toFixed(2)}</span>
                   </div>
                 </div>
               </div>

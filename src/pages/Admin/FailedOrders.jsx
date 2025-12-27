@@ -30,15 +30,13 @@ const FailedOrders = () => {
     }
   };
 
-
-
   const handleCleanFailedOrders = async () => {
     if (window.confirm('Are you sure you want to delete all failed orders? This action cannot be undone.')) {
       try {
         const response = await cleanFailedOrders();
         if (response.success) {
           alert(response.message);
-          loadFailedOrders(); // Refresh list
+          loadFailedOrders();
         }
       } catch (error) {
         console.error('Error cleaning failed orders:', error);
@@ -121,16 +119,16 @@ const FailedOrders = () => {
                       </div>
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{order.subtotal || 0}
+                      ₹{((order.totalAmount / 100 - (order.deliveryCharge || 0)) / 1.05).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{order.tax || 0}
+                      ₹{(((order.totalAmount / 100 - (order.deliveryCharge || 0)) / 1.05) * 0.05).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{order.deliveryCharge || 0}
+                      ₹{(order.deliveryCharge || 0).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm text-gray-700 font-semibold">
-                      ₹{order.totalAmount || 0}
+                      ₹{(order.totalAmount / 100).toFixed(2)}
                     </td>
                     <td className="px-2 py-2 text-sm">
                       <span className="px-2 py-1 rounded-full text-white text-xs font-medium bg-red-600">
@@ -164,7 +162,6 @@ const FailedOrders = () => {
         </div>
       )}
       
-      {/* Pagination */}
       <div className="bg-white rounded-lg shadow mt-4">
         <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
@@ -193,7 +190,6 @@ const FailedOrders = () => {
         </div>
       </div>
       
-      {/* Order Details Modal */}
       {showModal && selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
@@ -208,150 +204,62 @@ const FailedOrders = () => {
             </div>
             
             <div className="space-y-6">
-              {/* Order Header */}
-              <div className="bg-red-50 p-5 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="font-medium text-red-700">Order ID:</span>
-                    <div className="text-red-900 font-mono text-sm">#{selectedOrder._id}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-red-700">Order Date:</span>
-                    <div className="text-red-900">{new Date(selectedOrder.createdAt || selectedOrder.orderDate).toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-red-700">Status:</span>
-                    <div className="text-red-900 font-bold">{selectedOrder.status || 'Failed'}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Customer Information */}
-              <div className="bg-blue-50 p-5 rounded-lg">
-                <h4 className="text-lg font-semibold text-blue-900 mb-3">Customer Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <span className="font-medium text-blue-700">Name:</span>
-                    <div className="text-blue-900">{selectedOrder.customerName || selectedOrder.userId?.name || 'N/A'}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-blue-700">Email:</span>
-                    <div className="text-blue-900">{selectedOrder.customerEmail || selectedOrder.userId?.email || 'N/A'}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-blue-700">Phone:</span>
-                    <div className="text-blue-900">{selectedOrder.customerPhone || selectedOrder.userId?.phone || 'N/A'}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-blue-700">Delivery Address:</span>
-                    <div className="text-blue-900">{selectedOrder.deliveryAddress || selectedOrder.address || 'N/A'}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Error Information */}
-              <div className="bg-red-100 p-5 rounded-lg border-l-4 border-red-500">
-                <h4 className="text-lg font-semibold text-red-900 mb-3">Error Details</h4>
-                <div className="space-y-2">
-                  <div>
-                    <span className="font-medium text-red-700">Payment Status:</span>
-                    <div className="text-red-900">{selectedOrder.paymentStatus || 'Failed'}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium text-red-700">Error Description:</span>
-                    <div className="text-red-900 bg-red-50 p-3 rounded mt-1">
-                      {selectedOrder.razorpayData?.[0]?.errorDescription || selectedOrder.errorMessage || 'Payment processing failed'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Order Items */}
-              <div className="bg-gray-50 p-5 rounded-lg">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h4>
-                <div className="space-y-3">
-                  {selectedOrder.items && selectedOrder.items.length > 0 ? (
-                    selectedOrder.items.map((item, idx) => (
-                      <div key={idx} className="bg-white p-4 rounded border">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
-                          <div>
-                            <span className="font-medium text-gray-600">Item:</span>
-                            <div className="text-gray-900">{item.itemId?.name || 'Unknown Item'}</div>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-600">Quantity:</span>
-                            <div className="text-gray-900">{item.quantity}</div>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-600">Price:</span>
-                            <div className="text-gray-900">₹{item.price}</div>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-600">Total:</span>
-                            <div className="text-gray-900 font-semibold">₹{(item.price * item.quantity).toFixed(2)}</div>
-                          </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-lg font-semibold text-gray-900 mb-3">All Order Fields</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                  {Object.entries(selectedOrder).filter(([key]) => key !== 'razorpayData').map(([key, value]) => {
+                    if (value === null || value === undefined) return null;
+                    
+                    const getFieldColor = (fieldKey) => {
+                      if (fieldKey.includes('payment') || fieldKey.includes('Payment')) return 'bg-green-50 border-green-200';
+                      if (fieldKey.includes('amount') || fieldKey.includes('Amount') || fieldKey.includes('price') || fieldKey.includes('Price')) return 'bg-emerald-50 border-emerald-200';
+                      if (fieldKey.includes('id') || fieldKey.includes('Id') || fieldKey.includes('ID')) return 'bg-blue-50 border-blue-200';
+                      if (fieldKey.includes('status') || fieldKey.includes('Status')) return 'bg-purple-50 border-purple-200';
+                      if (fieldKey.includes('date') || fieldKey.includes('Date') || fieldKey.includes('time') || fieldKey.includes('Time') || fieldKey.includes('At')) return 'bg-indigo-50 border-indigo-200';
+                      if (fieldKey.includes('address') || fieldKey.includes('Address')) return 'bg-orange-50 border-orange-200';
+                      if (fieldKey.includes('customer') || fieldKey.includes('Customer') || fieldKey.includes('user') || fieldKey.includes('User')) return 'bg-pink-50 border-pink-200';
+                      if (fieldKey.includes('item') || fieldKey.includes('Item')) return 'bg-yellow-50 border-yellow-200';
+                      return 'bg-gray-50 border-gray-200';
+                    };
+                    
+                    const formatValue = (val) => {
+                      if (typeof val === 'object' && val !== null) {
+                        if (Array.isArray(val)) {
+                          return `${val.length} items`;
+                        }
+                        return '[Object]';
+                      }
+                      if (key.includes('At') || key.includes('date') || key.includes('Date')) {
+                        try {
+                          return new Date(val).toLocaleString('en-IN', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                          });
+                        } catch {
+                          return String(val);
+                        }
+                      }
+                      if ((key.includes('amount') || key.includes('Amount') || key.includes('price') || key.includes('Price') || key.includes('fee') || key.includes('Fee')) && typeof val === 'number') {
+                        return `₹${(val / 100).toFixed(2)}`;
+                      }
+                      return String(val);
+                    };
+                    
+                    return (
+                      <div key={key} className={`p-3 rounded border ${getFieldColor(key)} ${typeof value === 'object' || String(value).length > 50 ? 'col-span-full' : ''}`}>
+                        <span className="font-medium text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}:</span>
+                        <div className={`mt-1 ${typeof value === 'object' ? 'font-mono text-xs whitespace-pre-wrap' : 'break-all'} text-gray-900`}>
+                          {formatValue(value)}
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center text-gray-500 py-4">
-                      {selectedOrder.itemsString || 'No items information available'}
-                    </div>
-                  )}
+                    );
+                  })}  
                 </div>
               </div>
-
-              {/* Financial Summary */}
-              <div className="bg-yellow-50 p-5 rounded-lg">
-                <h4 className="text-lg font-semibold text-yellow-900 mb-4">Financial Summary</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-yellow-200">
-                    <span className="font-medium text-yellow-700">Subtotal:</span>
-                    <span className="text-yellow-900 font-semibold">₹{selectedOrder.subtotal || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-yellow-200">
-                    <span className="font-medium text-yellow-700">Tax (5%):</span>
-                    <span className="text-yellow-900 font-semibold">₹{selectedOrder.tax || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-yellow-200">
-                    <span className="font-medium text-yellow-700">Delivery Charge:</span>
-                    <span className="text-yellow-900 font-semibold">₹{selectedOrder.deliveryCharge || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-3 bg-yellow-100 rounded px-3">
-                    <span className="font-bold text-yellow-800 text-lg">Total Amount:</span>
-                    <span className="text-yellow-900 font-bold text-xl">₹{selectedOrder.totalAmount || 0}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Razorpay Transaction Details */}
-              {selectedOrder.razorpayData && selectedOrder.razorpayData.length > 0 && (
-                <div className="bg-purple-50 p-5 rounded-lg">
-                  <h4 className="text-lg font-semibold text-purple-900 mb-4">Payment Transaction Details</h4>
-                  {selectedOrder.razorpayData.map((transaction, idx) => (
-                    <div key={idx} className="bg-white p-4 rounded border mb-3">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="font-medium text-purple-600">Razorpay Order ID:</span>
-                          <div className="text-purple-900 font-mono text-xs">{transaction.orderId || 'N/A'}</div>
-                        </div>
-                        <div>
-                          <span className="font-medium text-purple-600">Payment ID:</span>
-                          <div className="text-purple-900 font-mono text-xs">{transaction.paymentId || 'Not Generated'}</div>
-                        </div>
-                        <div>
-                          <span className="font-medium text-purple-600">Error Code:</span>
-                          <div className="text-red-600">{transaction.errorCode || 'N/A'}</div>
-                        </div>
-                        <div>
-                          <span className="font-medium text-purple-600">Error Source:</span>
-                          <div className="text-red-600">{transaction.errorSource || 'N/A'}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
             
             <div className="mt-6 flex justify-end">

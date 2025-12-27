@@ -28,6 +28,7 @@ const Checkout = () => {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [isAddressSaved, setIsAddressSaved] = useState(false);
+  const [isAddressSelected, setIsAddressSelected] = useState(false);
 
   const [distance, setDistance] = useState(0);
   const [deliveryFee, setDeliveryFee] = useState(0);
@@ -204,7 +205,7 @@ const Checkout = () => {
 
     const subtotal = getCartTotal();
     const gst = subtotal * GST_RATE;
-    const totalAmount = Math.round((subtotal + gst + deliveryFee) * 100);
+    const totalAmount = subtotal + gst + deliveryFee;
 
     const razorpayRes = await service.post('/api/payment/create-order', {
       orderData: {
@@ -253,6 +254,16 @@ const Checkout = () => {
         } catch {
           alert('Payment verification failed');
         }
+      },
+      modal: {
+        ondismiss: async () => {
+          await handlePaymentFailure(
+            razorpayRes.dbOrderId,
+            razorpayRes.order.id,
+            'User cancelled payment'
+          );
+          alert('Payment cancelled');
+        }
       }
     });
 
@@ -297,36 +308,68 @@ const Checkout = () => {
             {savedAddresses.length > 0 && (
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">Saved Addresses</label>
-                <select 
-                  value={selectedAddressId}
-                  onChange={(e) => {
-                    const addr = savedAddresses.find(a => a._id === e.target.value);
-                    if (addr) {
+                <div className="flex gap-2">
+                  <select 
+                    value={selectedAddressId}
+                    disabled={isAddressSelected}
+                    onChange={(e) => {
+                      const addr = savedAddresses.find(a => a._id === e.target.value);
+                      if (addr) {
+                        setFormData({
+                          addressType: addr.addressType || '',
+                          firstName: addr.firstName || '',
+                          lastName: addr.lastName || '',
+                          address: addr.street || '',
+                          apartment: addr.apartment || '',
+                          city: addr.city || '',
+                          state: addr.state || '',
+                          postcode: addr.postcode || '',
+                          email: addr.email || '',
+                          phone: addr.phone || '',
+                          orderNotes: ''
+                        });
+                        setIsAddressSelected(true);
+                      }
+                      setSelectedAddressId(e.target.value);
+                    }}
+                    className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 ${
+                      isAddressSelected ? 'bg-gray-100 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <option value="">Select saved address</option>
+                    {savedAddresses.map(addr => (
+                      <option key={addr._id} value={addr._id}>
+                        {addr.firstName} {addr.lastName} - {addr.city}, {addr.postcode}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => {
                       setFormData({
-                        addressType: addr.addressType || '',
-                        firstName: addr.firstName || '',
-                        lastName: addr.lastName || '',
-                        address: addr.street || '',
-                        apartment: addr.apartment || '',
-                        city: addr.city || '',
-                        state: addr.state || '',
-                        postcode: addr.postcode || '',
-                        email: addr.email || '',
-                        phone: addr.phone || '',
+                        addressType: '',
+                        firstName: '',
+                        lastName: '',
+                        address: '',
+                        apartment: '',
+                        city: '',
+                        state: '',
+                        postcode: '',
+                        email: '',
+                        phone: '',
                         orderNotes: ''
                       });
-                    }
-                    setSelectedAddressId(e.target.value);
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                >
-                  <option value="">Select saved address</option>
-                  {savedAddresses.map(addr => (
-                    <option key={addr._id} value={addr._id}>
-                      {addr.firstName} {addr.lastName} - {addr.city}, {addr.postcode}
-                    </option>
-                  ))}
-                </select>
+                      setSelectedAddressId('');
+                      setIsAddressSelected(false);
+                      setDistance(0);
+                      setDeliveryFee(0);
+                      setPincodeError('');
+                    }}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
             )}
 
@@ -460,18 +503,6 @@ const Checkout = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                 placeholder="Notes about your order, e.g. special notes for delivery."
               />
-            </div>
-            
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                checked={isAddressSaved}
-                onChange={(e) => setIsAddressSaved(e.target.checked)}
-                className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
-              />
-              <label className="ml-2 block text-sm text-gray-900">
-                Save this address for future orders
-              </label>
             </div>
           </div>
           
