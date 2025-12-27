@@ -6,18 +6,17 @@ import ProductCard from "../../components/ProductCard.jsx";
 import ban1 from "../../assets/ban1.jpg";
 import compressedcard1 from "../../assets/compressedcard1.jpg";
 import compressedcard2 from "../../assets/compressedcard2.jpg";
-import Video from "../../assets/video.jpeg";
 
 const Home = () => {
-  const { fetchItems, getFeaturedItems, getSubcategories, fetchCategories, items, categories, loading } = useApi();
+  const { fetchItems, getFeaturedItems, getSubcategories, fetchCategories, getActiveSweetDeal, items, categories } = useApi();
   const [featured, setFeatured] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  const [showVideo, setShowVideo] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [sweetDeal, setSweetDeal] = useState(null);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [progressPercentage, setProgressPercentage] = useState(0);
 
   useEffect(() => {
     if (dataLoaded) {
@@ -26,15 +25,17 @@ const Home = () => {
     }
     
     const load = async () => {
-      const [itemsData, categoriesData, featuredData, subcatsData] = await Promise.all([
+      const [itemsData, categoriesData, featuredData, subcatsData, activeDealData] = await Promise.all([
         fetchItems(),
         fetchCategories(),
         getFeaturedItems("popular"),
-        getSubcategories()
+        getSubcategories(),
+        getActiveSweetDeal()
       ]);
       setFeatured(featuredData);
       const processedSubcats = Array.isArray(subcatsData) ? subcatsData : subcatsData?.subcategories || [];
       setSubcategories(processedSubcats);
+      setSweetDeal(activeDealData);
       setDataLoaded(true);
       setPageLoading(false);
     };
@@ -42,19 +43,31 @@ const Home = () => {
   }, [dataLoaded]);
 
   useEffect(() => {
-    if (selectedCategory) {
-      const filtered = items.filter(item => {
-        const itemCategories = Array.isArray(item.categories) ? item.categories : [item.category];
-        return itemCategories.some(cat => {
-          const catId = typeof cat === 'object' ? cat._id : cat;
-          return catId === selectedCategory;
-        });
-      });
-      setFilteredItems(filtered);
-    } else {
-      setFilteredItems(items.slice(0, 8));
+    if (sweetDeal?.endDate) {
+      const timer = setInterval(() => {
+        const now = new Date().getTime();
+        const endTime = new Date(sweetDeal.endDate).getTime();
+        const startTime = new Date(sweetDeal.createdAt).getTime();
+        const totalDuration = endTime - startTime;
+        const distance = endTime - now;
+
+        if (distance > 0) {
+          setTimeLeft({
+            days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+            hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+            minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds: Math.floor((distance % (1000 * 60)) / 1000)
+          });
+          setProgressPercentage(Math.min(100, Math.max(0, (distance / totalDuration) * 100)));
+        } else {
+          setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+          setProgressPercentage(0);
+        }
+      }, 1000);
+
+      return () => clearInterval(timer);
     }
-  }, [items, selectedCategory]);
+  }, [sweetDeal]);
 
   return (
     <main className="bg-black relative">
@@ -282,41 +295,37 @@ const Home = () => {
   );
 })}
 
-      {/* ================= EXCLUSIVE SWEET DEALS ================= */}
-<section className="bg-[#f7efe9] py-6 sm:py-12">
+      {sweetDeal && (
+      <section className="bg-[#f7efe9] py-6 sm:py-12">
   <div className="max-w-[1400px] mx-auto px-3 sm:px-6 grid lg:grid-cols-2 gap-6 sm:gap-12 items-center">
 
     {/* LEFT CONTENT */}
     <div>
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[#d80a4e] font-bold text-lg">₹49.00</span>
-        <span className="line-through text-gray-400">₹59.00</span>
+        <span className="text-[#d80a4e] font-bold text-lg">₹{sweetDeal.salePrice}</span>
+        <span className="line-through text-gray-400">₹{sweetDeal.originalPrice}</span>
       </div>
 
       <h2 className="text-4xl font-bold mb-4">
-        Exclusive Sweet Deals
+        {sweetDeal.title}
       </h2>
 
       <p className="text-gray-600 max-w-xl mb-6 leading-relaxed">
-        Indulge in our premium selection of sweets, crafted with the finest
-        ingredients to offer you a luxurious taste experience. Our special
-        deals bring you the best of our collection at irresistible prices.
-        Perfect for celebrations, gifts, or simply treating yourself to the
-        finest sweets available. Don’t miss out on these limited-time offers!
+        {sweetDeal.description}
       </p>
 
       {/* PROGRESS BAR */}
       <div className="w-full h-1 bg-gray-200 rounded mb-6">
-        <div className="w-1/3 h-full bg-[#d80a4e] rounded" />
+        <div className="h-full bg-[#d80a4e] rounded" style={{width: `${progressPercentage}%`}} />
       </div>
 
       {/* COUNTDOWN */}
       <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
         {[
-          ["0", "Days"],
-          ["0", "Hour"],
-          ["00", "Minute"],
-          ["00", "Second"],
+          [timeLeft.days, "Days"],
+          [timeLeft.hours, "Hours"],
+          [timeLeft.minutes.toString().padStart(2, '0'), "Minutes"],
+          [timeLeft.seconds.toString().padStart(2, '0'), "Seconds"],
         ].map((t, i) => (
           <div
             key={i}
@@ -335,28 +344,24 @@ const Home = () => {
 
     {/* RIGHT VIDEO */}
     <div className="relative overflow-hidden rounded-lg">
-      <img
-        src={Video}
-        alt="Chowdhry Sweet House"
-        className="w-full h-[250px] sm:h-[350px] lg:h-[420px] object-cover"
-      />
-      <button
-        onClick={() => window.open('https://www.youtube.com/watch?v=FhlsxCf1aOU', '_blank')}
-        className="absolute inset-0 flex items-center justify-center"
-      >
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow-lg text-lg sm:text-xl">
-          ▶
-        </div>
-      </button>
+      {sweetDeal?.videoUrl && (
+        <video
+          src={sweetDeal.videoUrl}
+          className="w-full h-[250px] sm:h-[350px] lg:h-[420px] object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )}
     </div>
-
 
   </div>
 </section>
+      )}
 
     </main>
   );
 };
 
 export default Home;
-

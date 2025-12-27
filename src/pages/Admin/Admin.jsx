@@ -6,6 +6,7 @@ import Subcategories from './Subcategories.jsx';
 import AdminOrders from './AdminOrders.jsx';
 import Tickets from './Tickets.jsx';
 import FailedOrders from './FailedOrders.jsx';
+import SweetDeal from './SweetDeal.jsx';
 import logo from '../../assets/logo.png';
 
 const Admin = () => {
@@ -17,6 +18,7 @@ const Admin = () => {
     { id: 'categories', label: 'Category', icon: '📂' },
     { id: 'subcategories', label: 'Subcategory', icon: '📁' },
     { id: 'products', label: 'Product', icon: '📦' },
+    { id: 'sweetdeal', label: 'Sweet Deal', icon: '🍯' },
     { id: 'orders', label: 'Orders', icon: '📋' },
     { id: 'failed-orders', label: 'Failed Orders', icon: '❌' },
     { id: 'tickets', label: 'Messages', icon: '💬' }
@@ -28,6 +30,7 @@ const Admin = () => {
       case 'products': return <Products />;
       case 'categories': return <Categories />;
       case 'subcategories': return <Subcategories />;
+      case 'sweetdeal': return <SweetDeal />;
       case 'orders': return <AdminOrders />;
       case 'failed-orders': return <FailedOrders />;
       case 'tickets': return <Tickets />;
