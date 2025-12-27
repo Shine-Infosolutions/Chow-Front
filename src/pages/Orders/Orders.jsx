@@ -170,11 +170,11 @@ const Orders = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Subtotal:</span>
-                          <span>₹{((order.totalAmount - (order.deliveryFee || 0)) / 1.05).toFixed(2)}</span>
+                          <span>₹{(((order.totalAmount / 100) - (order.deliveryFee || 0)) / 1.05).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">GST (5%):</span>
-                          <span>₹{(((order.totalAmount - (order.deliveryFee || 0)) / 1.05) * 0.05).toFixed(2)}</span>
+                          <span>₹{((((order.totalAmount / 100) - (order.deliveryFee || 0)) / 1.05) * 0.05).toFixed(2)}</span>
                         </div>
                         {order.distance && order.distance > 0 && (
                           <>
@@ -190,7 +190,7 @@ const Orders = () => {
                         )}
                         <div className="flex justify-between font-bold text-lg border-t pt-2">
                           <span>Total Amount:</span>
-                          <span className="text-[#d80a4e]">₹{order.totalAmount?.toFixed(2)}</span>
+                          <span className="text-[#d80a4e]">₹{(order.totalAmount / 100).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm text-gray-600 mt-1">
                           <span>Payment Status:</span>
