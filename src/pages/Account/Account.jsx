@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApi } from '../../context/ApiContext.jsx';
+import { useCart } from '../../context/CartContext.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
+import amavatBarfi from '../../assets/Amavat Barfi (1).jpg';
 
 const Account = () => {
   const { register, login } = useApi();
+  const { transferGuestCartToUser } = useCart();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(false);
   const [user, setUser] = useState(null);
@@ -49,6 +52,8 @@ const Account = () => {
           if (response.user) {
             localStorage.setItem('user', JSON.stringify(response.user));
             setUser(response.user);
+            // Transfer guest cart to logged-in user
+            transferGuestCartToUser(response.user.id || response.user._id);
           }
           setIsLoggedIn(true);
           setSuccess('Login successful!');
@@ -56,9 +61,22 @@ const Account = () => {
       } else {
         const response = await register(formData);
         if (response.success || response.message) {
-          setSuccess('Registration successful!');
-          setIsLogin(true);
-          setFormData({ name: '', email: '', phone: '', password: '' });
+          // Auto-login after successful registration
+          const loginResponse = await login({ email: formData.email, password: formData.password });
+          if (loginResponse.token) {
+            localStorage.setItem('token', loginResponse.token);
+            if (loginResponse.user) {
+              localStorage.setItem('user', JSON.stringify(loginResponse.user));
+              setUser(loginResponse.user);
+              transferGuestCartToUser(loginResponse.user.id || loginResponse.user._id);
+            }
+            setIsLoggedIn(true);
+            setSuccess('Registration and login successful!');
+          } else {
+            setSuccess('Registration successful! Please login.');
+            setIsLogin(true);
+            setFormData({ name: '', email: '', phone: '', password: '' });
+          }
         }
       }
     } catch (error) {
@@ -194,7 +212,7 @@ const Account = () => {
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-1/2 hidden md:block">
                   <img 
-                    src="/assets/img/product/home-one/product-1.jpg" 
+                    src={amavatBarfi}
                     alt="Sweet Box"
                     className="w-full h-full object-cover"
                   />

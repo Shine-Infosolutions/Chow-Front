@@ -18,7 +18,6 @@ import Account from './pages/Account/Account';
 import Profile from './pages/Profile/Profile';
 import Cart from './pages/Cart/Cart';
 import Checkout from './pages/Checkout/Checkout';
-import Payment from './pages/Payment/Payment';
 import Orders from './pages/Orders/Orders';
 import Admin from './pages/Admin/Admin';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
@@ -35,12 +34,12 @@ const AppContent = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
-    <div className="App">
+    <div className="App min-h-screen flex flex-col">
       {/* Header only for non-admin */}
       {!isAdminRoute && <Header />}
 
-      {/* ✅ Conditional padding */}
-      <div className={isAdminRoute ? 'route-container' : 'route-container pt-[120px]'}>
+      {/* Main content area */}
+      <main className={`flex-1 ${isAdminRoute ? 'route-container' : 'route-container pt-[120px]'}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
@@ -54,7 +53,6 @@ const AppContent = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/payment" element={<Payment />} />
           <Route path="/orders" element={<Orders />} />
 
           {/* Admin Route */}
@@ -67,7 +65,7 @@ const AppContent = () => {
             }
           />
         </Routes>
-      </div>
+      </main>
 
       {/* Footer only for non-admin */}
       {!isAdminRoute && <Footer />}

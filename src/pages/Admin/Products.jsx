@@ -37,9 +37,11 @@ const Products = () => {
     fetchItems();
     fetchCategories();
     loadSubcategories();
+    console.log('Initial items loaded:', items.length);
   }, []);
 
   useEffect(() => {
+    console.log('Items updated:', items.length, items);
     setFilteredItems(items);
   }, [items]);
   useEffect(() => {
@@ -85,10 +87,17 @@ const Products = () => {
       
       // Add text fields
       Object.keys(formData).forEach(key => {
-        if (key !== 'images' && key !== 'video' && key !== 'subcategories' && formData[key]) {
+        if (key !== 'images' && key !== 'video' && key !== 'subcategories' && key !== 'categories' && formData[key]) {
           submitData.append(key, formData[key]);
         }
       });
+      
+      // Add categories array properly
+      if (formData.categories && formData.categories.length > 0) {
+        formData.categories.forEach(catId => {
+          submitData.append('categories', catId);
+        });
+      }
       
       // Add subcategories array properly
       if (formData.subcategories && formData.subcategories.length > 0) {
@@ -108,9 +117,15 @@ const Products = () => {
       }
       
       if (editingProduct) {
-        await updateItem(editingProduct._id, submitData);
+        const updatedProduct = await updateItem(editingProduct._id, submitData);
+        // Update local state immediately
+        setFilteredItems(prev => prev.map(item => 
+          item._id === editingProduct._id ? updatedProduct : item
+        ));
       } else {
-        await addItem(submitData);
+        const newProduct = await addItem(submitData);
+        // Add new product to local state immediately
+        setFilteredItems(prev => [newProduct, ...prev]);
       }
       
       setShowModal(false);
@@ -188,11 +203,35 @@ const Products = () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         await deleteItem(id);
+        setFilteredItems(prev => prev.filter(item => item._id !== id));
         fetchItems();
       } catch (error) {
         console.error('Error deleting product:', error);
       }
     }
+  };
+
+  // Helper function to get category names
+  const getCategoryNames = (productCategories) => {
+    if (!productCategories) return 'No categories';
+    
+    if (Array.isArray(productCategories)) {
+      return productCategories.map(cat => {
+        if (typeof cat === 'object' && cat?.name) {
+          return cat.name;
+        }
+        // Find category by ID
+        const category = categories.find(c => c._id === cat);
+        return category ? category.name : cat;
+      }).join(', ');
+    }
+    
+    // Handle single category
+    if (typeof productCategories === 'object' && productCategories?.name) {
+      return productCategories.name;
+    }
+    const category = categories.find(c => c._id === productCategories);
+    return category ? category.name : productCategories;
   };
 
   // Pagination functions
@@ -215,9 +254,9 @@ const Products = () => {
   
   if (showModal) {
     return (
-      <div className="bg-gray-50 min-h-screen">
+      <div className="h-full flex flex-col bg-gray-50">
         {/* Header */}
-        <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4">
+        <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <h1 className="text-lg sm:text-xl font-semibold text-gray-900 underline">
               {editingProduct ? 'Edit Product' : 'Add Product'}
@@ -238,7 +277,7 @@ const Products = () => {
         </div>
 
         {/* Form Content */}
-        <div className="p-3 sm:p-6">
+        <div className="flex-1 overflow-auto p-3 sm:p-6">
           <div className="bg-white rounded-lg border p-3 sm:p-6">
             <div className="mb-4 sm:mb-6">
               <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Basic Information :</h3>
@@ -558,22 +597,24 @@ const Products = () => {
   }
 
   return (
-    <div className="p-4 md:p-6" style={{overflowX: 'visible'}}>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Products Management</h2>
-        <button
-          onClick={() => {
-            console.log('Add Product clicked');
-            setShowModal(true);
-          }}
-          className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] w-full sm:w-auto"
-        >
-          Add Product
-        </button>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 px-4 pt-4 pb-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900">Products Management</h2>
+          <button
+            onClick={() => {
+              console.log('Add Product clicked');
+              setShowModal(true);
+            }}
+            className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] w-full sm:w-auto"
+          >
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Search Bar */}
-      <div className="mb-6">
+      <div className="flex-shrink-0 px-4 pb-2">
         <div className="relative w-full md:max-w-md">
           <input
             type="text"
@@ -581,12 +622,8 @@ const Products = () => {
             onChange={(e) => {
               const query = e.target.value;
               setSearchQuery(query);
-              console.log('Search query:', query);
-              console.log('Items to search:', items);
               
-              // Real-time search
               if (!query.trim()) {
-                console.log('Empty query, showing all items');
                 setFilteredItems(items);
                 setCurrentPage(1);
               } else {
@@ -598,12 +635,10 @@ const Products = () => {
                   
                   return nameMatch || descMatch || shortDescMatch || categoryMatch;
                 });
-                console.log('Search results:', localResults);
                 setFilteredItems(localResults);
                 setCurrentPage(1);
               }
             }}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Search products..."
             className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] text-sm"
           />
@@ -618,7 +653,7 @@ const Products = () => {
 
       {/* Search Results Info */}
       {searchQuery && (
-        <div className="mb-4 text-sm text-gray-600">
+        <div className="flex-shrink-0 px-4 pb-2 text-sm text-gray-600">
           {filteredItems.length > 0 
             ? `Found ${filteredItems.length} product(s) matching "${searchQuery}"`
             : `No products found matching "${searchQuery}"`
@@ -627,76 +662,85 @@ const Products = () => {
       )}
 
       {/* Products Table */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="w-full" style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
-          <table className="w-full text-xs" style={{minWidth: '600px'}}>
-            <thead className="bg-[#d80a4e] text-white">
-              <tr>
-                <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '25%', minWidth: '100px'}}>Name</th>
-                <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '20%', minWidth: '80px'}}>Categories</th>
-                <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Price</th>
-                <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Discount</th>
-                <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '50px'}}>Stock</th>
-                <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '80px'}}>Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {getCurrentPageItems().length === 0 ? (
+      <div className="flex-1 min-h-0 mx-4 mb-4">
+        <div className="bg-white rounded-lg shadow h-full flex flex-col">
+          <div className="flex-1 min-h-0 overflow-auto">
+            <table className="w-full text-sm" style={{minWidth: '600px'}}>
+              <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
                 <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
-                    {searchQuery ? `No products found matching "${searchQuery}"` : 'No products available'}
-                  </td>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '25%', minWidth: '100px'}}>Name</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '20%', minWidth: '80px'}}>Categories</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Price</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Discount</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '50px'}}>Stock</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '80px'}}>Action</th>
                 </tr>
-              ) : (
-                getCurrentPageItems().map((product, index) => (
-                <tr key={product._id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-2 py-3 font-medium text-gray-900">
-                    {product.name}
-                  </td>
-                  <td className="px-2 py-3 text-gray-700">
-                    {Array.isArray(product.categories) 
-                      ? product.categories.map(cat => typeof cat === 'object' ? cat.name : cat).join(', ')
-                      : typeof product.category === 'object' ? product.category?.name : product.category
-                    }
-                  </td>
-                  <td className="px-2 py-3 text-gray-700">₹{product.price}</td>
-                  <td className="px-2 py-3 text-gray-700">₹{product.discountPrice || product.price}</td>
-                  <td className="px-2 py-3 text-gray-700 text-center">{product.stockQty || 0}</td>
-                  <td className="px-2 py-3">
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="bg-[#d80a4e] text-white px-3 py-1 rounded text-xs hover:bg-[#b8083e]"
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination */}
-        <div className="bg-white px-2 py-2 border-t flex justify-between items-center text-xs">
-          <span className="text-gray-600">{getPageInfo()}</span>
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-2 py-1 border rounded disabled:opacity-50"
-            >
-              ◀
-            </button>
-            <span className="px-2">{currentPage}/{getTotalPages()}</span>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages()))}
-              disabled={currentPage === getTotalPages()}
-              className="px-2 py-1 border rounded disabled:opacity-50"
-            >
-              ▶
-            </button>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {getCurrentPageItems().length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                      {searchQuery ? `No products found matching "${searchQuery}"` : 'No products available'}
+                    </td>
+                  </tr>
+                ) : (
+                  getCurrentPageItems().map((product, index) => (
+                  <tr key={product._id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-2 py-3 font-medium text-gray-900">
+                      {product.name}
+                    </td>
+                    <td className="px-2 py-3 text-gray-700">
+                      {getCategoryNames(product.categories || product.category)}
+                    </td>
+                    <td className="px-2 py-3 text-gray-700">₹{product.price}</td>
+                    <td className="px-2 py-3 text-gray-700">₹{product.discountPrice || product.price}</td>
+                    <td className="px-2 py-3 text-gray-700 text-center">{product.stockQty || 0}</td>
+                    <td className="px-2 py-3">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="bg-[#d80a4e] text-white px-3 py-1 rounded text-sm hover:bg-[#b8083e]"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product._id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+                )}
+              </tbody>
+            </table>
           </div>
+          
+          {/* Pagination */}
+          {getTotalPages() > 1 && (
+            <div className="bg-white px-2 py-2 border-t flex justify-between items-center text-xs flex-shrink-0">
+              <span className="text-gray-600">{getPageInfo()}</span>
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-2 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+                >
+                  ◀
+                </button>
+                <span className="px-2">{currentPage}/{getTotalPages()}</span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages()))}
+                  disabled={currentPage === getTotalPages()}
+                  className="px-2 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+                >
+                  ▶
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

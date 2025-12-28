@@ -16,19 +16,40 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [currentUserId, setCurrentUserId] = useState(null);
 
-  // Get current user ID from localStorage
+  // Get current user ID from localStorage - check on every render
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    if (token && user) {
-      try {
-        const userData = JSON.parse(user);
-        setCurrentUserId(userData.id || userData._id);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
+    const checkUserStatus = () => {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+      if (token && user) {
+        try {
+          const userData = JSON.parse(user);
+          const userId = userData.id || userData._id;
+          if (userId !== currentUserId) {
+            setCurrentUserId(userId);
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          if (currentUserId !== null) {
+            setCurrentUserId(null);
+          }
+        }
+      } else {
+        if (currentUserId !== null) {
+          setCurrentUserId(null);
+        }
       }
-    }
-  }, []);
+    };
+    
+    checkUserStatus();
+    
+    // Listen for storage changes (login/logout in other tabs)
+    window.addEventListener('storage', checkUserStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkUserStatus);
+    };
+  }, [currentUserId]);
 
   // Load user-specific cart when user changes
   useEffect(() => {
@@ -41,7 +62,14 @@ export const CartProvider = ({ children }) => {
         setCartItems([]);
       }
     } else {
-      setCartItems([]);
+      // For guest users, load from generic cart key
+      try {
+        const savedCart = localStorage.getItem('guest_cart');
+        setCartItems(savedCart ? JSON.parse(savedCart) : []);
+      } catch (error) {
+        console.error('Error loading guest cart from localStorage:', error);
+        setCartItems([]);
+      }
     }
   }, [currentUserId]);
 
@@ -52,6 +80,13 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem(`cart_${currentUserId}`, JSON.stringify(cartItems));
       } catch (error) {
         console.error('Error saving cart to localStorage:', error);
+      }
+    } else {
+      // For guest users, save to generic cart key
+      try {
+        localStorage.setItem('guest_cart', JSON.stringify(cartItems));
+      } catch (error) {
+        console.error('Error saving guest cart to localStorage:', error);
       }
     }
   }, [cartItems, currentUserId]);
@@ -105,6 +140,8 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
     if (currentUserId) {
       localStorage.removeItem(`cart_${currentUserId}`);
+    } else {
+      localStorage.removeItem('guest_cart');
     }
     showNotification('Cart cleared!');
   };
@@ -116,8 +153,47 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const transferGuestCartToUser = (userId) => {
+    try {
+      const guestCart = localStorage.getItem('guest_cart');
+      if (guestCart && userId) {
+        const guestItems = JSON.parse(guestCart);
+        if (guestItems.length > 0) {
+          // Check if user already has a cart
+          const existingUserCart = localStorage.getItem(`cart_${userId}`);
+          if (existingUserCart) {
+            // Merge carts if user already has items
+            const existingItems = JSON.parse(existingUserCart);
+            const mergedItems = [...existingItems];
+            
+            guestItems.forEach(guestItem => {
+              const existingIndex = mergedItems.findIndex(item => item._id === guestItem._id);
+              if (existingIndex >= 0) {
+                mergedItems[existingIndex].quantity += guestItem.quantity;
+              } else {
+                mergedItems.push(guestItem);
+              }
+            });
+            
+            localStorage.setItem(`cart_${userId}`, JSON.stringify(mergedItems));
+            setCartItems(mergedItems);
+          } else {
+            // No existing cart, just transfer guest cart
+            localStorage.setItem(`cart_${userId}`, guestCart);
+            setCartItems(guestItems);
+          }
+          
+          localStorage.removeItem('guest_cart');
+          setCurrentUserId(userId);
+        }
+      }
+    } catch (error) {
+      console.error('Error transferring guest cart:', error);
+    }
+  };
+
   const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => total + (item.discountPrice * item.quantity), 0);
   };
 
   const getCartItemsCount = () => {
@@ -131,6 +207,7 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     clearCart,
     clearUserCart,
+    transferGuestCartToUser,
     getCartTotal,
     getCartItemsCount
   };

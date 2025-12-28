@@ -7,9 +7,11 @@ const Categories = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    displayRank: 0
   });
   const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
@@ -21,17 +23,22 @@ const Categories = () => {
     e.preventDefault();
     try {
       setUpdating(true);
+      setError('');
+      console.log('Submitting category data:', formData);
       if (editingCategory) {
-        await updateCategory(editingCategory._id, formData);
+        const result = await updateCategory(editingCategory._id, formData);
+        console.log('Update result:', result);
       } else {
-        await addCategory(formData);
+        const result = await addCategory(formData);
+        console.log('Add result:', result);
       }
       setShowModal(false);
       setEditingCategory(null);
-      setFormData({ name: '', description: '' });
+      setFormData({ name: '', description: '', displayRank: 0 });
       fetchCategories();
     } catch (error) {
       console.error('Error saving category:', error);
+      setError(error.message || 'Failed to save category');
     } finally {
       setUpdating(false);
     }
@@ -41,7 +48,8 @@ const Categories = () => {
     setEditingCategory(category);
     setFormData({
       name: category.name || '',
-      description: category.description || ''
+      description: category.description || '',
+      displayRank: category.displayRank || 0
     });
     setShowModal(true);
   };
@@ -50,6 +58,9 @@ const Categories = () => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
         await deleteCategory(id);
+        // Update local state immediately
+        const updatedCategories = categories.filter(cat => cat._id !== id);
+        // Force re-render by calling fetchCategories
         fetchCategories();
       } catch (error) {
         console.error('Error deleting category:', error);
@@ -74,9 +85,9 @@ const Categories = () => {
 
   if (showModal) {
     return (
-      <div className="bg-gray-50 min-h-screen">
+      <div className="h-full flex flex-col bg-gray-50">
         {/* Header */}
-        <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4">
+        <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <h1 className="text-lg sm:text-xl font-semibold text-gray-900 underline">
               {editingCategory ? 'Edit Category' : 'Add Category'}
@@ -85,7 +96,8 @@ const Categories = () => {
               onClick={() => {
                 setShowModal(false);
                 setEditingCategory(null);
-                setFormData({ name: '', description: '' });
+                setFormData({ name: '', description: '', displayRank: 0 });
+                setError('');
               }}
               className="bg-orange-400 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-orange-500 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
@@ -95,10 +107,15 @@ const Categories = () => {
         </div>
 
         {/* Form Content */}
-        <div className="p-3 sm:p-6">
+        <div className="flex-1 overflow-auto p-3 sm:p-6">
           <div className="bg-white rounded-lg border p-3 sm:p-6">
             <div className="mb-4 sm:mb-6">
               <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Basic Information :</h3>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                  {error}
+                </div>
+              )}
             </div>
             
             <form onSubmit={handleSubmit}>
@@ -118,8 +135,23 @@ const Categories = () => {
                   />
                 </div>
 
-                {/* Empty columns for layout */}
-                <div></div>
+                {/* Display Rank Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Display Rank
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    value={formData.displayRank}
+                    onChange={(e) => setFormData({...formData, displayRank: parseInt(e.target.value) || 0})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Lower numbers appear first on homepage</p>
+                </div>
+
+                {/* Empty column for layout */}
                 <div></div>
               </div>
 
@@ -158,8 +190,8 @@ const Categories = () => {
   }
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+    <div className="h-full flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 px-4 pt-4">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900">Categories Management</h2>
         <button
           onClick={() => setShowModal(true)}
@@ -170,13 +202,13 @@ const Categories = () => {
       </div>
 
       {/* Categories Table */}
-      <div className="bg-white rounded-lg shadow">
-        {/* Horizontal scroll wrapper */}
-        <div className="overflow-x-auto">
-          <table className="min-w-[600px] w-full">
-            <thead className="bg-[#d80a4e] text-white">
+      <div className="bg-white rounded-lg shadow mx-4 mb-4 flex-1 min-h-0">
+        <div className="h-full overflow-auto">
+          <table className="min-w-[700px] w-full">
+            <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
               <tr>
                 <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Name</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Rank</th>
                 <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Description</th>
                 <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Action</th>
               </tr>
@@ -188,15 +220,28 @@ const Categories = () => {
                     {category.name}
                   </td>
                   <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-700">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                      {category.displayRank || 0}
+                    </span>
+                  </td>
+                  <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-700">
                     {category.description || 'No description'}
                   </td>
                   <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="bg-[#d80a4e] text-white px-2 md:px-4 py-1 md:py-2 rounded hover:bg-[#b8083e] text-xs font-medium"
-                    >
-                      Update / View
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(category)}
+                        className="bg-[#d80a4e] text-white px-2 md:px-4 py-1 md:py-2 rounded hover:bg-[#b8083e] text-xs font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(category._id)}
+                        className="bg-red-500 text-white px-2 md:px-4 py-1 md:py-2 rounded hover:bg-red-600 text-xs font-medium"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -205,7 +250,7 @@ const Categories = () => {
         </div>
         
         {/* Pagination */}
-        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sticky bottom-0">
           <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
             <span>Items per page: {itemsPerPage}</span>
             <span className="sm:ml-8">{getPageInfo()}</span>

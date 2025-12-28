@@ -6,6 +6,7 @@ import Subcategories from './Subcategories.jsx';
 import AdminOrders from './AdminOrders.jsx';
 import Tickets from './Tickets.jsx';
 import FailedOrders from './FailedOrders.jsx';
+import SweetDeal from './SweetDeal.jsx';
 import logo from '../../assets/logo.png';
 
 const Admin = () => {
@@ -17,6 +18,7 @@ const Admin = () => {
     { id: 'categories', label: 'Category', icon: '📂' },
     { id: 'subcategories', label: 'Subcategory', icon: '📁' },
     { id: 'products', label: 'Product', icon: '📦' },
+    { id: 'sweetdeal', label: 'Sweet Deal', icon: '🍯' },
     { id: 'orders', label: 'Orders', icon: '📋' },
     { id: 'failed-orders', label: 'Failed Orders', icon: '❌' },
     { id: 'tickets', label: 'Messages', icon: '💬' }
@@ -28,6 +30,7 @@ const Admin = () => {
       case 'products': return <Products />;
       case 'categories': return <Categories />;
       case 'subcategories': return <Subcategories />;
+      case 'sweetdeal': return <SweetDeal />;
       case 'orders': return <AdminOrders />;
       case 'failed-orders': return <FailedOrders />;
       case 'tickets': return <Tickets />;
@@ -36,7 +39,7 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="h-screen bg-white flex overflow-hidden">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -48,9 +51,9 @@ const Admin = () => {
       {/* Sidebar */}
       <div className={`w-64 bg-white shadow-lg fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:transform-none ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}>
+      } lg:translate-x-0 flex flex-col`}>
         {/* Logo */}
-        <div className="p-2 sm:p-4">
+        <div className="p-2 sm:p-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <img src={logo} alt="Chowdhry" className="h-20 sm:h-24 lg:h-30 mx-auto" />
             <button 
@@ -65,7 +68,7 @@ const Admin = () => {
         </div>
         
         {/* Navigation */}
-        <nav className="mt-1">
+        <nav className="mt-1 flex-1 overflow-y-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -84,9 +87,9 @@ const Admin = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 lg:ml-0 flex flex-col min-h-0 min-w-0">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+        <div className="bg-white shadow-sm border-b px-3 sm:px-4 lg:px-6 py-3 sm:py-4 flex-shrink-0">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <button 
@@ -113,7 +116,7 @@ const Admin = () => {
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6" style={{overflowX: 'visible'}}>
+        <div className="flex-1 min-h-0 min-w-0">
           {renderContent()}
         </div>
       </div>
