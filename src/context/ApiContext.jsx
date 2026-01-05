@@ -653,6 +653,56 @@ const ApiProvider = ({ children }) => {
       } catch (error) {
         return null;
       }
+    },
+
+    // Delhivery APIs
+    checkPincode: async (pincode) => {
+      try {
+        const data = await apiService.get(`/api/delhivery/pincode/${pincode}`);
+        return data;
+      } catch (error) {
+        return { success: false, serviceable: false, message: 'Pincode check failed' };
+      }
+    },
+
+    calculateShippingRate: async (deliveryPincode, weight, paymentMode = 'PREPAID') => {
+      try {
+        const data = await apiService.post('/api/delhivery/calculate-rate', {
+          deliveryPincode,
+          weight,
+          paymentMode
+        });
+        return data;
+      } catch (error) {
+        return { success: false, rate: 0, message: 'Rate calculation failed' };
+      }
+    },
+
+    trackOrder: async (orderId) => {
+      try {
+        const data = await apiService.get(`/api/delhivery/track-order/${orderId}`);
+        return data;
+      } catch (error) {
+        return { success: false, message: 'Order tracking failed' };
+      }
+    },
+
+    trackShipment: async (waybill) => {
+      try {
+        const data = await apiService.get(`/api/delhivery/track/${waybill}`);
+        return data;
+      } catch (error) {
+        return { success: false, message: 'Shipment tracking failed' };
+      }
+    },
+
+    createShipment: async (orderId) => {
+      try {
+        const data = await apiService.post('/api/delhivery/create-shipment', { orderId });
+        return data;
+      } catch (error) {
+        return { success: false, message: 'Shipment creation failed' };
+      }
     }
   };
 

@@ -135,14 +135,10 @@ export const CartProvider = ({ children }) => {
     // If no stock info in cart, fetch from API
     if (stockLimit === null || stockLimit === undefined) {
       try {
-        console.log('Fetching stock for product:', productId);
         const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/items/get/${productId}`);
         if (response.ok) {
           const productData = await response.json();
-          console.log('All product fields:', Object.keys(productData));
-          console.log('Full product data:', productData);
           stockLimit = productData.stockQty || productData.stock || productData.quantity_available || productData.quantityAvailable || productData.availableQuantity || productData.quantity || productData.stockQuantity;
-          console.log('Stock limit found:', stockLimit);
         }
       } catch (error) {
         console.error('Error fetching stock:', error);

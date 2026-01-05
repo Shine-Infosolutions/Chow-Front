@@ -23,6 +23,7 @@ const Products = () => {
     isBestSeller: false,
     isOnSale: false,
     isPopular: false,
+    weight: 100,
     status: 'active'
   });
   const [selectedImages, setSelectedImages] = useState([]);
@@ -169,6 +170,7 @@ const Products = () => {
         isBestSeller: product.isBestSeller || false,
         isOnSale: product.isOnSale || false,
         isPopular: product.isPopular || false,
+        weight: product.weight || 100,
         status: product.status || 'active'
       });
       
@@ -454,6 +456,22 @@ const Products = () => {
                   />
                 </div>
 
+                {/* Weight Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Weight (grams) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="100"
+                    min="1"
+                    value={formData.weight}
+                    onChange={(e) => setFormData({...formData, weight: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
                 {/* Short Desc Field */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -673,13 +691,14 @@ const Products = () => {
                   <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Price</th>
                   <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Discount</th>
                   <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '50px'}}>Stock</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '60px'}}>Weight</th>
                   <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '80px'}}>Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {getCurrentPageItems().length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
                       {searchQuery ? `No products found matching "${searchQuery}"` : 'No products available'}
                     </td>
                   </tr>
@@ -695,6 +714,7 @@ const Products = () => {
                     <td className="px-2 py-3 text-gray-700">₹{product.price}</td>
                     <td className="px-2 py-3 text-gray-700">₹{product.discountPrice || product.price}</td>
                     <td className="px-2 py-3 text-gray-700 text-center">{product.stockQty || 0}</td>
+                    <td className="px-2 py-3 text-gray-700 text-center">{product.weight || 100}g</td>
                     <td className="px-2 py-3">
                       <div className="flex gap-2">
                         <button
