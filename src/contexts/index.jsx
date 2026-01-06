@@ -800,16 +800,12 @@ export const CartProvider = ({ children }) => {
     }
     
     if (stockLimit !== null && stockLimit !== undefined && quantity > stockLimit) {
-      setTimeout(() => {
-        showNotification(`Only ${stockLimit} items available in stock!`, 'error');
-      }, 0);
+      showNotification(`Only ${stockLimit} items available in stock!`, 'error');
       return;
     }
     
     setCartItems(prevItems => {
-      setTimeout(() => {
-        showNotification(`${item.name} quantity updated!`);
-      }, 0);
+      showNotification(`${item.name} quantity updated!`);
       return prevItems.map(cartItem =>
         cartItem._id === productId ? { ...cartItem, quantity } : cartItem
       );
