@@ -565,17 +565,7 @@ const Checkout = () => {
                       <div className="font-medium text-gray-700">{deliveryInfo.providerDisplay}</div>
                       <div>ETA: {deliveryInfo.eta}</div>
                       <div>Distance: {deliveryInfo.distance} km</div>
-                      {deliveryInfo.breakdown && (
-                        <div className="text-xs bg-gray-100 p-2 rounded mt-2">
-                          <div>Base Rate: ₹{deliveryInfo.breakdown.baseRate}</div>
-                          {deliveryInfo.breakdown.distanceRate > 0 && (
-                            <div>Distance Charge: ₹{deliveryInfo.breakdown.distanceRate}</div>
-                          )}
-                          {deliveryInfo.breakdown.weightRate > 0 && (
-                            <div>Weight Charge: ₹{deliveryInfo.breakdown.weightRate}</div>
-                          )}
-                        </div>
-                      )}
+                      
                     </div>
                   </div>
                 )}
