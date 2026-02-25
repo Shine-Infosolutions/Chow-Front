@@ -24,6 +24,8 @@ const Products = () => {
     isOnSale: false,
     isPopular: false,
     weight: 100,
+    uom: 'gm',
+    piecesPerUnit: 1,
     status: 'active'
   });
   const [selectedImages, setSelectedImages] = useState([]);
@@ -134,7 +136,7 @@ const Products = () => {
       
       setShowModal(false);
       setEditingProduct(null);
-      setFormData({ name: '', description: '', price: '', discountPrice: '', stockQty: '', shortDesc: '', longDesc: '', categories: [], subcategories: [], images: [], video: null, isBestRated: false, isBestSeller: false, isOnSale: false, isPopular: false, status: 'active' });
+      setFormData({ name: '', description: '', price: '', discountPrice: '', stockQty: '', shortDesc: '', longDesc: '', categories: [], subcategories: [], images: [], video: null, isBestRated: false, isBestSeller: false, isOnSale: false, isPopular: false, weight: 100, uom: 'gm', piecesPerUnit: 1, status: 'active' });
       setSelectedImages([]);
       setSelectedVideo(null);
       fetchItems();
@@ -180,6 +182,8 @@ const Products = () => {
         isOnSale: product.isOnSale || false,
         isPopular: product.isPopular || false,
         weight: product.weight || 100,
+        uom: product.uom || 'gm',
+        piecesPerUnit: product.piecesPerUnit || 1,
         status: product.status || 'active'
       });
       
@@ -276,7 +280,7 @@ const Products = () => {
               onClick={() => {
                 setShowModal(false);
                 setEditingProduct(null);
-                setFormData({ name: '', description: '', price: '', discountPrice: '', stockQty: '', shortDesc: '', longDesc: '', categories: [], subcategories: [], images: [], video: null, isBestRated: false, isBestSeller: false, isOnSale: false, isPopular: false, status: 'active' });
+                setFormData({ name: '', description: '', price: '', discountPrice: '', stockQty: '', shortDesc: '', longDesc: '', categories: [], subcategories: [], images: [], video: null, isBestRated: false, isBestSeller: false, isOnSale: false, isPopular: false, weight: 100, uom: 'gm', piecesPerUnit: 1, status: 'active' });
                 setSelectedImages([]);
                 setSelectedVideo(null);
               }}
@@ -468,7 +472,7 @@ const Products = () => {
                 {/* Weight Field */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Weight (grams) <span className="text-red-500">*</span>
+                    Weight/Quantity <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -479,6 +483,44 @@ const Products = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     required
                   />
+                </div>
+
+                {/* UOM Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Unit of Measure <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.uom}
+                    onChange={(e) => setFormData({...formData, uom: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="gm">Grams (gm)</option>
+                    <option value="kg">Kilograms (kg)</option>
+                    <option value="ml">Milliliters (ml)</option>
+                    <option value="ltr">Liters (ltr)</option>
+                    <option value="pcs">Pieces (pcs)</option>
+                    <option value="box">Box</option>
+                    <option value="pack">Pack</option>
+                  </select>
+                </div>
+
+                {/* Pieces Per Unit Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Pieces Per Unit <span className="text-blue-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="1"
+                    min="1"
+                    value={formData.piecesPerUnit}
+                    onChange={(e) => setFormData({...formData, piecesPerUnit: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">E.g., 12 pieces per box</p>
                 </div>
 
                 {/* Short Desc Field */}
@@ -695,19 +737,21 @@ const Products = () => {
             <table className="w-full text-sm" style={{minWidth: '600px'}}>
               <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
                 <tr>
-                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '25%', minWidth: '100px'}}>Name</th>
-                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '20%', minWidth: '80px'}}>Categories</th>
-                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Price</th>
-                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '70px'}}>Discount</th>
-                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '50px'}}>Stock</th>
-                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '60px'}}>Weight</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '20%', minWidth: '100px'}}>Name</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '80px'}}>Categories</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '70px'}}>Price</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '70px'}}>Discount</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '8%', minWidth: '50px'}}>Stock</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '10%', minWidth: '60px'}}>Weight/Qty</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '8%', minWidth: '50px'}}>UOM</th>
+                  <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '8%', minWidth: '50px'}}>Pcs/Unit</th>
                   <th className="px-2 py-3 text-left font-semibold uppercase" style={{width: '15%', minWidth: '80px'}}>Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {getCurrentPageItems().length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
                       {searchQuery ? `No products found matching "${searchQuery}"` : 'No products available'}
                     </td>
                   </tr>
@@ -723,7 +767,9 @@ const Products = () => {
                     <td className="px-2 py-3 text-gray-700">₹{product.price}</td>
                     <td className="px-2 py-3 text-gray-700">₹{product.discountPrice || product.price}</td>
                     <td className="px-2 py-3 text-gray-700 text-center">{product.stockQty || 0}</td>
-                    <td className="px-2 py-3 text-gray-700 text-center">{product.weight || 100}g</td>
+                    <td className="px-2 py-3 text-gray-700 text-center">{product.weight || 100}</td>
+                    <td className="px-2 py-3 text-gray-700 text-center">{product.uom || 'gm'}</td>
+                    <td className="px-2 py-3 text-gray-700 text-center">{product.piecesPerUnit || 1}</td>
                     <td className="px-2 py-3">
                       <div className="flex gap-2">
                         <button
