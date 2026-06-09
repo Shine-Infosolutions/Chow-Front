@@ -4,8 +4,10 @@ import { useApi } from '../../contexts/index.jsx';
 import { useCart } from '../../contexts/index.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
 import amavatBarfi from '../../assets/Amavat Barfi (1).jpg';
+import { useSeo } from '../../hooks/useSeo.js';
 
 const Account = () => {
+  useSeo({ title: 'My Account', path: '/account', noindex: true });
   const { register, login } = useApi();
   const { transferGuestCartToUser, handleLogout: clearCartOnLogout } = useCart();
   const navigate = useNavigate();
@@ -105,18 +107,18 @@ const Account = () => {
 
   if (isLoggedIn && user) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen mithai-bg">
         <Breadcrumb currentPage="My Profile" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-1">
           <div className="flex justify-center">
             <div className="w-full max-w-4xl">
-              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-8">
+              <div className="bg-white rounded-2xl border border-amber-100 shadow-lg p-4 sm:p-8">
                 <div className="text-center mb-8">
                   <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i className="fas fa-user text-[#d80a4e] text-3xl"></i>
                   </div>
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome, {user.name}!</h2>
+                  <h2 className="font-display text-3xl font-bold text-gray-900 mb-2">Welcome, {user.name}!</h2>
                   <p className="text-gray-600">Manage your account and preferences</p>
                 </div>
 
@@ -174,6 +176,10 @@ const Account = () => {
                         <i className="fas fa-shopping-bag text-gray-400 w-5"></i>
                         <span className="ml-3">My Orders</span>
                       </Link>
+                      <Link to="/support" className="flex items-center text-gray-700 hover:text-[#d80a4e] transition-colors">
+                        <i className="fas fa-headset text-gray-400 w-5"></i>
+                        <span className="ml-3">My Support</span>
+                      </Link>
                       <Link to="/profile" className="flex items-center text-gray-700 hover:text-[#d80a4e] transition-colors">
                         <i className="fas fa-user text-gray-400 w-5"></i>
                         <span className="ml-3">Edit Profile</span>
@@ -204,13 +210,13 @@ const Account = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen mithai-bg">
       <Breadcrumb currentPage={isLogin ? 'Login' : 'Sign Up'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
         <div className="flex justify-center">
           <div className="w-full max-w-4xl">
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="bg-white rounded-2xl border border-amber-100 shadow-lg overflow-hidden">
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-1/2 hidden md:block">
                   <img 
@@ -225,7 +231,7 @@ const Account = () => {
                     <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-4">
                       <i className={`fas ${isLogin ? 'fa-user' : 'fa-user-plus'} text-[#d80a4e] text-xl`}></i>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">{isLogin ? 'Login' : 'Sign Up'}</h2>
+                    <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">{isLogin ? 'Login' : 'Sign Up'}</h2>
                     <p className="text-gray-600 text-sm">
                       {isLogin 
                         ? 'Welcome back! Please login to your account.' 
@@ -245,7 +251,7 @@ const Account = () => {
                             value={formData.name}
                             onChange={handleChange}
                             placeholder="Full Name"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
                             required
                           />
                         </div>
@@ -261,7 +267,7 @@ const Account = () => {
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="Email address"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
                           required
                         />
                       </div>
@@ -277,7 +283,7 @@ const Account = () => {
                             value={formData.phone}
                             onChange={handleChange}
                             placeholder="Enter Phone Number eg: 9923998344"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
                           />
                         </div>
                       </div>
@@ -292,7 +298,7 @@ const Account = () => {
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="Password"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
                           required
                         />
                       </div>
@@ -328,7 +334,7 @@ const Account = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-[#d80a4e] text-white py-3 rounded-lg hover:bg-[#b8083e] transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
+                      className="shine-on-hover w-full bg-[#d80a4e] text-white py-3 rounded-xl hover:bg-[#b8083e] transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
                     >
                       {loading ? (isLogin ? 'Logging in...' : 'Registering...') : (isLogin ? 'Login' : 'Register Now')}
                       <i className="fas fa-arrow-right ml-2"></i>

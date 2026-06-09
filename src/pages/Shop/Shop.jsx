@@ -3,8 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useApi } from '../../contexts/index.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
+import { useSeo } from '../../hooks/useSeo.js';
 
 const Shop = () => {
+  useSeo({ title: 'Shop Sweets, Mithai & Namkeen', description: 'Browse and order fresh Indian sweets, mithai, dry-fruit delicacies, gift boxes and namkeen online from Chowdhry Sweet House, Gorakhpur.', path: '/shop' });
   const { fetchItems, fetchCategories, getItemsByCategory, getSubcategoriesByCategory, getSubcategories, searchItems, categories, items, loading } = useApi();
   const [searchParams] = useSearchParams();
   const [filteredItems, setFilteredItems] = useState([]);
@@ -204,16 +206,17 @@ const Shop = () => {
   }
 
   return (
-    <div className="bg-white">
+    <div className="mithai-bg min-h-screen">
       <Breadcrumb currentPage="Shop Now" />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8">
         {/* Header */}
-        <div className="text-center mb-6 md:mb-8">
-          <h2 className="text-xl md:text-2xl font-bold">
+        <div className="text-center mb-6 md:mb-8 pt-2">
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-gray-900">
             Popular <span className="text-[#d80a4e]">Sweets</span>
-          </h2>
+          </h1>
+          <p className="mt-2 text-sm text-gray-500">Freshly made traditional mithai &amp; namkeen</p>
         </div>
 
         {/* Search Bar */}
@@ -224,7 +227,7 @@ const Shop = () => {
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Search products..."
-              className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e]"
+              className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40"
             />
             {isSearching ? (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -300,8 +303,8 @@ const Shop = () => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 max-w-6xl mx-auto">
-          {filteredItems.length > 0 ? filteredItems.map((product) => (
-            <ProductCard key={product._id} product={product} />
+          {filteredItems.length > 0 ? filteredItems.map((product, i) => (
+            <ProductCard key={product._id} product={product} index={i} />
           )) : (
             <div className="col-span-full text-center py-8 md:py-12">
               <p className="text-gray-500 text-sm md:text-lg">No products found in this category.</p>

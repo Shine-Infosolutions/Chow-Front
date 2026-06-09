@@ -4,6 +4,7 @@ import { ApiProvider, CartProvider, NotificationProvider } from './contexts/inde
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import ActiveOrderBar from './components/ActiveOrderBar';
 
 import Home from './pages/Home/Home';
 import Shop from './pages/Shop/Shop';
@@ -17,6 +18,7 @@ import Profile from './pages/Profile/Profile';
 import Cart from './pages/Cart/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import Orders from './pages/Orders/Orders';
+import Support from './pages/Support/Support';
 import Admin from './pages/Admin/Admin';
 import OrderDetails from './pages/Admin/OrderDetails';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
@@ -53,6 +55,7 @@ const AppContent = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/support" element={<Support />} />
 
           {/* Admin Routes */}
           <Route
@@ -84,6 +87,9 @@ const AppContent = () => {
 
       {/* Footer only for non-admin */}
       {!isAdminRoute && <Footer />}
+
+      {/* Sticky active-order tracker (non-admin) */}
+      {!isAdminRoute && <ActiveOrderBar />}
     </div>
   );
 };

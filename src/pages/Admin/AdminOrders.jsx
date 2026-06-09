@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApi } from '../../contexts/index.jsx';
 import { useNavigate } from 'react-router-dom';
+import { deriveOrderStatus } from '../../utils/orderStatus.js';
 
 const AdminOrders = () => {
   const { getAllOrders, updateOrderStatus, updatePaymentStatus, createShipment, trackOrder, updateDeliveryStatus, service } = useApi();
@@ -305,10 +306,10 @@ const AdminOrders = () => {
   return (
     <div className="h-full flex flex-col">
       {/* Compact Header */}
-      <div className="bg-white rounded-lg shadow mx-4 mt-4 mb-4">
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mt-4 mb-4">
         <div className="p-3">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-bold text-gray-900">Orders Management</h2>
+            <h2 className="font-display text-lg font-bold text-gray-900">Orders Management</h2>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -320,7 +321,7 @@ const AdminOrders = () => {
               </button>
               <button
                 onClick={fetchOrders}
-                className="bg-[#d80a4e] text-white px-3 py-1 rounded text-sm"
+                className="bg-[#d80a4e] text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-[#b8083e]"
               >
                 🔄 Refresh
               </button>
@@ -363,7 +364,7 @@ const AdminOrders = () => {
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-white rounded-lg shadow mx-4 mb-4">
+        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4">
           <div className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {/* Search */}
@@ -470,7 +471,7 @@ const AdminOrders = () => {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow mx-4 mb-4 flex-1 min-h-0">
+        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4 flex-1 min-h-0">
           <div className="h-full overflow-auto">
             <table className="min-w-[2000px] w-full">
               <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
@@ -543,9 +544,10 @@ const AdminOrders = () => {
                         ₹{(order.totalAmount || 0).toFixed(2)}
                       </td>
                       <td className="px-2 py-2 text-sm">
-                        <span className={`px-2 py-1 rounded-full text-white text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
-                          {order.orderStatus?.charAt(0).toUpperCase() + order.orderStatus?.slice(1)}
-                        </span>
+                        {(() => {
+                          const st = deriveOrderStatus(order);
+                          return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${st.cls}`}>{st.label}</span>;
+                        })()}
                       </td>
                       <td className="px-2 py-2 text-sm">
                         <span className={`px-2 py-1 rounded-full text-white text-xs font-medium ${
@@ -711,7 +713,7 @@ const AdminOrders = () => {
         </div>
       )}
       {/* Pagination */}
-      <div className="bg-white rounded-lg shadow mx-4 mb-4">
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4">
         <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
             <span>Items per page: {itemsPerPage}</span>
@@ -745,10 +747,10 @@ const AdminOrders = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-xl">
+            <div className="bg-gradient-to-r from-[#d80a4e] to-[#8b1a3a] text-white p-6 rounded-t-xl">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-2xl font-bold">Payment Details</h3>
+                  <h3 className="font-display text-2xl font-bold">Payment Details</h3>
                   <p className="text-blue-100 mt-1">Order #{selectedOrder.orderId?.slice(-8)}</p>
                 </div>
                 <button
@@ -1023,9 +1025,9 @@ const AdminOrders = () => {
       {/* Order Details Modal */}
       {showOrderModal && selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-4 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-4 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Order #{selectedOrder.orderId?.slice(-8)}</h3>
+              <h3 className="font-display text-lg font-bold text-gray-900">Order #{selectedOrder.orderId?.slice(-8)}</h3>
               <button onClick={() => setShowOrderModal(false)} className="text-gray-400 hover:text-gray-600">
                 ✕
               </button>

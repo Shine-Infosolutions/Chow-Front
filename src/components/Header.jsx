@@ -24,10 +24,10 @@ const Header = () => {
   return (
     <header className="w-full bg-white fixed top-0 left-0 right-0 z-[100] shadow-sm">
       {/* Top Announcement Bar */}
-      <div className="bg-[#d80a4e] text-white text-sm sm:text-base h-10 sm:h-12 flex items-center">
+      <div className="bg-gradient-to-r from-[#d80a4e] to-[#8b1a3a] text-white text-sm sm:text-base h-10 sm:h-12 flex items-center">
         <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 flex justify-between">
           <span className="hidden sm:block">About Us</span>
-          <span className="text-center w-full sm:w-auto">Enjoy free shipping on orders INR 1000 & up.</span>
+          <span className="text-center w-full sm:w-auto">🛵 Free delivery within 5 km in Gorakhpur</span>
         </div>
       </div>
 

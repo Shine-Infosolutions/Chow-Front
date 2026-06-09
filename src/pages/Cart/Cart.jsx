@@ -1,211 +1,165 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Minus, Plus, Trash2, ArrowRight, ArrowLeft, ShoppingBag, ShieldCheck } from "lucide-react";
 import { useCart } from "../../contexts/index.jsx";
+import { getEffectivePrice, weightLabel } from "../../utils/index.js";
+import ProductThumb from "../../components/ProductThumb.jsx";
 import Breadcrumb from "../../components/Breadcrumb.jsx";
+import { useSeo } from "../../hooks/useSeo.js";
 
 const Cart = () => {
+  useSeo({ title: 'Your Cart', path: '/cart', noindex: true });
   const { cartItems, updateQuantity, removeFromCart, getCartTotal } = useCart();
   const navigate = useNavigate();
-  
+
   const subtotal = getCartTotal();
   const taxRate = 0.05; // 5% tax
   const taxAmount = subtotal * taxRate;
   const total = subtotal + taxAmount;
-  
+  const itemCount = cartItems.reduce((n, i) => n + i.quantity, 0);
+
   const handleCheckout = () => {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
+
     if (!token || !user._id) {
       navigate('/account');
       return;
     }
-    
+
     navigate('/checkout');
   };
 
   return (
-    <div className="bg-white">
+    <div className="mithai-bg min-h-screen pb-12">
       <Breadcrumb currentPage="Product Cart" />
 
       {cartItems.length === 0 ? (
         /* EMPTY CART */
-        <div className="flex items-center justify-center py-24 px-6">
-          <div className="text-center max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">
-              Your Cart is Empty 🍬
-            </h2>
-            <p className="text-gray-600 mb-8">
-              It looks like your cart is missing some sweetness! Explore our
-              delightful collection of traditional Indian sweets and add your
-              favorites.
+        <div className="flex items-center justify-center px-6 py-20">
+          <div className="animate-fade-up max-w-lg rounded-2xl border border-amber-100 bg-white p-10 text-center shadow-sm">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-rose-50 text-[#d80a4e]">
+              <ShoppingBag className="h-9 w-9" />
+            </div>
+            <h2 className="font-display mb-3 text-2xl font-bold text-gray-900">Your Cart is Empty</h2>
+            <p className="mb-8 text-gray-600">
+              Your cart is missing some sweetness! Explore our collection of traditional mithai and add your favourites.
             </p>
             <Link
               to="/shop"
-              className="bg-[#d80a4e] text-white px-8 py-3 font-semibold"
+              className="shine-on-hover inline-flex items-center gap-2 rounded-xl bg-[#d80a4e] px-8 py-3 font-semibold text-white transition hover:bg-[#b8083e]"
             >
-              Start Shopping
+              Start Shopping <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
       ) : (
         /* CART CONTENT */
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
-            
-            {/* LEFT – CART TABLE */}
-            <div className="lg:col-span-2">
-              <div className="border border-gray-200">
+        <div className="mx-auto max-w-7xl px-4 pt-2 sm:px-6 lg:px-8">
+          <h1 className="font-display text-3xl font-bold text-gray-900 sm:text-4xl">Shopping Cart</h1>
+          <p className="mb-6 mt-1 text-sm text-gray-500">{itemCount} {itemCount === 1 ? 'item' : 'items'} in your cart</p>
 
-                {/* HEADER - Hidden on mobile */}
-                <div className="hidden sm:grid grid-cols-7 text-sm font-semibold text-gray-700 border-b px-4 py-3 bg-gray-50">
-                  <div>Images</div>
-                  <div>Name</div>
-                  <div>Unit Price</div>
-                  <div className="col-span-2 text-center">Quantity</div>
-                  <div>Total</div>
-                  <div className="text-center">Remove</div>
-                </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
 
-                {/* ROWS */}
-                {cartItems.map((item) => (
-                  <div key={item._id}>
-                    {/* Mobile Card View */}
-                    <div className="block sm:hidden border-b p-4">
-                      <div className="flex items-start gap-4">
-                        <img
-                          src={item.images?.[0] || item.image || "/placeholder.jpg"}
-                          alt={item.name}
-                          className="w-16 h-16 object-cover border rounded"
-                        />
-                        <div className="flex-1">
-                          <h3 className="font-medium text-gray-800 mb-1">{item.name}</h3>
-                          <p className="text-sm text-gray-600 mb-2">₹{item.discountPrice}</p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex border rounded">
-                              <button
-                                onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                                className="px-3 py-1 border-r hover:bg-gray-100 text-sm"
-                              >
-                                -
-                              </button>
-                              <span className="px-3 py-1 text-sm">{item.quantity}</span>
-                              <button
-                                onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                                className="px-3 py-1 border-l hover:bg-gray-100 text-sm"
-                              >
-                                +
-                              </button>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">₹{(item.discountPrice * item.quantity).toFixed(2)}</p>
-                              <button
-                                onClick={() => removeFromCart(item._id)}
-                                className="text-red-500 hover:text-red-700 text-sm mt-1"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Desktop Table View */}
-                    <div className="hidden sm:grid grid-cols-7 items-center text-sm px-4 py-5 border-b">
-                      {/* IMAGE */}
-                      <div>
-                        <img
-                          src={item.images?.[0] || item.image || "/placeholder.jpg"}
-                          alt={item.name}
-                          className="w-20 h-20 object-cover border"
-                        />
-                      </div>
+            {/* LEFT – CART ITEMS */}
+            <div className="space-y-4 lg:col-span-2">
+              {cartItems.map((item, i) => (
+                <div
+                  key={item._id}
+                  className="animate-fade-up flex items-center gap-4 rounded-2xl border border-amber-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                  style={{ animationDelay: `${(i % 10) * 60}ms` }}
+                >
+                  <Link to={`/product/${item._id}`}>
+                    <ProductThumb product={item} className="h-20 w-20" />
+                  </Link>
 
-                      {/* NAME */}
-                      <div className="font-medium text-gray-800">
+                  <div className="min-w-0 flex-1">
+                    <Link to={`/product/${item._id}`}>
+                      <h3 className="font-display truncate font-semibold text-gray-900 transition-colors hover:text-[#d80a4e]">
                         {item.name}
-                      </div>
+                      </h3>
+                    </Link>
+                    <p className="mt-0.5 text-sm text-gray-500">
+                      ₹{getEffectivePrice(item)}
+                      {weightLabel(item.weight) ? ` · ${weightLabel(item.weight)}` : ''}
+                    </p>
 
-                      {/* UNIT PRICE */}
-                      <div>₹{item.discountPrice}</div>
-
-                      {/* QUANTITY */}
-                      <div className="col-span-2 flex justify-center">
-                        <div className="flex border">
-                          <button
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                            className="px-3 border-r hover:bg-gray-100"
-                          >
-                            -
-                          </button>
-                          <span className="px-4 py-1">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                            className="px-3 border-l hover:bg-gray-100"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* TOTAL */}
-                      <div>
-                        ₹{(item.discountPrice * item.quantity).toFixed(2)}
-                      </div>
-
-                      {/* REMOVE */}
-                      <div className="text-center">
+                    <div className="mt-3 flex items-center gap-3">
+                      <div className="inline-flex items-center overflow-hidden rounded-lg border border-gray-200">
                         <button
-                          onClick={() => removeFromCart(item._id)}
-                          className="text-xl text-gray-500 hover:text-red-600"
+                          onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                          className="px-2.5 py-1.5 text-gray-600 transition-colors hover:bg-rose-50 hover:text-[#d80a4e]"
+                          aria-label="Decrease quantity"
                         >
-                          ×
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="min-w-[2rem] px-2 text-center text-sm font-medium tabular-nums">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                          className="px-2.5 py-1.5 text-gray-600 transition-colors hover:bg-rose-50 hover:text-[#d80a4e]"
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
+                      <button
+                        onClick={() => removeFromCart(item._id)}
+                        className="text-gray-400 transition-colors hover:text-red-600"
+                        aria-label="Remove item"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  <div className="shrink-0 text-right">
+                    <p className="font-bold text-gray-900">₹{(getEffectivePrice(item) * item.quantity).toFixed(2)}</p>
+                  </div>
+                </div>
+              ))}
+
+              <Link to="/shop" className="inline-flex items-center gap-2 text-sm font-medium text-[#d80a4e] hover:underline">
+                <ArrowLeft className="h-4 w-4" /> Continue shopping
+              </Link>
             </div>
 
-            {/* RIGHT – CART TOTALS */}
-            <div className="border border-gray-200 p-6 h-fit">
-              <h3 className="text-lg font-semibold mb-6 text-gray-800">
-                Cart Totals
-              </h3>
-
-              <div className="space-y-4 text-sm">
-                <div className="flex justify-between border-b pb-2">
-                  <span>Subtotal</span>
-                  <span>
-                    ₹ {getCartTotal().toFixed(2)}
-                  </span>
+            {/* RIGHT – ORDER SUMMARY */}
+            <div className="h-fit lg:sticky lg:top-24">
+              <div className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm">
+                <div className="bg-gradient-to-r from-[#d80a4e] to-[#8b1a3a] px-5 py-4 text-white">
+                  <h3 className="font-display text-lg font-semibold">Order Summary</h3>
                 </div>
+                <div className="space-y-3 p-5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">GST (5%)</span>
+                    <span className="font-medium">₹{taxAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-500">
+                    <span>Delivery</span>
+                    <span className="text-xs">Calculated at checkout</span>
+                  </div>
+                  <p className="text-xs font-medium text-green-600">🛵 Free delivery within 5 km</p>
+                  <div className="flex justify-between border-t border-dashed border-gray-200 pt-3 text-base font-bold text-gray-900">
+                    <span>Total</span>
+                    <span className="text-[#d80a4e]">₹{total.toFixed(2)}</span>
+                  </div>
 
-                <div className="flex justify-between border-b pb-2">
-                  <span>Tax (5%)</span>
-                  <span>
-                    ₹ {taxAmount.toFixed(2)}
-                  </span>
-                </div>
+                  <button
+                    onClick={handleCheckout}
+                    className="shine-on-hover mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#d80a4e] py-3 font-semibold text-white transition hover:bg-[#b8083e]"
+                  >
+                    Proceed to Checkout <ArrowRight className="h-4 w-4" />
+                  </button>
 
-                <div className="flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>
-                    ₹ {total.toFixed(2)}
-                  </span>
+                  <p className="flex items-center justify-center gap-1.5 pt-1 text-xs text-gray-400">
+                    <ShieldCheck className="h-3.5 w-3.5" /> Secure prepaid checkout
+                  </p>
                 </div>
               </div>
-
-              <button 
-                onClick={handleCheckout}
-                className="block w-full mt-6 bg-[#d80a4e] text-white py-3 text-center font-semibold hover:bg-[#b8083e] transition"
-              >
-                Proceed to Checkout
-              </button>
             </div>
 
           </div>

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+Disallow: /profile
+Disallow: /account
+Disallow: /login
+
+Sitemap: https://chowdhrysweethouse.in/sitemap.xml

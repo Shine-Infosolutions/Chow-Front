@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { useApi } from "../../contexts/index.jsx";
 import { FaTruck, FaShieldAlt, FaCreditCard, FaHeadset, FaGift, FaBox, FaStar, FaSmile, FaFire, FaTags, FaCrown, FaMagic, FaFolder } from "react-icons/fa";
 import ProductCard from "../../components/ProductCard.jsx";
+import { useSeo } from "../../hooks/useSeo.js";
 import ban1 from "../../assets/ban1.jpg";
 import compressedcard1 from "../../assets/compressedcard1.jpg";
 import compressedcard2 from "../../assets/compressedcard2.jpg";
 
 const Home = () => {
+  useSeo({ path: '/' });
   const { fetchItems, getFeaturedItems, getSubcategories, fetchCategories, getActiveSweetDeal, items, categories } = useApi();
   const [featured, setFeatured] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
@@ -130,18 +132,19 @@ const Home = () => {
           <div className="lg:col-span-7 relative rounded-lg overflow-hidden h-[250px] sm:h-[350px] lg:h-[420px]">
             <img
               src={ban1}
+              alt="Premium traditional Indian sweets and mithai at Chowdhry Sweet House, Gorakhpur"
               className="w-full h-full object-cover brightness-90"
             />
             <div className="absolute inset-0" />
             <div className="absolute inset-0 p-4 sm:p-6 lg:p-10 flex flex-col justify-center animate-fade-in">
               <p className="text-pink-500 mb-2 text-base sm:text-lg animate-fade-in-delay-1">Deliciously Crafted Treats</p>
-              <h1 className="text-white text-2xl sm:text-3xl lg:text-5xl font-bold animate-fade-in-delay-2">
+              <h1 className="font-display text-white text-2xl sm:text-3xl lg:text-5xl font-bold animate-fade-in-delay-2">
                 Premium Sweets <br />
-                <span className="text-pink-500">& Exquisite</span> Flavors.
+                <span className="text-pink-500">&amp; Exquisite</span> Flavors.
               </h1>
               <Link
                 to="/shop"
-                className="mt-4 sm:mt-6 bg-white text-black px-4 sm:px-6 py-2 sm:py-3 w-fit rounded text-base sm:text-lg animate-fade-in-delay-3 hover:bg-gray-100 transition-colors"
+                className="shine-on-hover mt-4 sm:mt-6 bg-[#d80a4e] text-white px-6 py-2.5 sm:py-3 w-fit rounded-xl font-semibold text-base sm:text-lg animate-fade-in-delay-3 hover:bg-[#b8083e] transition-colors shadow-lg"
               >
                 Shop Now →
               </Link>
@@ -151,13 +154,13 @@ const Home = () => {
           {/* RIGHT BANNERS - Stack on mobile */}
           <div className="lg:col-span-3 flex flex-row lg:flex-col gap-3 sm:gap-6">
             <div className="relative rounded-lg overflow-hidden flex-1 h-[120px] sm:h-[150px] lg:h-auto">
-              <img src={compressedcard1} className="w-full h-full object-cover brightness-75" />
+              <img src={compressedcard1} alt="Freshly made sweets at Chowdhry Sweet House" className="w-full h-full object-cover brightness-75" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <p className="text-white text-sm sm:text-base font-medium text-center px-2 sm:px-4">Freshly Sweet Made, Every Day...</p>
               </div>
             </div>
             <div className="relative rounded-lg overflow-hidden flex-1 h-[120px] sm:h-[150px] lg:h-auto">
-              <img src={compressedcard2} className="w-full h-full object-cover brightness-75" />
+              <img src={compressedcard2} alt="Assorted mithai and gift boxes at Chowdhry Sweet House, Gorakhpur" className="w-full h-full object-cover brightness-75" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <p className="text-white text-sm sm:text-base font-medium text-center px-2 sm:px-4">Freshly Sweet Made, Every Day...</p>
               </div>
@@ -229,14 +232,17 @@ const Home = () => {
   if (categoryItems.length === 0) return null;
 
   return (
-    <section key={category._id} className="bg-white py-4 sm:py-6" id={`category-${category._id}`}>
+    <section key={category._id} className="bg-[#fdf6ee] py-6 sm:py-8" id={`category-${category._id}`}>
       <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6">
 
         {/* Category Title and Subcategories */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#d80a4e] mb-2 sm:mb-0">
-            {category.name}
-          </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-5">
+          <div className="mb-2 sm:mb-0">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-gray-900">
+              {category.name}
+            </h2>
+            <span className="mt-1 block h-1 w-12 rounded-full bg-[#d80a4e]" />
+          </div>
           
           {categorySubcategories.length > 0 && (
             <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -249,7 +255,7 @@ const Home = () => {
                              transition whitespace-nowrap ${
                                selectedSubcategory === subcategory._id
                                  ? 'border-[#d80a4e] text-[#d80a4e] bg-pink-50'
-                                 : 'text-gray-700 hover:border-[#d80a4e] hover:text-[#d80a4e]'
+                                 : 'bg-white border-gray-200 text-gray-700 hover:border-[#d80a4e] hover:text-[#d80a4e]'
                              }`}
                 >
                   {subcategory.name}
@@ -314,7 +320,7 @@ const Home = () => {
         <span className="line-through text-gray-400">₹{sweetDeal.originalPrice}</span>
       </div>
 
-      <h2 className="text-4xl font-bold mb-4">
+      <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4 text-gray-900">
         {sweetDeal.title}
       </h2>
 

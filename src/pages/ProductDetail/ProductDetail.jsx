@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../../contexts/index.jsx';
 import { useCart } from '../../contexts/index.jsx';
+import { isPlaceholderImage, productGradient } from '../../utils/index.js';
+import { useSeo } from '../../hooks/useSeo.js';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
 
 const ProductDetail = () => {
@@ -28,6 +30,50 @@ const ProductDetail = () => {
     };
     loadProduct();
   }, [id]);
+
+  // Clear the swap-transition even when the media has no onLoad (e.g. gradient tiles)
+  useEffect(() => {
+    const t = setTimeout(() => setIsTransitioning(false), 200);
+    return () => clearTimeout(t);
+  }, [selectedImage, product]);
+
+  useSeo({
+    title: product?.name,
+    description: product?.shortDesc || product?.longDesc,
+    path: `/product/${id}`,
+    image: product && !isPlaceholderImage(product.images?.[0]) ? product.images[0] : undefined,
+    type: 'product',
+  });
+
+  // Product structured data (rich result with price + availability)
+  useEffect(() => {
+    if (!product) return;
+    const price = (product.discountPrice > 0 && product.discountPrice < product.price)
+      ? product.discountPrice : product.price;
+    const realImages = (product.images || []).filter((img) => img && !img.includes('placehold.co'));
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description: product.shortDesc || product.longDesc || product.name,
+      ...(realImages.length ? { image: realImages } : {}),
+      brand: { '@type': 'Brand', name: 'Chowdhry Sweet House' },
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'INR',
+        price: String(price),
+        availability: product.stockQty > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        url: `https://chowdhrysweethouse.in/product/${id}`,
+      },
+    };
+    document.getElementById('product-jsonld')?.remove();
+    const el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.id = 'product-jsonld';
+    el.text = JSON.stringify(ld);
+    document.head.appendChild(el);
+    return () => { document.getElementById('product-jsonld')?.remove(); };
+  }, [product, id]);
 
   const handleAddToCart = () => {
     if (product.stockQty > 0 && product.status === 'active') {
@@ -60,7 +106,7 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="bg-white pb-8">
+    <div className="mithai-bg min-h-screen pb-8">
       <Breadcrumb currentPage={product.name} />
       
       <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
@@ -85,11 +131,17 @@ const ProductDetail = () => {
                       : 'border-gray-200 hover:border-[#d80a4e]/50 hover:shadow-md'
                   }`}
                 >
-                  <img 
-                    src={image} 
-                    alt={`${product.name} ${index + 1}`} 
-                    className="w-full h-full object-cover transition-transform duration-200 hover:scale-110" 
-                  />
+                  {isPlaceholderImage(image) ? (
+                    <div className="w-full h-full flex items-center justify-center" style={{ background: productGradient(product.name) }}>
+                      <span className="font-display text-white text-[9px] font-semibold text-center px-1 leading-tight line-clamp-2">{product.name}</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={image}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-200 hover:scale-110"
+                    />
+                  )}
                 </button>
               ))}
               
@@ -131,12 +183,18 @@ const ProductDetail = () => {
                 isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
               }`}>
                 {selectedImage < (product.images?.length || 0) ? (
-                  <img
-                    src={product.images?.[selectedImage]}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onLoad={() => setIsTransitioning(false)}
-                  />
+                  isPlaceholderImage(product.images?.[selectedImage]) ? (
+                    <div className="w-full h-full flex items-center justify-center" style={{ background: productGradient(product.name) }}>
+                      <span className="font-display text-white text-2xl sm:text-3xl font-semibold text-center px-6 drop-shadow">{product.name}</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={product.images?.[selectedImage]}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onLoad={() => setIsTransitioning(false)}
+                    />
+                  )
                 ) : product.video ? (
                   <video 
                     autoPlay
@@ -167,7 +225,7 @@ const ProductDetail = () => {
           {/* Product Info */}
           <div className="space-y-4 sm:space-y-6">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
               
               {/* Badges */}
               <div className="flex flex-wrap gap-2 mb-3">
@@ -279,9 +337,9 @@ const ProductDetail = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={product.stockQty === 0 || product.status === 'inactive'}
-                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${
+                className={`shine-on-hover w-full py-3.5 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center space-x-2 ${
                   product.stockQty === 0 || product.status === 'inactive'
-                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-[#d80a4e] text-white hover:bg-[#b8083e]'
                 }`}
               >
@@ -309,8 +367,8 @@ const ProductDetail = () => {
         {/* Long Description - Bottom Section */}
         {product.longDesc && (
           <div className="max-w-6xl mx-auto px-4 py-8 border-t border-gray-200 mt-8">
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Detailed Description</h3>
+            <div className="bg-white rounded-2xl border border-amber-100 p-6 shadow-sm">
+              <h3 className="font-display text-2xl font-bold text-gray-900 mb-4">Detailed Description</h3>
               <div className="prose max-w-none">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line text-base">{product.longDesc}</p>
               </div>

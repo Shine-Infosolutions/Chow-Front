@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getEffectivePrice } from '../utils/index.js';
 
 // ============================================================================
 // NOTIFICATION CONTEXT
@@ -440,6 +441,18 @@ export const ApiProvider = ({ children }) => {
         return null;
       }
     },
+    getMyTickets: async (userId) => {
+      try {
+        const data = await apiService.get(`/api/tickets/my/${userId}`);
+        return data.tickets || [];
+      } catch (error) {
+        return [];
+      }
+    },
+    replyToTicket: async (id, message) => {
+      const response = await apiService.post(`/api/tickets/${id}/reply`, { message });
+      return response;
+    },
     updateTicket: async (id, ticketData) => {
       try {
         return await apiService.put(`/api/tickets/${id}`, ticketData);
@@ -659,6 +672,31 @@ export const ApiProvider = ({ children }) => {
       } catch (error) {
         throw error;
       }
+    },
+    // Customer: update contact number(s) on their own order
+    updateOrderContact: async (orderId, data) => {
+      const response = await apiService.patch(`/api/orders/${orderId}/contact`, data);
+      return response;
+    },
+    // Admin: set the delivery date after accepting an order
+    updateOrderDeliveryDate: async (orderId, deliveryDate) => {
+      const response = await apiService.patch(`/api/orders/${orderId}/delivery-date`, { deliveryDate });
+      return response;
+    },
+    // Admin: cancel an order (restock + refund state)
+    cancelOrder: async (orderId, data) => {
+      const response = await apiService.patch(`/api/orders/${orderId}/cancel`, data);
+      return response;
+    },
+    // Admin: mark delayed / reschedule
+    markOrderDelayed: async (orderId, data) => {
+      const response = await apiService.patch(`/api/orders/${orderId}/delay`, data);
+      return response;
+    },
+    // Admin: internal notes
+    updateOrderNotes: async (orderId, adminNotes) => {
+      const response = await apiService.patch(`/api/orders/${orderId}/notes`, { adminNotes });
+      return response;
     }
   };
 
@@ -847,43 +885,42 @@ export const CartProvider = ({ children }) => {
   };
 
   const transferGuestCartToUser = (userId) => {
+    if (!userId) return;
     try {
       const guestCart = localStorage.getItem('guest_cart');
-      if (guestCart && userId) {
-        const guestItems = JSON.parse(guestCart);
-        if (guestItems.length > 0) {
-          const existingUserCart = localStorage.getItem(`cart_${userId}`);
-          if (existingUserCart) {
-            const existingItems = JSON.parse(existingUserCart);
-            const mergedItems = [...existingItems];
-            
-            guestItems.forEach(guestItem => {
-              const existingIndex = mergedItems.findIndex(item => item._id === guestItem._id);
-              if (existingIndex >= 0) {
-                mergedItems[existingIndex].quantity += guestItem.quantity;
-              } else {
-                mergedItems.push(guestItem);
-              }
-            });
-            
-            localStorage.setItem(`cart_${userId}`, JSON.stringify(mergedItems));
-            setCartItems(mergedItems);
+      const guestItems = guestCart ? JSON.parse(guestCart) : [];
+
+      if (guestItems.length > 0) {
+        const existingUserCart = localStorage.getItem(`cart_${userId}`);
+        const existingItems = existingUserCart ? JSON.parse(existingUserCart) : [];
+        const mergedItems = [...existingItems];
+
+        guestItems.forEach(guestItem => {
+          const existingIndex = mergedItems.findIndex(item => item._id === guestItem._id);
+          if (existingIndex >= 0) {
+            mergedItems[existingIndex] = {
+              ...mergedItems[existingIndex],
+              quantity: mergedItems[existingIndex].quantity + guestItem.quantity
+            };
           } else {
-            localStorage.setItem(`cart_${userId}`, guestCart);
-            setCartItems(guestItems);
+            mergedItems.push(guestItem);
           }
-          
-          localStorage.removeItem('guest_cart');
-          setCurrentUserId(userId);
-        }
+        });
+
+        localStorage.setItem(`cart_${userId}`, JSON.stringify(mergedItems));
+        localStorage.removeItem('guest_cart');
       }
     } catch (error) {
       console.error('Error transferring guest cart:', error);
+    } finally {
+      // Always switch the active cart to this user, even with an empty guest cart,
+      // so their saved cart loads and subsequent items persist under cart_<userId>.
+      setCurrentUserId(userId);
     }
   };
 
   const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.discountPrice * item.quantity), 0);
+    return cartItems.reduce((total, item) => total + getEffectivePrice(item) * item.quantity, 0);
   };
 
   const getCartItemsCount = () => {

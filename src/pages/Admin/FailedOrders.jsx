@@ -48,7 +48,7 @@ const FailedOrders = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64 px-4">
-        <div className="animate-spin h-8 w-8 border-b-2 border-red-600 rounded-full" />
+        <div className="animate-spin h-8 w-8 border-b-2 border-[#d80a4e] rounded-full" />
       </div>
     );
   }
@@ -56,17 +56,17 @@ const FailedOrders = () => {
   return (
     <div className="h-full flex flex-col">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 px-4 pt-4">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Failed Orders Management</h2>
+        <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Failed Orders Management</h2>
         <div className="flex gap-2">
           <button
             onClick={loadFailedOrders}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium"
           >
             Refresh
           </button>
           <button
             onClick={handleCleanFailedOrders}
-            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+            className="bg-gray-600 text-white px-5 py-2.5 rounded-xl hover:bg-gray-700 font-medium"
           >
             Clean Failed Orders
           </button>
@@ -78,7 +78,7 @@ const FailedOrders = () => {
           <p className="text-gray-500">No failed orders found</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow mx-4 mb-4 flex-1 min-h-0">
+        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4 flex-1 min-h-0 overflow-hidden">
           <div className="h-full overflow-auto">
             <table className="min-w-[1400px] w-full">
               <thead className="bg-red-600 text-white sticky top-0 z-10">
@@ -172,8 +172,8 @@ const FailedOrders = () => {
         </div>
       )}
       
-      <div className="bg-white rounded-lg shadow mt-4">
-        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mt-4 mx-4">
+        <div className="bg-white px-3 md:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
             <span>Items per page: {itemsPerPage}</span>
             <span className="sm:ml-8">{(currentPage - 1) * itemsPerPage + 1} – {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}</span>
@@ -202,9 +202,9 @@ const FailedOrders = () => {
       
       {showModal && selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-red-900">Failed Order Details</h3>
+              <h3 className="font-display text-2xl font-bold text-gray-900">Failed Order Details</h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-gray-400 hover:text-gray-600 text-2xl p-1 hover:bg-gray-100 rounded"
@@ -281,7 +281,7 @@ const FailedOrders = () => {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setShowModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 font-medium"
+                className="bg-gray-500 text-white px-5 py-2.5 rounded-xl hover:bg-gray-600 font-medium"
               >
                 Close
               </button>

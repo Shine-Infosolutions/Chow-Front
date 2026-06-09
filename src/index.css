@@ -152,3 +152,72 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ============================================================
+   MITHAI TRADITIONS — modern design layer
+   (additive utilities; hero & footer styles untouched)
+   ============================================================ */
+
+/* Elegant display type for headings & product names */
+.font-display {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.01em;
+}
+
+/* Warm "sweet box" background for content pages */
+.mithai-bg {
+  background-color: #fdf6ee;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(216, 10, 78, 0.05) 0, transparent 38%),
+    radial-gradient(circle at 88% 82%, rgba(232, 163, 23, 0.07) 0, transparent 42%);
+}
+
+/* Thin warm scrollbar for filter panels */
+.mithai-scroll::-webkit-scrollbar { width: 6px; }
+.mithai-scroll::-webkit-scrollbar-thumb {
+  background: #e9c7b0;
+  border-radius: 9999px;
+}
+.mithai-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Card entrance — staggered fade + rise */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Gentle floating accent (for decorative motifs) */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.animate-float { animation: floatY 5s ease-in-out infinite; }
+
+/* Sweep shine for buttons / badges on hover */
+@keyframes shine {
+  0%   { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+.shine-on-hover { position: relative; overflow: hidden; }
+.shine-on-hover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: translateX(-120%) skewX(-20deg);
+}
+.shine-on-hover:hover::after { animation: shine 0.85s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-float,
+  .shine-on-hover::after { animation: none; opacity: 1; }
+  .animate-fade-up { transform: none; }
+}

@@ -24,13 +24,10 @@ const Categories = () => {
     try {
       setUpdating(true);
       setError('');
-      console.log('Submitting category data:', formData);
       if (editingCategory) {
-        const result = await updateCategory(editingCategory._id, formData);
-        console.log('Update result:', result);
+        await updateCategory(editingCategory._id, formData);
       } else {
-        const result = await addCategory(formData);
-        console.log('Add result:', result);
+        await addCategory(formData);
       }
       setShowModal(false);
       setEditingCategory(null);
@@ -89,17 +86,17 @@ const Categories = () => {
         {/* Header */}
         <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 underline">
+            <h1 className="font-display text-lg sm:text-xl font-bold text-gray-900">
               {editingCategory ? 'Edit Category' : 'Add Category'}
             </h1>
-            <button 
+            <button
               onClick={() => {
                 setShowModal(false);
                 setEditingCategory(null);
                 setFormData({ name: '', description: '', displayRank: 0 });
                 setError('');
               }}
-              className="bg-orange-400 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-orange-500 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+              className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-gray-700 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
               ← <span className="hidden sm:inline">Go Back</span>
             </button>
@@ -130,7 +127,7 @@ const Categories = () => {
                     placeholder="Category Name"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -146,7 +143,7 @@ const Categories = () => {
                     min="0"
                     value={formData.displayRank}
                     onChange={(e) => setFormData({...formData, displayRank: parseInt(e.target.value) || 0})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                   />
                   <p className="text-xs text-gray-500 mt-1">Lower numbers appear first on homepage</p>
                 </div>
@@ -164,7 +161,7 @@ const Categories = () => {
                   placeholder="Description (optional)"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                   rows="4"
                 />
               </div>
@@ -192,17 +189,17 @@ const Categories = () => {
   return (
     <div className="h-full flex flex-col">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 px-4 pt-4">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Categories Management</h2>
+        <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Categories Management</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] w-full sm:w-auto"
+          className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium w-full sm:w-auto"
         >
-          Add Category
+          + Add Category
         </button>
       </div>
 
       {/* Categories Table */}
-      <div className="bg-white rounded-lg shadow mx-4 mb-4 flex-1 min-h-0">
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4 flex-1 min-h-0 overflow-hidden">
         <div className="h-full overflow-auto">
           <table className="min-w-[700px] w-full">
             <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">

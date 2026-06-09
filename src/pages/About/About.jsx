@@ -1,38 +1,40 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Breadcrumb from "../../components/Breadcrumb.jsx";
+import { useSeo } from "../../hooks/useSeo.js";
 import amavatBarfi from "../../assets/Amavat Barfi (1).jpg";
 import chocolateBarfi from "../../assets/Chocolate Fruits Barfi (1).jpg";
 
 const About = () => {
+  useSeo({ title: 'About Us — Gorakhpur Sweet House Since 1970', description: 'The story of Chowdhry Sweet House at Vijay Chowk, Golghar, Gorakhpur — a legacy of authentic Indian sweets, mithai and vegetarian delights since 1970.', path: '/about' });
   return (
-    <div className="bg-gray-50">
+    <div className="mithai-bg min-h-screen">
       <Breadcrumb currentPage="About" />
-      
+
       {/* Top Images */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 animate-fade-up">
           <img
             src={amavatBarfi}
-            alt="Sweet"
-            className="w-full h-48 sm:h-64 md:h-80 object-cover rounded-lg shadow-sm"
+            alt="Traditional Indian barfi at Chowdhry Sweet House, Gorakhpur"
+            className="w-full h-48 sm:h-64 md:h-80 object-cover rounded-2xl shadow-sm"
           />
           <img
             src={chocolateBarfi}
-            alt="Sweet"
-            className="w-full h-48 sm:h-64 md:h-80 object-cover rounded-lg shadow-sm"
+            alt="Traditional Indian barfi at Chowdhry Sweet House, Gorakhpur"
+            className="w-full h-48 sm:h-64 md:h-80 object-cover rounded-2xl shadow-sm"
           />
         </div>
       </div>
 
       {/* Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
-          <span className="text-xs sm:text-sm text-gray-500 block mb-2">
+        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm p-5 sm:p-7 md:p-10 animate-fade-up">
+          <span className="inline-block rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-[#d80a4e] mb-3">
             About Us
           </span>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 leading-tight">
+          <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 leading-tight text-gray-900">
             The Story of Chowdhry Sweet House – A Legacy of Sweetness Since 1970
           </h1>
 
@@ -89,7 +91,7 @@ const About = () => {
 
           {/* Visit */}
           <div className="mt-8 sm:mt-12 text-center">
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6">
+            <div className="bg-rose-50/50 border border-amber-100 p-5 sm:p-6 rounded-2xl mb-4 sm:mb-6">
               <div className="space-y-3 sm:space-y-4 text-gray-700">
                 <div>
                   <div className="flex items-center justify-center gap-2 text-[#d80a4e] font-semibold mb-1 sm:mb-2">
@@ -122,10 +124,10 @@ const About = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-              <Link to="/contact" className="bg-[#d80a4e] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-[#b8083e] transition-colors text-sm sm:text-base">
+              <Link to="/contact" className="shine-on-hover bg-[#d80a4e] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#b8083e] transition-colors text-sm sm:text-base">
                 Contact Us
               </Link>
-              <Link to="/shop" className="bg-gray-800 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-700 transition-colors text-sm sm:text-base">
+              <Link to="/shop" className="bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-700 transition-colors text-sm sm:text-base">
                 Shop Now
               </Link>
             </div>

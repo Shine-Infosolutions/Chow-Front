@@ -264,19 +264,16 @@ const Products = () => {
     return `${startIndex} – ${endIndex} of ${filteredItems.length}`;
   };
 
-  console.log('showModal state:', showModal);
-  console.log('editingProduct:', editingProduct);
-  
   if (showModal) {
     return (
       <div className="h-full flex flex-col bg-gray-50">
         {/* Header */}
         <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 underline">
+            <h1 className="font-display text-lg sm:text-xl font-bold text-gray-900">
               {editingProduct ? 'Edit Product' : 'Add Product'}
             </h1>
-            <button 
+            <button
               onClick={() => {
                 setShowModal(false);
                 setEditingProduct(null);
@@ -284,7 +281,7 @@ const Products = () => {
                 setSelectedImages([]);
                 setSelectedVideo(null);
               }}
-              className="bg-orange-400 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-orange-500 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+              className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-gray-700 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
               ← <span className="hidden sm:inline">Go Back</span>
             </button>
@@ -310,7 +307,7 @@ const Products = () => {
                     placeholder="Premium Patisa"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -353,7 +350,7 @@ const Products = () => {
                                 setFilteredSubcategories([]);
                               }
                             }}
-                            className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                            className="rounded border-gray-300 text-[#d80a4e] focus:ring-[#d80a4e]/40"
                           />
                           <span className="text-sm">{cat.name}</span>
                         </label>
@@ -391,7 +388,7 @@ const Products = () => {
                                 });
                               }
                             }}
-                            className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                            className="rounded border-gray-300 text-[#d80a4e] focus:ring-[#d80a4e]/40"
                           />
                           <span className="text-sm">{subcat.name}</span>
                         </label>
@@ -421,7 +418,7 @@ const Products = () => {
                         setFormData(prev => ({...prev, price: e.target.value, discountPrice: ''}));
                       }
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -465,7 +462,7 @@ const Products = () => {
                     placeholder="Ex.. 100"
                     value={formData.stockQty}
                     onChange={(e) => setFormData({...formData, stockQty: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                   />
                 </div>
 
@@ -480,7 +477,7 @@ const Products = () => {
                     min="1"
                     value={formData.weight}
                     onChange={(e) => setFormData({...formData, weight: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -493,7 +490,7 @@ const Products = () => {
                   <select
                     value={formData.uom}
                     onChange={(e) => setFormData({...formData, uom: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     required
                   >
                     <option value="gm">Grams (gm)</option>
@@ -517,7 +514,7 @@ const Products = () => {
                     min="1"
                     value={formData.piecesPerUnit}
                     onChange={(e) => setFormData({...formData, piecesPerUnit: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">E.g., 12 pieces per box</p>
@@ -532,7 +529,7 @@ const Products = () => {
                     placeholder="Short Description"
                     value={formData.shortDesc}
                     onChange={(e) => setFormData({...formData, shortDesc: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     rows="3"
                   />
                 </div>
@@ -547,7 +544,7 @@ const Products = () => {
                   placeholder="Long Description"
                   value={formData.longDesc}
                   onChange={(e) => setFormData({...formData, longDesc: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                   rows="4"
                 />
               </div>
@@ -565,7 +562,7 @@ const Products = () => {
                     const files = Array.from(e.target.files).slice(0, 3);
                     setSelectedImages(files);
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                 />
                 {selectedImages.length > 0 && (
                   <div className="mt-2 text-sm text-gray-600">
@@ -591,7 +588,7 @@ const Products = () => {
                       e.target.value = '';
                     }
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                 />
                 {selectedVideo && (
                   <div className="mt-2 text-sm text-gray-600">
@@ -669,15 +666,12 @@ const Products = () => {
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 px-4 pt-4 pb-2">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900">Products Management</h2>
+          <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Products Management</h2>
           <button
-            onClick={() => {
-              console.log('Add Product clicked');
-              setShowModal(true);
-            }}
-            className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] w-full sm:w-auto"
+            onClick={() => setShowModal(true)}
+            className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium w-full sm:w-auto"
           >
-            Add Product
+            + Add Product
           </button>
         </div>
       </div>
@@ -732,7 +726,7 @@ const Products = () => {
 
       {/* Products Table */}
       <div className="flex-1 min-h-0 mx-4 mb-4">
-        <div className="bg-white rounded-lg shadow h-full flex flex-col">
+        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm h-full flex flex-col overflow-hidden">
           <div className="flex-1 min-h-0 overflow-auto">
             <table className="w-full text-sm" style={{minWidth: '600px'}}>
               <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">

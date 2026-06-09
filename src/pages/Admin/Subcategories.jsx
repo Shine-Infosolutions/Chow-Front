@@ -111,16 +111,16 @@ const Subcategories = () => {
         {/* Header */}
         <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 underline">
+            <h1 className="font-display text-lg sm:text-xl font-bold text-gray-900">
               {editingSubcategory ? 'Edit Subcategory' : 'Add Subcategory'}
             </h1>
-            <button 
+            <button
               onClick={() => {
                 setShowModal(false);
                 setEditingSubcategory(null);
                 setFormData({ name: '', description: '', categories: [] });
               }}
-              className="bg-orange-400 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-orange-500 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+              className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-gray-700 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
               ← <span className="hidden sm:inline">Go Back</span>
             </button>
@@ -163,7 +163,7 @@ const Subcategories = () => {
                                 });
                               }
                             }}
-                            className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                            className="rounded border-gray-300 text-[#d80a4e] focus:ring-[#d80a4e]/40"
                           />
                           <span className="text-sm">{cat.name}</span>
                         </label>
@@ -182,7 +182,7 @@ const Subcategories = () => {
                     placeholder="Subcategory Name"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -200,7 +200,7 @@ const Subcategories = () => {
                   placeholder="Description (optional)"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
                   rows="4"
                 />
               </div>
@@ -228,17 +228,17 @@ const Subcategories = () => {
   return (
     <div className="h-full flex flex-col">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 px-4 pt-4">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Subcategories Management</h2>
+        <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Subcategories Management</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] w-full sm:w-auto"
+          className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium w-full sm:w-auto"
         >
-          Add Subcategory
+          + Add Subcategory
         </button>
       </div>
 
       {/* Subcategories Table */}
-      <div className="bg-white rounded-lg shadow mx-4 mb-4 flex-1 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4 flex-1 overflow-hidden">
         <div className="h-full overflow-auto pb-4">
           <table className="min-w-[700px] w-full">
             <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
@@ -279,8 +279,8 @@ const Subcategories = () => {
       </div>
       
       {/* Pagination */}
-      <div className="bg-white rounded-lg shadow mx-4 mb-4">
-        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4">
+        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
             <span>Items per page: {itemsPerPage}</span>
             <span className="sm:ml-8">{(currentPage - 1) * itemsPerPage + 1} – {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}</span>

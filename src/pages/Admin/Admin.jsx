@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard.jsx';
 import Products from './Products.jsx';
 import Categories from './Categories.jsx';
@@ -12,8 +12,15 @@ import logo from '../../assets/logo.png';
 
 const Admin = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
 
   // Set active tab based on URL
   useEffect(() => {
@@ -85,10 +92,10 @@ const Admin = () => {
                 setActiveTab(tab.id);
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center px-4 sm:px-6 py-3 text-left hover:bg-red-300 text-sm sm:text-base ${
+              className={`w-full flex items-center px-4 sm:px-6 py-3 text-left text-sm sm:text-base transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-red-500 text-white border-r-4 border-red-600'
-                  : 'text-gray-700'
+                  ? 'bg-[#d80a4e] text-white font-semibold border-r-4 border-[#8b1a3a]'
+                  : 'text-gray-700 hover:bg-rose-50 hover:text-[#d80a4e]'
               }`}
             >
               <span className="mr-2 sm:mr-3 text-sm sm:text-base">{tab.icon}</span>
@@ -112,23 +119,28 @@ const Admin = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-sm sm:text-base font-medium text-gray-900 lg:hidden">
+              <h1 className="font-display text-base sm:text-lg font-bold text-gray-900">
                 {tabs.find(tab => tab.id === activeTab)?.label || 'Dashboard'}
               </h1>
             </div>
-            <div className="flex items-center">
-              <span className="mr-2 text-xs sm:text-sm text-gray-700">Admin</span>
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <svg className="w-3 h-3 sm:w-5 sm:h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#d80a4e] to-[#8b1a3a] rounded-full flex items-center justify-center text-white">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
               </div>
+              <button
+                onClick={handleLogout}
+                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-[#d80a4e] hover:border-rose-200 transition-colors"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-h-0 min-w-0">
+        <div className="flex-1 min-h-0 min-w-0 overflow-y-auto bg-[#fdf6ee]">
           {renderContent()}
         </div>
       </div>

@@ -1,16 +1,47 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../contexts/index.jsx';
 
 const Tickets = () => {
-  const { getTickets, updateTicket, deleteTicket } = useApi();
+  const { getTickets, updateTicket, deleteTicket, replyToTicket, getTicketById } = useApi();
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [reply, setReply] = useState('');
+  const [sending, setSending] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+
+  const openTicket = async (ticket) => {
+    setSelectedMessage(ticket);
+    setReply('');
+    setShowModal(true);
+    const res = await getTicketById(ticket._id);
+    if (res?.ticket) setSelectedMessage(res.ticket);
+  };
+
+  const handleReply = async () => {
+    if (!reply.trim()) return;
+    setSending(true);
+    try {
+      const res = await replyToTicket(selectedMessage._id, reply.trim());
+      setSelectedMessage(res.ticket);
+      setReply('');
+      setTickets(prev => prev.map(t => (t._id === res.ticket._id
+        ? { ...t, status: res.ticket.status, lastReplyBy: res.ticket.lastReplyBy, messages: res.ticket.messages }
+        : t)));
+    } catch (e) {
+      alert(e.message || 'Failed to send reply');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const orderRef = (orderId) => (typeof orderId === 'object' ? orderId?._id : orderId);
 
   useEffect(() => {
     fetchTickets();
@@ -34,11 +65,12 @@ const Tickets = () => {
   const handleStatusUpdate = async (ticketId, status) => {
     try {
       await updateTicket(ticketId, { status });
-      setTickets(prevTickets => 
-        prevTickets.map(ticket => 
+      setTickets(prevTickets =>
+        prevTickets.map(ticket =>
           ticket._id === ticketId ? { ...ticket, status } : ticket
         )
       );
+      setSelectedMessage(prev => (prev && prev._id === ticketId ? { ...prev, status } : prev));
     } catch (error) {
       console.error('Error updating ticket:', error);
     }
@@ -66,10 +98,10 @@ const Tickets = () => {
   return (
     <div className="p-4 md:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Contact Messages</h2>
+        <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Contact Messages</h2>
         <button
           onClick={fetchTickets}
-          className="bg-[#d80a4e] text-white px-4 py-2 rounded hover:bg-[#b8083e] w-full sm:w-auto"
+          className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium w-full sm:w-auto"
         >
           Refresh
         </button>
@@ -84,7 +116,7 @@ const Tickets = () => {
           <div className="mb-2 text-sm text-gray-600">
             Total Messages: {totalItems}
           </div>
-          <div className="bg-white rounded-lg shadow">
+          <div className="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
           {/* Horizontal scroll wrapper */}
           <div className="overflow-x-auto">
             <table className="min-w-[800px] w-full">
@@ -109,11 +141,8 @@ const Tickets = () => {
                     <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-700 truncate">{ticket.subject || 'N/A'}</td>
                     <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm">
                       <button
-                        onClick={() => {
-                          setSelectedMessage(ticket);
-                          setShowModal(true);
-                        }}
-                        className="bg-blue-500 text-white px-2 md:px-3 py-1 rounded text-xs hover:bg-blue-600"
+                        onClick={() => openTicket(ticket)}
+                        className="bg-blue-500 text-white px-2 md:px-3 py-1 rounded-lg text-xs hover:bg-blue-600"
                       >
                         View
                       </button>
@@ -158,7 +187,7 @@ const Tickets = () => {
       )}
       
       {/* Pagination */}
-      <div className="bg-white rounded-lg shadow mt-4">
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mt-4">
         <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
             <span>Items per page: {itemsPerPage}</span>
@@ -189,29 +218,80 @@ const Tickets = () => {
       {/* Message Modal */}
       {showModal && selectedMessage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-md sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Message Details</h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-xl p-1"
-              >
-                ✕
-              </button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-start gap-3 border-b border-gray-100 px-5 py-4">
+              <div className="min-w-0">
+                <h3 className="font-display text-base sm:text-lg font-bold text-gray-900 truncate">{selectedMessage.subject}</h3>
+                <p className="text-xs text-gray-500 capitalize">{selectedMessage.type?.replace('-', ' ')} · {selectedMessage.fullName}</p>
+              </div>
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-xl p-1">✕</button>
             </div>
-            <div className="space-y-3 text-sm">
-              <div><span className="font-medium">From:</span> {selectedMessage.fullName}</div>
-              <div><span className="font-medium">Email:</span> {selectedMessage.email}</div>
-              {selectedMessage.phone && <div><span className="font-medium">Phone:</span> {selectedMessage.phone}</div>}
-              {selectedMessage.subject && <div><span className="font-medium">Subject:</span> {selectedMessage.subject}</div>}
-              <div><span className="font-medium">Date:</span> {new Date(selectedMessage.createdAt).toLocaleDateString()}</div>
-              <div className="pt-2">
-                <div className="font-medium mb-2">Message:</div>
-                <div className="p-3 bg-gray-50 rounded text-sm leading-relaxed">
-                  {selectedMessage.message}
-                </div>
+
+            {/* Meta: contact, linked order (verify), status */}
+            <div className="border-b border-gray-100 px-5 py-3 space-y-2 text-sm">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-gray-600">
+                <span><i className="fas fa-envelope mr-1 text-gray-400"></i>{selectedMessage.email}</span>
+                {selectedMessage.phone && <span><i className="fas fa-phone mr-1 text-gray-400"></i>{selectedMessage.phone}</span>}
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                {selectedMessage.orderId ? (
+                  <button
+                    onClick={() => navigate(`/admin/order/${orderRef(selectedMessage.orderId)}`)}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[#d80a4e] hover:underline"
+                  >
+                    <i className="fas fa-receipt"></i> Verify linked order #{orderRef(selectedMessage.orderId)?.slice(-6)}
+                  </button>
+                ) : (
+                  <span className="text-xs text-gray-400">No linked order</span>
+                )}
+                <select
+                  value={selectedMessage.status || 'open'}
+                  onChange={(e) => handleStatusUpdate(selectedMessage._id, e.target.value)}
+                  className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40"
+                >
+                  <option value="open">Open</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="closed">Closed</option>
+                </select>
               </div>
             </div>
+
+            {/* Thread */}
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-gray-50/50">
+              {(selectedMessage.messages?.length
+                ? selectedMessage.messages
+                : [{ sender: 'user', senderName: selectedMessage.fullName, message: selectedMessage.message, createdAt: selectedMessage.createdAt }]
+              ).map((m, i) => (
+                <div key={i} className={`flex ${m.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm ${m.sender === 'admin' ? 'bg-[#d80a4e] text-white' : 'bg-white border border-gray-200 text-gray-800'}`}>
+                    <p className="whitespace-pre-wrap">{m.message}</p>
+                    <p className={`mt-1 text-[10px] ${m.sender === 'admin' ? 'text-pink-100' : 'text-gray-400'}`}>
+                      {m.senderName} · {new Date(m.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Reply */}
+            {selectedMessage.status === 'closed' ? (
+              <div className="border-t border-gray-100 px-5 py-3 text-center text-sm text-gray-400">Ticket closed</div>
+            ) : (
+              <div className="border-t border-gray-100 px-5 py-3 flex gap-2">
+                <input
+                  value={reply}
+                  onChange={(e) => setReply(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleReply()}
+                  placeholder="Reply to customer…"
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 text-sm"
+                />
+                <button onClick={handleReply} disabled={sending || !reply.trim()} className="bg-[#d80a4e] text-white px-4 py-2 rounded-xl font-medium hover:bg-[#b8083e] disabled:opacity-50 text-sm">
+                  {sending ? '…' : 'Send'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

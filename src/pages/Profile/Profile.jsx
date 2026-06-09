@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useApi } from '../../contexts/index.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
+import { useSeo } from '../../hooks/useSeo.js';
 
 const Profile = () => {
+  useSeo({ title: 'My Profile', path: '/profile', noindex: true });
   const { getProfile, updateProfile, getUserAddresses, addUserAddress, updateUserAddress } = useApi();
   const [user, setUser] = useState(null);
   const [addresses, setAddresses] = useState([]);
@@ -22,6 +24,7 @@ const Profile = () => {
     postcode: '',
     email: '',
     phone: '',
+    altPhone: '',
     orderNotes: '',
     isDefault: true
   });
@@ -59,8 +62,9 @@ const Profile = () => {
               postcode: addr.postcode || '',
               email: addr.email || parsedUser.email || '',
               phone: addr.phone || parsedUser.phone || '',
+              altPhone: addr.altPhone || '',
               orderNotes: addr.orderNotes || '',
-              isDefault: addr.isDefault || true
+              isDefault: addr.isDefault ?? true
             });
           } else {
             setAddressData(prev => ({
@@ -101,28 +105,16 @@ const Profile = () => {
       };
       
       const response = await updateProfile(user._id || user.id, profileData);
-      
-      // Handle address separately if provided
-      console.log('Profile: Current addressData:', addressData);
-      console.log('Profile: Existing addresses:', addresses);
-      
+
+      // Save the address alongside the profile when street + city are provided.
       if (addressData.street.trim() && addressData.city.trim()) {
-        console.log('Profile: Address validation passed, saving address...');
         if (addresses.length > 0) {
-          // Update existing address
-          console.log('Profile: Updating existing address with ID:', addresses[0]._id);
-          const addressResponse = await updateUserAddress(user._id || user.id, addresses[0]._id, addressData);
-          console.log('Profile: Address update response:', addressResponse);
+          await updateUserAddress(user._id || user.id, addresses[0]._id, addressData);
         } else {
-          // Add new address
-          console.log('Profile: Adding new address');
-          const addressResponse = await addUserAddress(user._id || user.id, addressData);
-          console.log('Profile: Address add response:', addressResponse);
+          await addUserAddress(user._id || user.id, addressData);
         }
-      } else {
-        console.log('Profile: Address validation failed - missing street or city');
       }
-      
+
       if (response.success || response.user) {
         setSuccess('Profile updated successfully!');
         setIsEditing(false);
@@ -149,16 +141,16 @@ const Profile = () => {
   }
 
   return (
-    <div className="bg-gray-100 pb-8">
+    <div className="mithai-bg min-h-screen pb-8">
       <Breadcrumb currentPage="Profile" />
-      
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+        <div className="bg-white rounded-2xl border border-amber-100 shadow-lg p-5 sm:p-7 md:p-8 animate-fade-up">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">My Profile</h2>
+            <h2 className="font-display text-2xl font-bold text-gray-900">My Profile</h2>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="bg-[#d80a4e] text-white px-4 py-2 rounded-lg hover:bg-[#b8083e] transition-colors"
+              className="bg-[#d80a4e] text-white px-4 py-2 rounded-xl hover:bg-[#b8083e] transition-colors font-medium"
             >
               {isEditing ? 'Cancel' : 'Edit Profile'}
             </button>
@@ -188,7 +180,7 @@ const Profile = () => {
                   value={formData.name}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   required
                 />
               </div>
@@ -203,7 +195,7 @@ const Profile = () => {
                   value={formData.email}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   required
                 />
               </div>
@@ -218,14 +210,14 @@ const Profile = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                 />
               </div>
             </div>
 
             {/* Address Section */}
             <div className="sm:col-span-2">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Address Information</h3>
+              <h3 className="font-display text-lg font-semibold text-gray-900 mb-4">Address Information</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
@@ -234,7 +226,7 @@ const Profile = () => {
                     value={addressData.firstName}
                     onChange={(e) => setAddressData({...addressData, firstName: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
                 <div>
@@ -244,7 +236,7 @@ const Profile = () => {
                     value={addressData.lastName}
                     onChange={(e) => setAddressData({...addressData, lastName: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
                 <div>
@@ -254,7 +246,7 @@ const Profile = () => {
                     value={addressData.street}
                     onChange={(e) => setAddressData({...addressData, street: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
                 <div>
@@ -264,7 +256,7 @@ const Profile = () => {
                     value={addressData.city}
                     onChange={(e) => setAddressData({...addressData, city: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
                 <div>
@@ -274,7 +266,7 @@ const Profile = () => {
                     value={addressData.state}
                     onChange={(e) => setAddressData({...addressData, state: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
                 <div>
@@ -284,7 +276,18 @@ const Profile = () => {
                     value={addressData.postcode}
                     onChange={(e) => setAddressData({...addressData, postcode: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Alternate Phone <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input
+                    type="tel"
+                    value={addressData.altPhone}
+                    onChange={(e) => setAddressData({...addressData, altPhone: e.target.value})}
+                    disabled={!isEditing}
+                    placeholder="Second contact number"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
               </div>
@@ -295,38 +298,9 @@ const Profile = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#d80a4e] text-white px-6 py-3 rounded-lg hover:bg-[#b8083e] transition-colors font-semibold disabled:opacity-50"
+                  className="shine-on-hover bg-[#d80a4e] text-white px-6 py-3 rounded-xl hover:bg-[#b8083e] transition-colors font-semibold disabled:opacity-50"
                 >
                   {loading ? 'Updating...' : 'Update Profile'}
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    console.log('Test button clicked');
-                    const testAddress = {
-                      addressType: 'home',
-                      firstName: 'Test',
-                      lastName: 'User',
-                      street: '123 Test St',
-                      city: 'Test City',
-                      state: 'Test State',
-                      postcode: '12345',
-                      email: user.email,
-                      phone: user.phone || '1234567890'
-                    };
-                    try {
-                      console.log('Testing address API with:', testAddress);
-                      const result = await addUserAddress(user._id || user.id, testAddress);
-                      console.log('Test result:', result);
-                      alert('Test address added! Check console.');
-                    } catch (error) {
-                      console.error('Test failed:', error);
-                      alert('Test failed: ' + error.message);
-                    }
-                  }}
-                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors font-semibold"
-                >
-                  Test Address API
                 </button>
               </div>
             )}

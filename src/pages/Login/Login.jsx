@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useCart } from '../../contexts/index.jsx';
+import { useSeo } from '../../hooks/useSeo.js';
 
 const Login = () => {
-  const { login, isAdmin } = useApi();
+  useSeo({ title: 'Login', path: '/login', noindex: true });
+  const { login } = useApi();
+  const { transferGuestCartToUser } = useCart();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -27,25 +30,22 @@ const Login = () => {
     setLoading(true);
     setError('');
     setSuccess('');
-    
-    console.log('Login form submitted:', formData);
-    
+
     try {
       const response = await login(formData);
-      console.log('Login response:', response);
-      
+
       if (response.token) {
         localStorage.setItem('token', response.token);
         if (response.user) {
-          console.log('Storing user data:', response.user);
           localStorage.setItem('user', JSON.stringify(response.user));
           setUser(response.user);
+          // Switch the active cart to this user (merges any guest cart).
+          transferGuestCartToUser(response.user.id || response.user._id);
         }
         setSuccess('Login successful! Redirecting...');
         setLoginSuccess(true);
       }
     } catch (error) {
-      console.error('Login error:', error);
       setError(error.message || 'Login failed');
     } finally {
       setLoading(false);
@@ -63,15 +63,15 @@ const Login = () => {
   }, [loginSuccess, user, navigate]);
 
   return (
-    <div className="bg-gray-100 pb-8">
-      <div className="bg-gray-100 py-8 relative">
+    <div className="mithai-bg min-h-screen pb-8">
+      <div className="py-8 relative">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center text-sm mb-4">
             <Link to="/" className="text-gray-600 hover:text-[#d80a4e]">Home</Link>
             <span className="mx-2 text-gray-400">/</span>
             <span className="text-gray-800">Login</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-800">Login</h1>
+          <h1 className="font-display text-4xl font-bold text-gray-900">Login</h1>
         </div>
         <div className="absolute top-8 right-16 hidden lg:block">
           <div className="bg-[#d80a4e] text-white px-8 py-4 rounded-full">
@@ -84,12 +84,12 @@ const Login = () => {
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="flex justify-center">
           <div className="w-full max-w-md">
-            <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="bg-white rounded-2xl border border-amber-100 shadow-lg p-8 animate-fade-up">
               <div className="mb-6">
                 <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-4">
                   <i className="fas fa-user text-[#d80a4e] text-xl"></i>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Login</h2>
+                <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">Login</h2>
                 <p className="text-gray-600 text-sm">
                   Welcome back! Please login to your account.
                 </p>
@@ -105,7 +105,7 @@ const Login = () => {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="Email address"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
                       required
                     />
                   </div>
@@ -120,7 +120,7 @@ const Login = () => {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="Password"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
                       required
                     />
                   </div>
@@ -148,7 +148,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#d80a4e] text-white py-3 rounded-lg hover:bg-[#b8083e] transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
+                  className="shine-on-hover w-full bg-[#d80a4e] text-white py-3 rounded-xl hover:bg-[#b8083e] transition-colors font-semibold flex items-center justify-center disabled:opacity-50"
                 >
                   {loading ? 'Logging in...' : 'Login'}
                   <i className="fas fa-arrow-right ml-2"></i>

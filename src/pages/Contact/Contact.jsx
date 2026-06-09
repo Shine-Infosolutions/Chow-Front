@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useApi } from '../../contexts/index.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
+import { useSeo } from '../../hooks/useSeo.js';
 
 const Contact = () => {
+  useSeo({ title: 'Contact Us — Visit or Call', description: 'Visit Chowdhry Sweet House at Vijay Chowk, Golghar, Gorakhpur or call +91 7525025100. Open 8 AM–11:30 PM, all week. Send us a custom sweet request.', path: '/contact' });
   const { createTicket } = useApi();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -51,7 +53,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="bg-gray-50 pb-8">
+    <div className="mithai-bg min-h-screen pb-8">
       <Breadcrumb currentPage="Contact Us" />
 
       {/* Main Content */}
@@ -59,8 +61,8 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
 
           {/* Contact Info */}
-          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-[#d80a4e]">Get In Touch</h2>
+          <div className="bg-white rounded-2xl border border-amber-100 shadow-sm p-5 sm:p-7 md:p-8 animate-fade-up">
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-[#d80a4e]">Get In Touch</h2>
 
             <div className="space-y-4 sm:space-y-6 text-gray-700">
               <div className="flex items-start gap-3 sm:gap-4">
@@ -104,8 +106,8 @@ const Contact = () => {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-[#d80a4e]">Make Custom Request</h2>
+          <div className="bg-white rounded-2xl border border-amber-100 shadow-sm p-5 sm:p-7 md:p-8 animate-fade-up">
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2 text-[#d80a4e]">Make Custom Request</h2>
             <p className="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-sm md:text-base">
               Have a special request? We'd love to help you create the perfect sweet experience!
             </p>
@@ -117,7 +119,7 @@ const Contact = () => {
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Full name"
-                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent text-sm sm:text-base"
+                  className="border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 w-full bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 text-sm sm:text-base"
                   required
                 />
                 <input
@@ -126,7 +128,7 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email address"
-                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent text-sm sm:text-base"
+                  className="border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 w-full bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 text-sm sm:text-base"
                   required
                 />
               </div>
@@ -137,14 +139,14 @@ const Contact = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Phone number"
-                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent text-sm sm:text-base"
+                  className="border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 w-full bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 text-sm sm:text-base"
                 />
                 <input
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
                   placeholder="Subject"
-                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent text-sm sm:text-base"
+                  className="border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 w-full bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 text-sm sm:text-base"
                 />
               </div>
 
@@ -154,7 +156,7 @@ const Contact = () => {
                 onChange={handleChange}
                 rows="4"
                 placeholder="Enter your message..."
-                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#d80a4e] focus:border-transparent resize-none text-sm sm:text-base"
+                className="border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 w-full bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 resize-none text-sm sm:text-base"
               />
 
               {success && (
@@ -172,7 +174,7 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-[#d80a4e] text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[#b8083e] transition-colors disabled:opacity-50 w-full sm:w-auto text-sm sm:text-base"
+                className="shine-on-hover bg-[#d80a4e] text-white px-6 sm:px-8 py-3 rounded-xl font-semibold hover:bg-[#b8083e] transition-colors disabled:opacity-50 w-full sm:w-auto text-sm sm:text-base"
               >
                 {loading ? "Sending..." : "Send Message →"}
               </button>
