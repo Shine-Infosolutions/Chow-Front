@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi, useNotification } from '../../contexts/index.jsx';
 import { deriveOrderStatus, ORDER_STEPS, orderStepIndex } from '../../utils/orderStatus.js';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileText, Mail, MessageCircle } from 'lucide-react';
 
 const OrderDetails = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const { service, updateOrderStatus, updatePaymentStatus, updateDeliveryStatus, updateOrderDeliveryDate, cancelOrder, markOrderDelayed, updateOrderNotes } = useApi();
+  const { service, updateOrderStatus, updatePaymentStatus, updateDeliveryStatus, updateOrderDeliveryDate, cancelOrder, markOrderDelayed, updateOrderNotes, invoiceUrl, sendOrderConfirmation } = useApi();
   const { showNotification, confirm } = useNotification();
   const [order, setOrder] = useState(null);
+  const [emailing, setEmailing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -151,6 +152,30 @@ const OrderDetails = () => {
     }
   };
 
+  const handleEmailConfirmation = async () => {
+    setEmailing(true);
+    try {
+      const res = await sendOrderConfirmation(order._id);
+      showNotification(res?.message || 'Confirmation email sent', 'success');
+    } catch (e) {
+      showNotification(e.message || 'Failed to send email', 'error');
+    } finally {
+      setEmailing(false);
+    }
+  };
+
+  const buildWhatsappLink = () => {
+    const raw = String(order.contactPhone || order.deliveryAddress?.phone || order.userId?.phone || '').replace(/\D/g, '');
+    const phone = raw.length === 10 ? `91${raw}` : raw;
+    const name = order.deliveryAddress?.firstName || order.userId?.name || 'there';
+    const text = encodeURIComponent(
+      `Hi ${name}, your Chowdhry Sweet House order #${order._id?.slice(-8).toUpperCase()} ` +
+      `(₹${Number(order.totalAmount || 0).toFixed(2)}) is confirmed. ` +
+      `View your invoice: ${invoiceUrl(order._id)}`
+    );
+    return `https://wa.me/${phone}?text=${text}`;
+  };
+
   const handleBack = () => {
     navigate('/admin/orders');
   };
@@ -226,6 +251,37 @@ const OrderDetails = () => {
             );
           })()}
         </div>
+        {/* Share & Invoice */}
+        <div className="mb-6 rounded-2xl border border-amber-100 bg-white p-5 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Share &amp; Invoice</h2>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={invoiceUrl(order._id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-rose-200 hover:bg-rose-50 hover:text-[#d80a4e]"
+            >
+              <FileText className="h-4 w-4" /> View / Download Invoice
+            </a>
+            <button
+              onClick={handleEmailConfirmation}
+              disabled={emailing}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#d80a4e] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#b8083e] disabled:opacity-50"
+            >
+              <Mail className="h-4 w-4" /> {emailing ? 'Sending…' : 'Email Customer'}
+            </button>
+            <a
+              href={buildWhatsappLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600"
+            >
+              <MessageCircle className="h-4 w-4" /> WhatsApp
+            </a>
+          </div>
+          <p className="mt-2 text-xs text-gray-400">The invoice link is public and shareable. "Email Customer" sends the order confirmation with invoice.</p>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {/* Order Information */}
           <div className="bg-white p-6 rounded-2xl border border-amber-100 shadow-sm">

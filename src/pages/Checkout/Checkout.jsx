@@ -274,7 +274,9 @@ const Checkout = () => {
 
             if (verify.success) {
               clearCart();
-              navigate('/orders');
+              navigate('/order-success', {
+                state: { orderId: razorpayRes.dbOrderId, total, name: formData.firstName },
+              });
             } else {
               showNotification('Payment verification failed', 'error');
             }

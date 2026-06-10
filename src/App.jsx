@@ -25,6 +25,8 @@ import Support from './pages/Support/Support';
 import Admin from './pages/Admin/Admin';
 import OrderDetails from './pages/Admin/OrderDetails';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
+import OrderSuccess from './pages/OrderSuccess/OrderSuccess';
+import NotFound from './pages/NotFound/NotFound';
 
 const AppContent = () => {
   const location = useLocation();
@@ -75,6 +77,7 @@ const AppContent = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/support" element={<Support />} />
 
@@ -103,6 +106,9 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+          {/* Catch-all 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 

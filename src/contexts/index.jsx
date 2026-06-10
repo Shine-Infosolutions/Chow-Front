@@ -600,6 +600,21 @@ export const ApiProvider = ({ children }) => {
         return { orders: [], pagination: { page: 1, limit: 10, total: 0, pages: 0 } };
       }
     },
+    // Admin: customers list/search
+    getUsers: async (page = 1, limit = 12, search = '') => {
+      try {
+        const data = await apiService.get(`/api/users?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
+        return data;
+      } catch (error) {
+        return { users: [], pagination: { page: 1, limit, total: 0, pages: 1 } };
+      }
+    },
+    // Admin: (re)send the order-confirmation email to the customer
+    sendOrderConfirmation: async (orderId) => {
+      return await apiService.post(`/api/orders/${orderId}/send-confirmation`, {});
+    },
+    // Public invoice URL (printable / shareable)
+    invoiceUrl: (orderId) => `${BASE_URL}/api/orders/${orderId}/invoice`,
     updateOrderStatus: async (orderId, status) => {
       try {
         const response = await apiService.patch(`/api/orders/${orderId}/status`, { status });

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderOpen, Layers, Package, BadgePercent,
-  ClipboardList, AlertTriangle, MessageSquare, LogOut, Menu, X,
+  ClipboardList, AlertTriangle, MessageSquare, Users, LogOut, Menu, X,
   MoreHorizontal, ChevronRight,
 } from 'lucide-react';
 import Dashboard from './Dashboard.jsx';
@@ -13,6 +13,7 @@ import AdminOrders from './AdminOrders.jsx';
 import Tickets from './Tickets.jsx';
 import FailedOrders from './FailedOrders.jsx';
 import SweetDeal from './SweetDeal.jsx';
+import Customers from './Customers.jsx';
 import logo from '../../assets/logo.png';
 
 const TABS = [
@@ -22,6 +23,7 @@ const TABS = [
   { id: 'products', label: 'Products', icon: Package },
   { id: 'sweetdeal', label: 'Sweet Deal', icon: BadgePercent },
   { id: 'orders', label: 'Orders', icon: ClipboardList },
+  { id: 'customers', label: 'Customers', icon: Users },
   { id: 'failed-orders', label: 'Failed Orders', icon: AlertTriangle },
   { id: 'tickets', label: 'Messages', icon: MessageSquare },
 ];
@@ -63,6 +65,7 @@ const Admin = () => {
       case 'subcategories': return <Subcategories />;
       case 'sweetdeal': return <SweetDeal />;
       case 'orders': return <AdminOrders />;
+      case 'customers': return <Customers />;
       case 'failed-orders': return <FailedOrders />;
       case 'tickets': return <Tickets />;
       default: return <Dashboard />;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Package, CreditCard, MapPin, Phone, Pencil, Check, X, CalendarClock, ShoppingBag, MessageCircle,
+  Package, CreditCard, MapPin, Phone, Pencil, Check, X, CalendarClock, ShoppingBag, MessageCircle, FileText,
 } from 'lucide-react';
 import { useApi, useNotification } from '../../contexts/index.jsx';
 import ProductThumb from '../../components/ProductThumb.jsx';
@@ -15,7 +15,7 @@ const canEditContact = (order) =>
 
 const Orders = () => {
   useSeo({ title: 'My Orders', path: '/orders', noindex: true });
-  const { getMyOrders, getUserAddresses, updateOrderContact } = useApi();
+  const { getMyOrders, getUserAddresses, updateOrderContact, invoiceUrl } = useApi();
   const { showNotification } = useNotification();
   const [orders, setOrders] = useState([]);
   const [addresses, setAddresses] = useState({});
@@ -315,7 +315,15 @@ const Orders = () => {
                       </div>
                     )}
 
-                    <div className="mt-4 flex justify-end border-t border-gray-100 pt-4">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
+                      <a
+                        href={invoiceUrl(order._id)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:border-rose-200 hover:bg-rose-50 hover:text-[#d80a4e]"
+                      >
+                        <FileText className="h-4 w-4" /> Download Invoice
+                      </a>
                       <Link to={`/support?order=${order._id}`} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#d80a4e] hover:underline">
                         <MessageCircle className="h-4 w-4" /> Get help with this order
                       </Link>
