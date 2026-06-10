@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ArrowLeft, Search, Package, X } from 'lucide-react';
 
 const EMPTY_FORM = {
@@ -11,6 +11,7 @@ const EMPTY_FORM = {
 
 const Products = () => {
   const { fetchItems, addItem, updateItem, deleteItem, fetchCategories, getAllSubcategories, searchItems, items, categories, loading } = useApi();
+  const { showNotification, confirm } = useNotification();
   const [subcategories, setSubcategories] = useState([]);
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -73,6 +74,7 @@ const Products = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const wasEditing = Boolean(editingProduct && editingProduct._id);
     try {
       setUpdating(true);
       const submitData = new FormData();
@@ -97,8 +99,10 @@ const Products = () => {
       }
       resetForm();
       fetchItems();
+      showNotification(wasEditing ? 'Product updated' : 'Product added', 'success');
     } catch (error) {
       console.error('Error saving product:', error);
+      showNotification(error.message || 'Failed to save product', 'error');
     } finally {
       setUpdating(false);
     }
@@ -116,7 +120,7 @@ const Products = () => {
 
   const handleEdit = (product) => {
     if (!product._id) {
-      alert('Error: Product ID is missing. Cannot edit product.');
+      showNotification('Product ID is missing. Cannot edit product.', 'error');
       return;
     }
     const categoryIds = Array.isArray(product.categories)
@@ -142,14 +146,16 @@ const Products = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await deleteItem(id);
-        setFilteredItems((prev) => prev.filter((item) => item._id !== id));
-        fetchItems();
-      } catch (error) {
-        console.error('Error deleting product:', error);
-      }
+    const ok = await confirm({ title: 'Delete product?', message: 'This action cannot be undone.', confirmText: 'Delete' });
+    if (!ok) return;
+    try {
+      await deleteItem(id);
+      setFilteredItems((prev) => prev.filter((item) => item._id !== id));
+      fetchItems();
+      showNotification('Product deleted', 'success');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showNotification(error.message || 'Failed to delete product', 'error');
     }
   };
 
@@ -300,7 +306,7 @@ const Products = () => {
                     const discountPrice = parseFloat(e.target.value);
                     const price = parseFloat(formData.price);
                     if (discountPrice >= price && price > 0) {
-                      alert('Discount price must be less than the original price!');
+                      showNotification('Discount price must be less than the original price', 'warning');
                       return;
                     }
                     setFormData({ ...formData, discountPrice: e.target.value });
@@ -387,7 +393,7 @@ const Products = () => {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file && file.size <= 10 * 1024 * 1024) setSelectedVideo(file);
-                    else if (file) { alert('Video size must be less than 10MB'); e.target.value = ''; }
+                    else if (file) { showNotification('Video size must be less than 10MB', 'warning'); e.target.value = ''; }
                   }} className={fileClass} />
                 {selectedVideo && <p className="mt-1.5 text-xs text-gray-500">Selected: {selectedVideo.name}</p>}
               </div>

@@ -64,7 +64,7 @@ const ActiveOrderBar = () => {
     : null;
 
   return (
-    <div className="animate-fade-up fixed inset-x-0 bottom-0 z-[90] px-3 pb-3 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:max-w-sm sm:px-0 sm:pb-0">
+    <div className="animate-fade-up fixed inset-x-0 bottom-14 z-[90] px-3 pb-2 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:max-w-sm sm:px-0 sm:pb-0">
       <div className="relative">
         <Link to="/orders" className="block">
           <div className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-white p-3 shadow-lg shadow-rose-100/70 sm:p-4">

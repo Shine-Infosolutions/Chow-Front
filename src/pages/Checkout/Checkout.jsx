@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useCart } from '../../contexts/index.jsx';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import { getEffectivePrice } from '../../utils/index.js';
 import ProductThumb from '../../components/ProductThumb.jsx';
 import { useSeo } from '../../hooks/useSeo.js';
@@ -28,6 +28,7 @@ const Checkout = () => {
   useSeo({ title: 'Checkout', path: '/checkout', noindex: true });
   const { cartItems, getCartTotal, clearCart } = useCart();
   const { getUserAddresses, service, checkPincode, calculateShippingRate } = useApi();
+  const { showNotification } = useNotification();
   const navigate = useNavigate();
 
   const [savedAddresses, setSavedAddresses] = useState([]);
@@ -66,7 +67,7 @@ const Checkout = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     if (!token || !user?._id) {
-      navigate('/account');
+      navigate('/account?redirect=/checkout');
       return null;
     }
 
@@ -208,12 +209,12 @@ const Checkout = () => {
     if (!userData) return;
 
     if (REQUIRED_FIELDS.some((f) => !formData[f]?.trim())) {
-      alert('Please fill all required fields');
+      showNotification('Please fill all required fields', 'warning');
       return;
     }
 
     if (!deliveryInfo) {
-      alert('Please enter a valid, serviceable delivery pincode.');
+      showNotification('Please enter a valid, serviceable delivery pincode.', 'warning');
       return;
     }
 
@@ -223,7 +224,7 @@ const Checkout = () => {
     try {
       const addressId = await getOrCreateAddress(userData.user._id);
       if (!addressId) {
-        alert('Could not save your delivery address. Please try again.');
+        showNotification('Could not save your delivery address. Please try again.', 'error');
         return;
       }
 
@@ -245,7 +246,7 @@ const Checkout = () => {
       await loadRazorpayScript();
 
       if (!window.Razorpay) {
-        alert('Unable to load the payment gateway. Please check your connection and try again.');
+        showNotification('Unable to load the payment gateway. Please check your connection and try again.', 'error');
         return;
       }
 
@@ -275,10 +276,10 @@ const Checkout = () => {
               clearCart();
               navigate('/orders');
             } else {
-              alert('Payment verification failed');
+              showNotification('Payment verification failed', 'error');
             }
           } catch {
-            alert('Payment verification failed');
+            showNotification('Payment verification failed', 'error');
           }
         },
         modal: {
@@ -288,7 +289,7 @@ const Checkout = () => {
               razorpayRes.order.id,
               'User cancelled payment'
             );
-            alert('Payment cancelled');
+            showNotification('Payment cancelled', 'warning');
           }
         }
       });
@@ -299,12 +300,12 @@ const Checkout = () => {
           razorpayRes.order.id,
           res.error.description
         );
-        alert('Payment failed');
+        showNotification('Payment failed', 'error');
       });
 
       rzp.open();
     } catch (error) {
-      alert(error.message || 'Something went wrong while placing your order. Please try again.');
+      showNotification(error.message || 'Something went wrong while placing your order. Please try again.', 'error');
     } finally {
       setPlacingOrder(false);
     }
@@ -328,11 +329,31 @@ const Checkout = () => {
   const total = subtotal + gst + deliveryFee + platformFee;
 
   return (
-    <div className="mithai-bg min-h-screen pb-12">
+    <div className="mithai-bg min-h-screen pb-40 lg:pb-12">
       <Breadcrumb currentPage="Checkout" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2">
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Checkout</h1>
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Checkout</h1>
+
+        {/* Progress stepper */}
+        <div className="mb-6 flex items-center gap-2 text-xs sm:text-sm">
+          {[
+            { n: 1, label: 'Cart', done: true },
+            { n: 2, label: 'Delivery', active: true },
+            { n: 3, label: 'Payment' },
+          ].map((s, i, arr) => (
+            <React.Fragment key={s.n}>
+              <div className="flex items-center gap-2">
+                <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${s.done ? 'bg-emerald-500 text-white' : s.active ? 'bg-[#d80a4e] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                  {s.done ? '✓' : s.n}
+                </span>
+                <span className={s.active ? 'font-semibold text-gray-900' : 'text-gray-500'}>{s.label}</span>
+              </div>
+              {i < arr.length - 1 && <span className="h-px flex-1 bg-gray-200" />}
+            </React.Fragment>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
 
           {/* Billing Details */}
@@ -647,6 +668,25 @@ const Checkout = () => {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky mobile place-order bar (sits above the bottom nav) */}
+      <div className="fixed inset-x-0 bottom-14 z-[85] border-t border-amber-100 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-3">
+          <div className="leading-tight">
+            <p className="text-[11px] text-gray-400">Total</p>
+            <p className="text-lg font-bold text-[#d80a4e]">₹{total.toFixed(2)}</p>
+          </div>
+          <button
+            onClick={handlePlaceOrder}
+            disabled={isOrderDisabled()}
+            className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-colors ${
+              isOrderDisabled() ? 'cursor-not-allowed bg-gray-300 text-gray-500' : 'bg-[#d80a4e] text-white hover:bg-[#b8083e]'
+            }`}
+          >
+            {placingOrder ? 'Processing…' : 'Place Order'}
+          </button>
         </div>
       </div>
     </div>

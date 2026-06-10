@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ArrowLeft, Layers } from 'lucide-react';
 
 const Subcategories = () => {
   const { getAllSubcategories, addSubcategory, updateSubcategory, deleteSubcategory, fetchCategories, categories, loading } = useApi();
+  const { showNotification, confirm } = useNotification();
   const [subcategories, setSubcategories] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -39,6 +40,7 @@ const Subcategories = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const wasEditing = Boolean(editingSubcategory);
     try {
       setUpdating(true);
       if (editingSubcategory) {
@@ -48,8 +50,10 @@ const Subcategories = () => {
       }
       resetForm();
       loadData();
+      showNotification(wasEditing ? 'Subcategory updated' : 'Subcategory added', 'success');
     } catch (error) {
       console.error('Error saving subcategory:', error);
+      showNotification(error.message || 'Failed to save subcategory', 'error');
     } finally {
       setUpdating(false);
     }
@@ -70,14 +74,16 @@ const Subcategories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this subcategory?')) {
-      try {
-        await deleteSubcategory(id);
-        setSubcategories((prev) => prev.filter((sub) => sub._id !== id));
-        loadData();
-      } catch (error) {
-        console.error('Error deleting subcategory:', error);
-      }
+    const ok = await confirm({ title: 'Delete subcategory?', message: 'This action cannot be undone.', confirmText: 'Delete' });
+    if (!ok) return;
+    try {
+      await deleteSubcategory(id);
+      setSubcategories((prev) => prev.filter((sub) => sub._id !== id));
+      loadData();
+      showNotification('Subcategory deleted', 'success');
+    } catch (error) {
+      console.error('Error deleting subcategory:', error);
+      showNotification(error.message || 'Failed to delete subcategory', 'error');
     }
   };
 

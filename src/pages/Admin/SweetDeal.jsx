@@ -5,7 +5,7 @@ import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ArrowLeft, BadgePercen
 
 const SweetDeal = () => {
   const { baseUrl } = useApi();
-  const { showNotification } = useNotification();
+  const { showNotification, confirm } = useNotification();
 
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -101,7 +101,8 @@ const SweetDeal = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this deal?')) return;
+    const ok = await confirm({ title: 'Delete deal?', message: 'This action cannot be undone.', confirmText: 'Delete' });
+    if (!ok) return;
     try {
       setLoading(true);
       const response = await fetch(`${baseUrl}/api/sweet-deals/${id}`, { method: 'DELETE' });
@@ -150,9 +151,12 @@ const SweetDeal = () => {
 
   const StatusToggle = ({ deal }) => (
     <button
-      onClick={() => {
-        if (!deal.isActive || window.confirm('This will deactivate other active deals. Continue?')) {
-          handleToggleActive(deal._id, !deal.isActive);
+      onClick={async () => {
+        if (!deal.isActive) {
+          const ok = await confirm({ title: 'Activate this deal?', message: 'This will deactivate any other active deal.', confirmText: 'Activate', tone: 'default' });
+          if (ok) handleToggleActive(deal._id, true);
+        } else {
+          handleToggleActive(deal._id, false);
         }
       }}
       className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${

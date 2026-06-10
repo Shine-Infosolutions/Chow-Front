@@ -5,7 +5,8 @@ import { useCart } from '../contexts/index.jsx';
 import logo from '../assets/logo.png';
 
 const Header = () => {
-  const { getCartItemsCount } = useCart();
+  const { getCartItemsCount, openMiniCart } = useCart();
+  const cartCount = getCartItemsCount();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -35,13 +36,17 @@ const Header = () => {
       <div className="">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
           
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
+          {/* Logo + wordmark */}
+          <Link to="/" className="flex items-center gap-2">
             <img
               src={logo}
               alt="Chowdhry Sweet House"
               className="h-12 sm:h-16 lg:h-20 object-contain"
             />
+            <span className="leading-tight">
+              <span className="font-display block text-base font-bold text-gray-900 sm:text-xl">Chowdhry</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d80a4e] sm:text-xs">Sweet House</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -64,13 +69,15 @@ const Header = () => {
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             
-            {/* Cart */}
-            <Link to="/cart" className="relative flex-shrink-0 z-20 p-2">
-              <ShoppingCart className="w-6 h-6 text-gray-700" />
-              <span className="absolute top-0 right-0 bg-[#d80a4e] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center z-30">
-                {getCartItemsCount()}
-              </span>
-            </Link>
+            {/* Cart → opens mini-cart drawer */}
+            <button onClick={openMiniCart} className="relative z-20 flex-shrink-0 p-2" aria-label="Open cart">
+              <ShoppingCart className="h-6 w-6 text-gray-700" />
+              {cartCount > 0 && (
+                <span key={cartCount} className="animate-badge-pop absolute right-0 top-0 z-30 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#d80a4e] px-1 text-xs font-bold text-white">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
+            </button>
 
             {/* User */}
             <Link to="/account" className="flex-shrink-0">

@@ -23,7 +23,9 @@ const Cart = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     if (!token || !user._id) {
-      navigate('/account');
+      // Send guests to sign up, then bring them right back to the cart
+      // (their guest cart is preserved and merged on sign-in).
+      navigate('/account?redirect=/cart');
       return;
     }
 

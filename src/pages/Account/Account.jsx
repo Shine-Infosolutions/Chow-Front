@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useApi } from '../../contexts/index.jsx';
 import { useCart } from '../../contexts/index.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
@@ -11,6 +12,8 @@ const Account = () => {
   const { register, login } = useApi();
   const { transferGuestCartToUser, handleLogout: clearCartOnLogout } = useCart();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
   const [isLogin, setIsLogin] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,6 +26,7 @@ const Account = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -32,6 +36,14 @@ const Account = () => {
       setIsLoggedIn(true);
     }
   }, []);
+
+  // After a successful login/sign-up, continue to wherever the user was
+  // headed (e.g. the cart) instead of dropping them on the profile panel.
+  useEffect(() => {
+    if (isLoggedIn && user && redirectTo) {
+      navigate(redirectTo, { replace: true });
+    }
+  }, [isLoggedIn, user, redirectTo, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -293,14 +305,23 @@ const Account = () => {
                       <div className="relative">
                         <i className="fas fa-lock absolute left-3 top-3 text-gray-400"></i>
                         <input
-                          type="password"
+                          type={showPassword ? 'text' : 'password'}
                           name="password"
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="Password"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
+                          autoComplete={isLogin ? 'current-password' : 'new-password'}
+                          className="w-full pl-10 pr-11 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 transition-colors"
                           required
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((s) => !s)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#d80a4e]"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
                       </div>
                     </div>
 

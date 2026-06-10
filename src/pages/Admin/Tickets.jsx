@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import {
   RefreshCw, Trash2, ChevronLeft, ChevronRight, X, Mail, Phone, Receipt, Eye, MessageSquare,
 } from 'lucide-react';
@@ -14,6 +14,7 @@ const STATUS_STYLES = {
 
 const Tickets = () => {
   const { getTickets, updateTicket, deleteTicket, replyToTicket, getTicketById } = useApi();
+  const { showNotification, confirm } = useNotification();
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -45,7 +46,7 @@ const Tickets = () => {
         ? { ...t, status: res.ticket.status, lastReplyBy: res.ticket.lastReplyBy, messages: res.ticket.messages }
         : t)));
     } catch (e) {
-      alert(e.message || 'Failed to send reply');
+      showNotification(e.message || 'Failed to send reply', 'error');
     } finally {
       setSending(false);
     }
@@ -83,13 +84,15 @@ const Tickets = () => {
   };
 
   const handleDelete = async (ticketId) => {
-    if (window.confirm('Are you sure you want to delete this ticket?')) {
-      try {
-        await deleteTicket(ticketId);
-        fetchTickets();
-      } catch (error) {
-        console.error('Error deleting ticket:', error);
-      }
+    const ok = await confirm({ title: 'Delete message?', message: 'This action cannot be undone.', confirmText: 'Delete' });
+    if (!ok) return;
+    try {
+      await deleteTicket(ticketId);
+      fetchTickets();
+      showNotification('Message deleted', 'success');
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      showNotification(error.message || 'Failed to delete message', 'error');
     }
   };
 

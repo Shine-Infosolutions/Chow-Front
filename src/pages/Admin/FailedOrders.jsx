@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import { RefreshCw, Trash2, ChevronLeft, ChevronRight, X, Eye, AlertTriangle } from 'lucide-react';
 
 const FailedOrders = () => {
   const { getFailedOrders, cleanFailedOrders } = useApi();
+  const { showNotification, confirm } = useNotification();
   const [failedOrders, setFailedOrders] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -32,17 +33,17 @@ const FailedOrders = () => {
   };
 
   const handleCleanFailedOrders = async () => {
-    if (window.confirm('Are you sure you want to delete all failed orders? This action cannot be undone.')) {
-      try {
-        const response = await cleanFailedOrders();
-        if (response.success) {
-          alert(response.message);
-          loadFailedOrders();
-        }
-      } catch (error) {
-        console.error('Error cleaning failed orders:', error);
-        alert('Failed to clean failed orders');
+    const ok = await confirm({ title: 'Delete all failed orders?', message: 'This permanently removes every failed order and cannot be undone.', confirmText: 'Delete all' });
+    if (!ok) return;
+    try {
+      const response = await cleanFailedOrders();
+      if (response.success) {
+        showNotification(response.message || 'Failed orders cleared', 'success');
+        loadFailedOrders();
       }
+    } catch (error) {
+      console.error('Error cleaning failed orders:', error);
+      showNotification('Failed to clean failed orders', 'error');
     }
   };
 

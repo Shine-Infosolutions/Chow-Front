@@ -6,6 +6,8 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ActiveOrderBar from './components/ActiveOrderBar';
 import SplashScreen from './components/SplashScreen';
+import MiniCart from './components/MiniCart';
+import BottomNav from './components/BottomNav';
 
 import Home from './pages/Home/Home';
 import Shop from './pages/Shop/Shop';
@@ -107,8 +109,15 @@ const AppContent = () => {
       {/* Footer only for non-admin */}
       {!isAdminRoute && <Footer />}
 
+      {/* Spacer so the mobile bottom nav never covers footer content */}
+      {!isAdminRoute && <div className="h-14 lg:hidden" />}
+
       {/* Sticky active-order tracker (non-admin) */}
       {!isAdminRoute && <ActiveOrderBar />}
+
+      {/* Slide-out cart + app-like mobile bottom nav (non-admin) */}
+      {!isAdminRoute && <MiniCart />}
+      {!isAdminRoute && <BottomNav />}
     </div>
   );
 };

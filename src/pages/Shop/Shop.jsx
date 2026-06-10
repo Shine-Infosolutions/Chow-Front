@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useApi } from '../../contexts/index.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
+import { ProductGridSkeleton } from '../../components/Skeleton.jsx';
 import { useSeo } from '../../hooks/useSeo.js';
 
 const Shop = () => {
@@ -194,17 +195,6 @@ const Shop = () => {
     setFilteredItems(subcategoryItems);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mithai-bg min-h-screen">
       <Breadcrumb currentPage="Shop Now" />
@@ -302,15 +292,22 @@ const Shop = () => {
         )}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 max-w-6xl mx-auto">
-          {filteredItems.length > 0 ? filteredItems.map((product, i) => (
-            <ProductCard key={product._id} product={product} index={i} />
-          )) : (
-            <div className="col-span-full text-center py-8 md:py-12">
-              <p className="text-gray-500 text-sm md:text-lg">No products found in this category.</p>
-            </div>
-          )}
-        </div>
+        {loading ? (
+          <ProductGridSkeleton count={8} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 max-w-6xl mx-auto" />
+        ) : filteredItems.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 max-w-6xl mx-auto">
+            {filteredItems.map((product, i) => (
+              <ProductCard key={product._id} product={product} index={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="mx-auto max-w-md rounded-2xl border border-dashed border-amber-200 bg-white py-14 text-center">
+            <p className="font-display text-lg font-semibold text-gray-900">No sweets found</p>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchQuery ? `Nothing matches "${searchQuery}". Try another search.` : 'Try a different category or check back soon.'}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

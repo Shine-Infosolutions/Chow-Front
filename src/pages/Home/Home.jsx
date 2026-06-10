@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useApi } from "../../contexts/index.jsx";
 import { FaTruck, FaShieldAlt, FaCreditCard, FaHeadset, FaGift, FaBox, FaStar, FaSmile, FaFire, FaTags, FaCrown, FaMagic, FaFolder } from "react-icons/fa";
 import ProductCard from "../../components/ProductCard.jsx";
+import { ProductGridSkeleton } from "../../components/Skeleton.jsx";
 import { useSeo } from "../../hooks/useSeo.js";
 import ban1 from "../../assets/ban1.jpg";
 import compressedcard1 from "../../assets/compressedcard1.jpg";
@@ -133,14 +134,15 @@ const Home = () => {
             <img
               src={ban1}
               alt="Premium traditional Indian sweets and mithai at Chowdhry Sweet House, Gorakhpur"
-              className="w-full h-full object-cover brightness-90"
+              className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0" />
+            {/* Scrim for text legibility over the busy image */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10 sm:via-black/35" />
             <div className="absolute inset-0 p-4 sm:p-6 lg:p-10 flex flex-col justify-center animate-fade-in">
-              <p className="text-pink-500 mb-2 text-base sm:text-lg animate-fade-in-delay-1">Deliciously Crafted Treats</p>
-              <h1 className="font-display text-white text-2xl sm:text-3xl lg:text-5xl font-bold animate-fade-in-delay-2">
+              <p className="text-pink-300 mb-2 text-base sm:text-lg font-medium animate-fade-in-delay-1 drop-shadow">Deliciously Crafted Treats</p>
+              <h1 className="font-display text-white text-2xl sm:text-3xl lg:text-5xl font-bold animate-fade-in-delay-2 drop-shadow-lg [text-shadow:_0_2px_8px_rgb(0_0_0_/_45%)]">
                 Premium Sweets <br />
-                <span className="text-pink-500">&amp; Exquisite</span> Flavors.
+                <span className="text-pink-400">&amp; Exquisite</span> Flavors.
               </h1>
               <Link
                 to="/shop"
@@ -188,6 +190,16 @@ const Home = () => {
           ))}
         </div>
       </section>
+
+    {/* ================= Loading skeleton ================= */}
+    {pageLoading && categories.length === 0 && (
+      <section className="bg-[#fdf6ee] py-6 sm:py-8">
+        <div className="mx-auto max-w-[1400px] px-3 sm:px-4 md:px-6">
+          <div className="skeleton mb-5 h-7 w-44 rounded" />
+          <ProductGridSkeleton count={4} className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" />
+        </div>
+      </section>
+    )}
 
     {/* ================= Dynamic Category Sections ================= */}
 {categories.map((category) => {

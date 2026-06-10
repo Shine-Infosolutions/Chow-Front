@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import { useNavigate } from 'react-router-dom';
 import { deriveOrderStatus } from '../../utils/orderStatus.js';
 import {
@@ -9,6 +9,7 @@ import {
 
 const AdminOrders = () => {
   const { getAllOrders, updateOrderStatus, updatePaymentStatus, createShipment, trackOrder, updateDeliveryStatus, service } = useApi();
+  const { showNotification } = useNotification();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -62,7 +63,7 @@ const AdminOrders = () => {
       calculateStats(ordersData);
     } catch (error) {
       console.error('Error fetching orders:', error);
-      alert('Error fetching orders. Please check your connection.');
+      showNotification('Error fetching orders. Please check your connection.', 'error');
       setOrders([]);
     } finally {
       setLoading(false);
@@ -183,12 +184,10 @@ const AdminOrders = () => {
         )
       );
       
-      alert(`Payment status updated to ${paymentStatus} successfully!`);
-      
+      showNotification(`Payment marked ${paymentStatus}`, 'success');
     } catch (error) {
       console.error('Error updating payment status:', error);
-      const errorMessage = error.message || 'Unknown error occurred';
-      alert(`Error updating payment status: ${errorMessage}`);
+      showNotification(`Error updating payment: ${error.message || 'Unknown error'}`, 'error');
     } finally {
       setUpdatingOrder(null);
     }
@@ -208,14 +207,12 @@ const AdminOrders = () => {
         )
       );
       
-      const message = newStatus === 'delivered' 
-        ? 'Order marked as delivered and stock updated successfully!' 
-        : `Order status updated to ${newStatus} successfully!`;
-      alert(message);
-      
+      showNotification(newStatus === 'delivered'
+        ? 'Order delivered and stock updated'
+        : `Order ${newStatus}`, 'success');
     } catch (error) {
       console.error('Error updating order:', error);
-      alert(`Error updating order status: ${error.message || 'Unknown error occurred'}`);
+      showNotification(`Error updating order: ${error.message || 'Unknown error'}`, 'error');
     } finally {
       setUpdatingOrder(null);
     }
@@ -227,14 +224,14 @@ const AdminOrders = () => {
       const result = await createShipment(orderId);
       
       if (result.success) {
-        alert(`Shipment created successfully! Waybill: ${result.waybill}`);
+        showNotification(`Shipment created · Waybill ${result.waybill}`, 'success');
         fetchOrders(); // Refresh orders to show updated status
       } else {
-        alert(`Failed to create shipment: ${result.message}`);
+        showNotification(`Failed to create shipment: ${result.message}`, 'error');
       }
     } catch (error) {
       console.error('Error creating shipment:', error);
-      alert(`Error creating shipment: ${error.message}`);
+      showNotification(`Error creating shipment: ${error.message}`, 'error');
     } finally {
       setUpdatingOrder(null);
     }
@@ -254,11 +251,10 @@ const AdminOrders = () => {
         )
       );
       
-      alert(`Delivery status updated to ${deliveryStatus} successfully!`);
-      
+      showNotification(`Delivery status: ${deliveryStatus}`, 'success');
     } catch (error) {
       console.error('Error updating delivery status:', error);
-      alert(`Error updating delivery status: ${error.message || 'Unknown error occurred'}`);
+      showNotification(`Error updating delivery: ${error.message || 'Unknown error'}`, 'error');
     } finally {
       setUpdatingOrder(null);
     }
@@ -269,11 +265,11 @@ const AdminOrders = () => {
       const result = await trackOrder(orderId);
       if (result.success) {
         setTrackingData(prev => ({ ...prev, [orderId]: result }));
-        alert(`Tracking updated for order ${orderId}`);
+        showNotification(`Tracking updated for #${orderId?.slice(-8)}`, 'success');
       }
     } catch (error) {
       console.error('Error tracking order:', error);
-      alert(`Error tracking order: ${error.message}`);
+      showNotification(`Error tracking order: ${error.message}`, 'error');
     }
   };
 

@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { CheckCircle2, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 import { getEffectivePrice } from '../utils/index.js';
 
 // ============================================================================
-// NOTIFICATION CONTEXT
+// NOTIFICATION CONTEXT  (stacked toasts + promise-based confirm dialog)
 // ============================================================================
 const NotificationContext = createContext();
 
@@ -14,22 +15,108 @@ export const useNotification = () => {
   return context;
 };
 
-export const NotificationProvider = ({ children }) => {
-  const [notification, setNotification] = useState(null);
+const TOAST_STYLES = {
+  success: { icon: CheckCircle2, ring: 'border-emerald-200', accent: 'text-emerald-500' },
+  error: { icon: XCircle, ring: 'border-red-200', accent: 'text-red-500' },
+  info: { icon: Info, ring: 'border-blue-200', accent: 'text-blue-500' },
+  warning: { icon: AlertTriangle, ring: 'border-amber-200', accent: 'text-amber-500' },
+};
 
-  const showNotification = (message, type = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
+let toastSeq = 0;
+
+export const NotificationProvider = ({ children }) => {
+  const [toasts, setToasts] = useState([]);
+  const [dialog, setDialog] = useState(null); // { title, message, confirmText, cancelText, tone, resolve }
+  const timers = useRef({});
+
+  const dismiss = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+    if (timers.current[id]) {
+      clearTimeout(timers.current[id]);
+      delete timers.current[id];
+    }
+  }, []);
+
+  const showNotification = useCallback((message, type = 'success', duration = 3500) => {
+    const id = ++toastSeq;
+    setToasts((prev) => [...prev, { id, message, type: TOAST_STYLES[type] ? type : 'info' }]);
+    timers.current[id] = setTimeout(() => dismiss(id), duration);
+    return id;
+  }, [dismiss]);
+
+  // Promise-based confirm — replaces window.confirm with a styled dialog.
+  const confirm = useCallback((options = {}) => {
+    return new Promise((resolve) => {
+      setDialog({
+        title: options.title || 'Are you sure?',
+        message: options.message || '',
+        confirmText: options.confirmText || 'Confirm',
+        cancelText: options.cancelText || 'Cancel',
+        tone: options.tone || 'danger',
+        resolve,
+      });
+    });
+  }, []);
+
+  const closeDialog = (result) => {
+    if (dialog?.resolve) dialog.resolve(result);
+    setDialog(null);
   };
 
+  useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
+
   return (
-    <NotificationContext.Provider value={{ showNotification }}>
+    <NotificationContext.Provider value={{ showNotification, confirm }}>
       {children}
-      {notification && (
-        <div className={`fixed top-20 right-4 z-[110] px-4 py-3 rounded-lg shadow-lg ${
-          notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`}>
-          {notification.message}
+
+      {/* Toasts */}
+      <div className="pointer-events-none fixed right-3 top-20 z-[120] flex w-[min(92vw,22rem)] flex-col gap-2 sm:right-5">
+        {toasts.map((t) => {
+          const cfg = TOAST_STYLES[t.type];
+          const Icon = cfg.icon;
+          return (
+            <div
+              key={t.id}
+              role="status"
+              className={`animate-toast-in pointer-events-auto flex items-start gap-3 rounded-2xl border ${cfg.ring} bg-white px-4 py-3 shadow-lg shadow-black/5`}
+            >
+              <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${cfg.accent}`} />
+              <p className="flex-1 text-sm font-medium text-gray-800">{t.message}</p>
+              <button onClick={() => dismiss(t.id)} className="shrink-0 rounded-md p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Confirm dialog */}
+      {dialog && (
+        <div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => closeDialog(false)}>
+          <div className="animate-dialog-in w-full max-w-sm overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+            <div className="p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+              <div className="mb-3 flex items-start gap-3">
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${dialog.tone === 'danger' ? 'bg-red-50 text-red-500' : 'bg-rose-50 text-[#d80a4e]'}`}>
+                  <AlertTriangle className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-display text-lg font-bold text-gray-900">{dialog.title}</h3>
+                  {dialog.message && <p className="mt-1 text-sm text-gray-500">{dialog.message}</p>}
+                </div>
+              </div>
+              <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button onClick={() => closeDialog(false)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                  {dialog.cancelText}
+                </button>
+                <button
+                  onClick={() => closeDialog(true)}
+                  className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white ${dialog.tone === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-[#d80a4e] hover:bg-[#b8083e]'}`}
+                >
+                  {dialog.confirmText}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </NotificationContext.Provider>
@@ -724,6 +811,9 @@ export const CartProvider = ({ children }) => {
   const { showNotification } = useNotification();
   const [cartItems, setCartItems] = useState([]);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isMiniCartOpen, setMiniCartOpen] = useState(false);
+  const openMiniCart = () => setMiniCartOpen(true);
+  const closeMiniCart = () => setMiniCartOpen(false);
 
   useEffect(() => {
     const checkUserStatus = () => {
@@ -937,7 +1027,10 @@ export const CartProvider = ({ children }) => {
     handleLogout,
     transferGuestCartToUser,
     getCartTotal,
-    getCartItemsCount
+    getCartItemsCount,
+    isMiniCartOpen,
+    openMiniCart,
+    closeMiniCart,
   };
 
   return (

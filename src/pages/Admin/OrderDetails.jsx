@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import { deriveOrderStatus, ORDER_STEPS, orderStepIndex } from '../../utils/orderStatus.js';
 import { ArrowLeft } from 'lucide-react';
 
@@ -8,6 +8,7 @@ const OrderDetails = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { service, updateOrderStatus, updatePaymentStatus, updateDeliveryStatus, updateOrderDeliveryDate, cancelOrder, markOrderDelayed, updateOrderNotes } = useApi();
+  const { showNotification, confirm } = useNotification();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCancel, setShowCancel] = useState(false);
@@ -39,9 +40,9 @@ const OrderDetails = () => {
     try {
       await updateOrderStatus(orderId, newStatus);
       setOrder(prev => ({ ...prev, status: newStatus }));
-      alert(`Order status updated to ${newStatus}`);
+      showNotification(`Order status: ${newStatus}`, 'success');
     } catch (error) {
-      alert('Failed to update order status');
+      showNotification('Failed to update order status', 'error');
     }
   };
 
@@ -49,9 +50,9 @@ const OrderDetails = () => {
     try {
       await updatePaymentStatus(orderId, newStatus);
       setOrder(prev => ({ ...prev, paymentStatus: newStatus }));
-      alert(`Payment status updated to ${newStatus}`);
+      showNotification(`Payment status: ${newStatus}`, 'success');
     } catch (error) {
-      alert('Failed to update payment status');
+      showNotification('Failed to update payment status', 'error');
     }
   };
 
@@ -59,9 +60,9 @@ const OrderDetails = () => {
     try {
       await updateDeliveryStatus(orderId, newStatus);
       setOrder(prev => ({ ...prev, deliveryStatus: newStatus }));
-      alert(`Delivery status updated to ${newStatus}`);
+      showNotification(`Delivery status: ${newStatus}`, 'success');
     } catch (error) {
-      alert('Failed to update delivery status');
+      showNotification('Failed to update delivery status', 'error');
     }
   };
 
@@ -69,13 +70,20 @@ const OrderDetails = () => {
     try {
       await updateOrderDeliveryDate(orderId, date || null);
       setOrder(prev => ({ ...prev, deliveryDate: date || null }));
+      showNotification(date ? 'Delivery date set' : 'Delivery date cleared', 'success');
     } catch (error) {
-      alert(error.message || 'Failed to set delivery date');
+      showNotification(error.message || 'Failed to set delivery date', 'error');
     }
   };
 
   const handleCancel = async () => {
-    if (!window.confirm('Cancel this order? Paid orders will be restocked and flagged for refund.')) return;
+    const ok = await confirm({
+      title: 'Cancel this order?',
+      message: 'Paid orders will be restocked and flagged for refund.',
+      confirmText: 'Cancel order',
+      cancelText: 'Keep order',
+    });
+    if (!ok) return;
     try {
       const res = await cancelOrder(orderId, { reason: cancelReason, refund: refundChoice });
       setOrder(prev => ({
@@ -87,9 +95,9 @@ const OrderDetails = () => {
         stockRestored: res.order?.stockRestored,
       }));
       setShowCancel(false);
-      alert('Order cancelled' + (res.order?.stockRestored ? ' — items restocked.' : '.'));
+      showNotification('Order cancelled' + (res.order?.stockRestored ? ' — items restocked' : ''), 'success');
     } catch (error) {
-      alert(error.message || 'Failed to cancel order');
+      showNotification(error.message || 'Failed to cancel order', 'error');
     }
   };
 
@@ -97,9 +105,9 @@ const OrderDetails = () => {
     try {
       await markOrderDelayed(orderId, { isDelayed: true, delayReason, deliveryDate: order.deliveryDate || undefined });
       setOrder(prev => ({ ...prev, isDelayed: true, delayReason }));
-      alert('Order marked as delayed. The customer will see this.');
+      showNotification('Order marked as delayed — the customer will see this', 'success');
     } catch (error) {
-      alert(error.message || 'Failed to mark delayed');
+      showNotification(error.message || 'Failed to mark delayed', 'error');
     }
   };
 
@@ -108,9 +116,9 @@ const OrderDetails = () => {
     try {
       await updateOrderNotes(orderId, adminNotes);
       setOrder(prev => ({ ...prev, adminNotes }));
-      alert('Notes saved');
+      showNotification('Notes saved', 'success');
     } catch (error) {
-      alert(error.message || 'Failed to save notes');
+      showNotification(error.message || 'Failed to save notes', 'error');
     } finally {
       setSavingNotes(false);
     }
@@ -121,12 +129,12 @@ const OrderDetails = () => {
       const response = await service.post('/api/delhivery/create-shipment', { orderId });
       if (response.success) {
         await loadOrderDetails();
-        alert('Shipment created successfully');
+        showNotification('Shipment created', 'success');
       } else {
-        alert(response.message || 'Failed to create shipment');
+        showNotification(response.message || 'Failed to create shipment', 'error');
       }
     } catch (error) {
-      alert('Failed to create shipment');
+      showNotification('Failed to create shipment', 'error');
     }
   };
 
@@ -134,12 +142,12 @@ const OrderDetails = () => {
     try {
       const response = await service.get(`/api/delhivery/track-order/${orderId}`);
       if (response.success) {
-        alert(`Tracking Status: ${response.status}\nLocation: ${response.location}`);
+        showNotification(`Tracking: ${response.status} · ${response.location}`, 'info', 5000);
       } else {
-        alert('Failed to track order');
+        showNotification('Failed to track order', 'error');
       }
     } catch (error) {
-      alert('Failed to track order');
+      showNotification('Failed to track order', 'error');
     }
   };
 

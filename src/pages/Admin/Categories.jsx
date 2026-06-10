@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useApi } from '../../contexts/index.jsx';
+import { useApi, useNotification } from '../../contexts/index.jsx';
 import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ArrowLeft, FolderOpen } from 'lucide-react';
 
 const Categories = () => {
   const { fetchCategories, addCategory, updateCategory, deleteCategory, categories, loading } = useApi();
+  const { showNotification, confirm } = useNotification();
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '', displayRank: 0 });
@@ -25,6 +26,7 @@ const Categories = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const wasEditing = Boolean(editingCategory);
     try {
       setUpdating(true);
       setError('');
@@ -35,6 +37,7 @@ const Categories = () => {
       }
       resetForm();
       fetchCategories();
+      showNotification(wasEditing ? 'Category updated' : 'Category added', 'success');
     } catch (error) {
       console.error('Error saving category:', error);
       setError(error.message || 'Failed to save category');
@@ -54,13 +57,15 @@ const Categories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this category?')) {
-      try {
-        await deleteCategory(id);
-        fetchCategories();
-      } catch (error) {
-        console.error('Error deleting category:', error);
-      }
+    const ok = await confirm({ title: 'Delete category?', message: 'This action cannot be undone.', confirmText: 'Delete' });
+    if (!ok) return;
+    try {
+      await deleteCategory(id);
+      fetchCategories();
+      showNotification('Category deleted', 'success');
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      showNotification(error.message || 'Failed to delete category', 'error');
     }
   };
 

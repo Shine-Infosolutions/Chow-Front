@@ -13,9 +13,15 @@ const Breadcrumb = ({ currentPage }) => {
             <span className="text-gray-800">{currentPage}</span>
           </div>
         </div>
-        <h1 className="text-2xl md:text-4xl font-bold">{currentPage}</h1>
+        <h1 className="font-display text-2xl font-bold text-gray-900 md:text-4xl">{currentPage}</h1>
       </div>
-      <img src={logo} alt="Chowdhry Sweet House" className="h-20 md:h-40 absolute right-2 md:right-6 top-1/2 transform -translate-y-1/2" />
+      {/* Faint brand watermark — sits behind the title so long names stay readable */}
+      <img
+        src={logo}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute right-2 top-1/2 z-0 h-16 -translate-y-1/2 select-none opacity-[0.07] md:right-6 md:h-32"
+      />
     </div>
   );
 };
