@@ -9,7 +9,7 @@ import SplashScreen from './components/SplashScreen';
 import MiniCart from './components/MiniCart';
 import BottomNav from './components/BottomNav';
 import PushSync from './components/PushSync';
-import InstallPrompt from './components/InstallPrompt';
+import EngagementPrompts from './components/EngagementPrompts';
 
 import Home from './pages/Home/Home';
 import Shop from './pages/Shop/Shop';
@@ -127,9 +127,10 @@ const AppContent = () => {
       {!isAdminRoute && <MiniCart />}
       {!isAdminRoute && <BottomNav />}
 
-      {/* PWA: keep push subscription synced to the logged-in user + offer install */}
+      {/* PWA: keep push subscription synced to the logged-in user */}
       <PushSync />
-      <InstallPrompt />
+      {/* Front-and-center: enable order notifications + install the app (storefront only) */}
+      {!isAdminRoute && <EngagementPrompts />}
     </div>
   );
 };
