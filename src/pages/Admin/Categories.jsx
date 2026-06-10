@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useApi } from '../../contexts/index.jsx';
+import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ArrowLeft, FolderOpen } from 'lucide-react';
 
 const Categories = () => {
   const { fetchCategories, addCategory, updateCategory, deleteCategory, categories, loading } = useApi();
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    displayRank: 0
-  });
+  const [formData, setFormData] = useState({ name: '', description: '', displayRank: 0 });
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,6 +15,13 @@ const Categories = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const resetForm = () => {
+    setShowModal(false);
+    setEditingCategory(null);
+    setFormData({ name: '', description: '', displayRank: 0 });
+    setError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,9 +33,7 @@ const Categories = () => {
       } else {
         await addCategory(formData);
       }
-      setShowModal(false);
-      setEditingCategory(null);
-      setFormData({ name: '', description: '', displayRank: 0 });
+      resetForm();
       fetchCategories();
     } catch (error) {
       console.error('Error saving category:', error);
@@ -46,7 +48,7 @@ const Categories = () => {
     setFormData({
       name: category.name || '',
       description: category.description || '',
-      displayRank: category.displayRank || 0
+      displayRank: category.displayRank || 0,
     });
     setShowModal(true);
   };
@@ -55,9 +57,6 @@ const Categories = () => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
         await deleteCategory(id);
-        // Update local state immediately
-        const updatedCategories = categories.filter(cat => cat._id !== id);
-        // Force re-render by calling fetchCategories
         fetchCategories();
       } catch (error) {
         console.error('Error deleting category:', error);
@@ -65,219 +64,235 @@ const Categories = () => {
     }
   };
 
-  // Pagination functions
-  const getTotalPages = () => Math.ceil(categories.length / itemsPerPage);
-  
+  const getTotalPages = () => Math.max(1, Math.ceil(categories.length / itemsPerPage));
   const getCurrentPageItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return categories.slice(startIndex, endIndex);
+    return categories.slice(startIndex, startIndex + itemsPerPage);
   };
-  
   const getPageInfo = () => {
+    if (categories.length === 0) return '0 of 0';
     const startIndex = (currentPage - 1) * itemsPerPage + 1;
     const endIndex = Math.min(currentPage * itemsPerPage, categories.length);
-    return `${startIndex} – ${endIndex} of ${categories.length}`;
+    return `${startIndex}–${endIndex} of ${categories.length}`;
   };
 
+  const inputClass =
+    'w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition focus:border-[#d80a4e] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/20';
+
+  // ===================== Form View =====================
   if (showModal) {
     return (
-      <div className="h-full flex flex-col bg-gray-50">
-        {/* Header */}
-        <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <h1 className="font-display text-lg sm:text-xl font-bold text-gray-900">
-              {editingCategory ? 'Edit Category' : 'Add Category'}
-            </h1>
+      <div className="mx-auto max-w-3xl p-4 sm:p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="font-display text-xl font-bold text-gray-900 sm:text-2xl">
+            {editingCategory ? 'Edit Category' : 'Add Category'}
+          </h1>
+          <button
+            onClick={resetForm}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+          >
+            <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Back</span>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm sm:p-6">
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                Name <span className="text-[#d80a4e]">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Traditional Sweets"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className={inputClass}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">Display Rank</label>
+              <input
+                type="number"
+                placeholder="0"
+                min="0"
+                value={formData.displayRank}
+                onChange={(e) => setFormData({ ...formData, displayRank: parseInt(e.target.value) || 0 })}
+                className={inputClass}
+              />
+              <p className="mt-1 text-xs text-gray-400">Lower numbers appear first on the homepage.</p>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
+              <textarea
+                placeholder="Optional description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className={inputClass}
+                rows="4"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
-              onClick={() => {
-                setShowModal(false);
-                setEditingCategory(null);
-                setFormData({ name: '', description: '', displayRank: 0 });
-                setError('');
-              }}
-              className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-gray-700 flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+              type="button"
+              onClick={resetForm}
+              className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
             >
-              ← <span className="hidden sm:inline">Go Back</span>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={updating}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#d80a4e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#b8083e] disabled:opacity-50"
+            >
+              {updating && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
+              {updating ? 'Saving…' : editingCategory ? 'Update Category' : 'Add Category'}
             </button>
           </div>
-        </div>
-
-        {/* Form Content */}
-        <div className="flex-1 overflow-auto p-3 sm:p-6">
-          <div className="bg-white rounded-lg border p-3 sm:p-6">
-            <div className="mb-4 sm:mb-6">
-              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Basic Information :</h3>
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-                  {error}
-                </div>
-              )}
-            </div>
-            
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                {/* Name Field */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Category Name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                {/* Display Rank Field */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Display Rank
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    min="0"
-                    value={formData.displayRank}
-                    onChange={(e) => setFormData({...formData, displayRank: parseInt(e.target.value) || 0})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Lower numbers appear first on homepage</p>
-                </div>
-
-                {/* Empty column for layout */}
-                <div></div>
-              </div>
-
-              {/* Description Field */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  placeholder="Description (optional)"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 focus:border-transparent"
-                  rows="4"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={updating}
-                  className="bg-[#d80a4e] text-white px-8 py-3 rounded-md hover:bg-[#b8083e] font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {updating && (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  )}
-                  {updating ? 'Updating...' : (editingCategory ? 'Update Category' : 'Add Category')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        </form>
       </div>
     );
   }
 
+  // ===================== List View =====================
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 px-4 pt-4">
-        <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Categories Management</h2>
+    <div className="mx-auto max-w-6xl p-4 sm:p-6">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-xl font-bold text-gray-900 sm:text-2xl">Categories</h2>
+          <p className="text-sm text-gray-500">Top-level groups shown on your storefront.</p>
+        </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#d80a4e] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#b8083e]"
         >
-          + Add Category
+          <Plus className="h-4 w-4" /> Add Category
         </button>
       </div>
 
-      {/* Categories Table */}
-      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4 flex-1 min-h-0 overflow-hidden">
-        <div className="h-full overflow-auto">
-          <table className="min-w-[700px] w-full">
-            <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
-              <tr>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Name</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Rank</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Description</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {getCurrentPageItems().map((category, index) => (
-                <tr key={category._id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-medium text-gray-900">
-                    {category.name}
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-700">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {category.displayRank || 0}
-                    </span>
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-700">
-                    {category.description || 'No description'}
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(category)}
-                        className="bg-[#d80a4e] text-white px-2 md:px-4 py-1 md:py-2 rounded hover:bg-[#b8083e] text-xs font-medium"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(category._id)}
-                        className="bg-red-500 text-white px-2 md:px-4 py-1 md:py-2 rounded hover:bg-red-600 text-xs font-medium"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {loading && categories.length === 0 ? (
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-100 border-t-[#d80a4e]" />
         </div>
-        
-        {/* Pagination */}
-        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sticky bottom-0">
-          <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
-            <span>Items per page: {itemsPerPage}</span>
-            <span className="sm:ml-8">{getPageInfo()}</span>
-          </div>
-          <div className="flex items-center justify-center sm:justify-end space-x-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ◀
-            </button>
-            <span className="text-xs md:text-sm text-gray-600">
-              {currentPage} / {getTotalPages()}
-            </span>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages()))}
-              disabled={currentPage === getTotalPages()}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ▶
-            </button>
-          </div>
+      ) : categories.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-amber-200 bg-white py-16 text-center">
+          <FolderOpen className="mx-auto h-10 w-10 text-gray-300" />
+          <p className="mt-3 text-sm text-gray-500">No categories yet. Add your first one!</p>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Mobile cards */}
+          <div className="space-y-3 md:hidden">
+            {getCurrentPageItems().map((category) => (
+              <div key={category._id} className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="truncate font-semibold text-gray-900">{category.name}</h3>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-gray-500">
+                      {category.description || 'No description'}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                    #{category.displayRank || 0}
+                  </span>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() => handleEdit(category)}
+                    className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-rose-50 px-3 py-2 text-sm font-medium text-[#d80a4e] hover:bg-rose-100"
+                  >
+                    <Pencil className="h-4 w-4" /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(category._id)}
+                    className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+                  >
+                    <Trash2 className="h-4 w-4" /> Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
-      {categories.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No categories found. Add your first category!</p>
-        </div>
+          {/* Desktop table */}
+          <div className="hidden overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm md:block">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3.5">Name</th>
+                  <th className="px-6 py-3.5">Rank</th>
+                  <th className="px-6 py-3.5">Description</th>
+                  <th className="px-6 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {getCurrentPageItems().map((category) => (
+                  <tr key={category._id} className="transition-colors hover:bg-rose-50/40">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{category.name}</td>
+                    <td className="px-6 py-4">
+                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                        {category.displayRank || 0}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {category.description || <span className="text-gray-400">No description</span>}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(category)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-rose-200 hover:bg-rose-50 hover:text-[#d80a4e]"
+                        >
+                          <Pencil className="h-3.5 w-3.5" /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(category._id)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className="text-xs text-gray-500 sm:text-sm">{getPageInfo()}</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-medium text-gray-700">
+                {currentPage} / {getTotalPages()}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, getTotalPages()))}
+                disabled={currentPage === getTotalPages()}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

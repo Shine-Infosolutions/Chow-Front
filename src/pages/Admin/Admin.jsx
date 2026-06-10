@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, FolderOpen, Layers, Package, BadgePercent,
+  ClipboardList, AlertTriangle, MessageSquare, LogOut, Menu, X,
+  MoreHorizontal, ChevronRight,
+} from 'lucide-react';
 import Dashboard from './Dashboard.jsx';
 import Products from './Products.jsx';
 import Categories from './Categories.jsx';
@@ -10,11 +15,25 @@ import FailedOrders from './FailedOrders.jsx';
 import SweetDeal from './SweetDeal.jsx';
 import logo from '../../assets/logo.png';
 
+const TABS = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'categories', label: 'Categories', icon: FolderOpen },
+  { id: 'subcategories', label: 'Subcategories', icon: Layers },
+  { id: 'products', label: 'Products', icon: Package },
+  { id: 'sweetdeal', label: 'Sweet Deal', icon: BadgePercent },
+  { id: 'orders', label: 'Orders', icon: ClipboardList },
+  { id: 'failed-orders', label: 'Failed Orders', icon: AlertTriangle },
+  { id: 'tickets', label: 'Messages', icon: MessageSquare },
+];
+
+// Primary destinations shown in the mobile bottom bar (rest live under "More")
+const MOBILE_PRIMARY = ['dashboard', 'orders', 'products', 'tickets'];
+
 const Admin = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -29,20 +48,16 @@ const Admin = () => {
     }
   }, [location.pathname]);
 
-  const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
-    { id: 'categories', label: 'Category', icon: '📂' },
-    { id: 'subcategories', label: 'Subcategory', icon: '📁' },
-    { id: 'products', label: 'Product', icon: '📦' },
-    { id: 'sweetdeal', label: 'Sweet Deal', icon: '🍯' },
-    { id: 'orders', label: 'Orders', icon: '📋' },
-    { id: 'failed-orders', label: 'Failed Orders', icon: '❌' },
-    { id: 'tickets', label: 'Messages', icon: '💬' }
-  ];
+  const go = (id) => {
+    setActiveTab(id);
+    setDrawerOpen(false);
+  };
+
+  const activeMeta = TABS.find((t) => t.id === activeTab) || TABS[0];
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <Dashboard />;
+      case 'dashboard': return <Dashboard onNavigate={go} />;
       case 'products': return <Products />;
       case 'categories': return <Categories />;
       case 'subcategories': return <Subcategories />;
@@ -54,96 +69,149 @@ const Admin = () => {
     }
   };
 
+  const NavItem = ({ tab, onClick }) => {
+    const Icon = tab.icon;
+    const active = activeTab === tab.id;
+    return (
+      <button
+        onClick={onClick}
+        className={`group flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${
+          active
+            ? 'bg-[#d80a4e] text-white shadow-md shadow-rose-200'
+            : 'text-gray-600 hover:bg-rose-50 hover:text-[#d80a4e]'
+        }`}
+      >
+        <Icon className={`h-5 w-5 shrink-0 ${active ? 'text-white' : 'text-gray-400 group-hover:text-[#d80a4e]'}`} />
+        <span className="truncate">{tab.label}</span>
+        {active && <ChevronRight className="ml-auto h-4 w-4 opacity-80" />}
+      </button>
+    );
+  };
+
   return (
-    <div className="h-screen bg-white flex overflow-hidden">
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      
-      {/* Sidebar */}
-      <div className={`w-64 bg-white shadow-lg fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:transform-none ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0 flex flex-col`}>
-        {/* Logo */}
-        <div className="p-2 sm:p-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <img src={logo} alt="Chowdhry" className="h-20 sm:h-24 lg:h-30 mx-auto" />
-            <button 
-              className="lg:hidden p-2"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+    <div className="flex h-screen overflow-hidden bg-[#fdf6ee]">
+      {/* ===================== Desktop Sidebar ===================== */}
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-amber-100 bg-white lg:flex">
+        <div className="flex items-center justify-center border-b border-amber-100 px-4 py-5">
+          <img src={logo} alt="Chowdhry Sweet House" className="h-16 w-auto object-contain" />
         </div>
-        
-        {/* Navigation */}
-        <nav className="mt-1 flex-1 overflow-y-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center px-4 sm:px-6 py-3 text-left text-sm sm:text-base transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-[#d80a4e] text-white font-semibold border-r-4 border-[#8b1a3a]'
-                  : 'text-gray-700 hover:bg-rose-50 hover:text-[#d80a4e]'
-              }`}
-            >
-              <span className="mr-2 sm:mr-3 text-sm sm:text-base">{tab.icon}</span>
-              {tab.label}
-            </button>
+        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+          <p className="px-3 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Menu</p>
+          {TABS.map((tab) => (
+            <NavItem key={tab.id} tab={tab} onClick={() => go(tab.id)} />
           ))}
         </nav>
-      </div>
+        <div className="border-t border-amber-100 p-3">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
+          >
+            <LogOut className="h-5 w-5 text-gray-400" />
+            Logout
+          </button>
+        </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-0 flex flex-col min-h-0 min-w-0">
+      {/* ===================== Mobile Drawer ===================== */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={() => setDrawerOpen(false)}
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[82%] flex-col bg-white shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
+          drawerOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-amber-100 px-4 py-4">
+          <img src={logo} alt="Chowdhry Sweet House" className="h-12 w-auto object-contain" />
+          <button onClick={() => setDrawerOpen(false)} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+          {TABS.map((tab) => (
+            <NavItem key={tab.id} tab={tab} onClick={() => go(tab.id)} />
+          ))}
+        </nav>
+        <div className="border-t border-amber-100 p-3">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600"
+          >
+            <LogOut className="h-5 w-5 text-gray-400" />
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* ===================== Main Column ===================== */}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b px-3 sm:px-4 lg:px-6 py-3 sm:py-4 flex-shrink-0">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <button 
-                className="mr-3 lg:hidden p-1"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <h1 className="font-display text-base sm:text-lg font-bold text-gray-900">
-                {tabs.find(tab => tab.id === activeTab)?.label || 'Dashboard'}
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-amber-100 bg-white/90 px-3 py-3 backdrop-blur sm:px-5">
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="rounded-lg p-2 text-gray-600 hover:bg-rose-50 hover:text-[#d80a4e] lg:hidden"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="font-display truncate text-base font-bold text-gray-900 sm:text-lg">
+                {activeMeta.label}
               </h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#d80a4e] to-[#8b1a3a] rounded-full flex items-center justify-center text-white">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-[#d80a4e] hover:border-rose-200 transition-colors"
-              >
-                Logout
-              </button>
+              <p className="hidden text-xs text-gray-400 sm:block">Chowdhry Sweet House · Admin</p>
             </div>
           </div>
-        </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#d80a4e] to-[#8b1a3a] text-sm font-bold text-white">
+              A
+            </div>
+            <button
+              onClick={handleLogout}
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-[#d80a4e] sm:flex"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
+        </header>
 
         {/* Content */}
-        <div className="flex-1 min-h-0 min-w-0 overflow-y-auto bg-[#fdf6ee]">
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-20 lg:pb-0">
           {renderContent()}
-        </div>
+        </main>
       </div>
+
+      {/* ===================== Mobile Bottom Nav ===================== */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t border-amber-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+        {MOBILE_PRIMARY.map((id) => {
+          const tab = TABS.find((t) => t.id === id);
+          const Icon = tab.icon;
+          const active = activeTab === id;
+          return (
+            <button
+              key={id}
+              onClick={() => go(id)}
+              className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-medium transition-colors ${
+                active ? 'text-[#d80a4e]' : 'text-gray-400'
+              }`}
+            >
+              <Icon className={`h-5 w-5 ${active ? 'text-[#d80a4e]' : ''}`} />
+              {tab.label}
+            </button>
+          );
+        })}
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-medium text-gray-400"
+        >
+          <MoreHorizontal className="h-5 w-5" />
+          More
+        </button>
+      </nav>
     </div>
   );
 };

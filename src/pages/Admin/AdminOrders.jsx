@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useApi } from '../../contexts/index.jsx';
 import { useNavigate } from 'react-router-dom';
 import { deriveOrderStatus } from '../../utils/orderStatus.js';
+import {
+  SlidersHorizontal, RefreshCw, ChevronLeft, ChevronRight,
+  CreditCard, FileText, ExternalLink, ClipboardList,
+} from 'lucide-react';
 
 const AdminOrders = () => {
   const { getAllOrders, updateOrderStatus, updatePaymentStatus, createShipment, trackOrder, updateDeliveryStatus, service } = useApi();
@@ -295,76 +299,147 @@ const AdminOrders = () => {
     return <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full font-medium">❓ Unknown</span>;
   };
 
+  const PaymentBadge = ({ status }) => (
+    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold text-white ${
+      status === 'paid' ? 'bg-emerald-500' : status === 'failed' ? 'bg-red-500' : 'bg-amber-500'
+    }`}>
+      {status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Pending'}
+    </span>
+  );
+
+  const DeliveryBadge = ({ status }) => (
+    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold text-white ${
+      status === 'DELIVERED' ? 'bg-emerald-500' :
+      status === 'OUT_FOR_DELIVERY' ? 'bg-blue-500' :
+      status === 'SHIPMENT_CREATED' ? 'bg-purple-500' :
+      status === 'PENDING' ? 'bg-amber-500' :
+      status === 'RTO' ? 'bg-red-500' : 'bg-gray-400'
+    }`}>
+      {status || 'N/A'}
+    </span>
+  );
+
+  // Shared action buttons — used by both the desktop table and mobile cards
+  const renderOrderActions = (order, provider) => (
+    <div className="flex flex-col gap-1.5">
+      {order.paymentStatus === 'pending' && (
+        <button onClick={() => handlePaymentUpdate(order.orderId, 'paid')} disabled={updatingOrder === order.orderId}
+          className="rounded-lg bg-emerald-500 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-50">
+          {updatingOrder === order.orderId ? 'Updating…' : 'Mark Paid'}
+        </button>
+      )}
+      {order.orderStatus === 'pending' && (
+        <button onClick={() => handleStatusUpdate(order.orderId, 'confirmed')} disabled={updatingOrder === order.orderId}
+          className="rounded-lg bg-blue-500 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-600 disabled:opacity-50">
+          {updatingOrder === order.orderId ? 'Updating…' : 'Confirm'}
+        </button>
+      )}
+      {(provider === 'SELF' || provider === 'self') && order.orderStatus === 'confirmed' && order.paymentStatus === 'paid' && (
+        <>
+          <div className="text-xs font-medium text-emerald-600">🏠 Local Delivery</div>
+          <button onClick={() => handleDeliveryStatusUpdate(order.orderId, 'OUT_FOR_DELIVERY')} disabled={updatingOrder === order.orderId}
+            className="rounded-lg bg-blue-500 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-600 disabled:opacity-50">
+            {updatingOrder === order.orderId ? 'Updating…' : 'Out for Delivery'}
+          </button>
+          <button onClick={() => handleDeliveryStatusUpdate(order.orderId, 'DELIVERED')} disabled={updatingOrder === order.orderId}
+            className="rounded-lg bg-emerald-500 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-50">
+            {updatingOrder === order.orderId ? 'Updating…' : 'Mark Delivered'}
+          </button>
+        </>
+      )}
+      {(provider === 'SELF' || provider === 'self') && order.deliveryStatus === 'OUT_FOR_DELIVERY' && (
+        <button onClick={() => handleDeliveryStatusUpdate(order.orderId, 'DELIVERED')} disabled={updatingOrder === order.orderId}
+          className="rounded-lg bg-emerald-500 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-50">
+          {updatingOrder === order.orderId ? 'Updating…' : 'Mark Delivered'}
+        </button>
+      )}
+      {(provider === 'DELHIVERY' || provider === 'delhivery') && order.orderStatus === 'confirmed' && order.paymentStatus === 'paid' && !order.waybill && (
+        <>
+          <div className="text-xs font-medium text-blue-600">🚚 Delhivery</div>
+          <button onClick={() => handleCreateShipment(order.orderId)} disabled={updatingOrder === order.orderId}
+            className="rounded-lg bg-blue-500 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-600 disabled:opacity-50">
+            {updatingOrder === order.orderId ? 'Creating…' : 'Create Shipment'}
+          </button>
+        </>
+      )}
+      {(provider === 'DELHIVERY' || provider === 'delhivery') && order.waybill && (
+        <button onClick={() => handleTrackOrder(order.orderId)}
+          className="rounded-lg bg-cyan-500 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-cyan-600">
+          Track Shipment
+        </button>
+      )}
+      <div className="mt-1 grid grid-cols-1 gap-1.5 border-t border-gray-100 pt-1.5">
+        <button onClick={() => { setSelectedOrder(order); setShowPaymentModal(true); }}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+          <CreditCard className="h-3.5 w-3.5" /> Payment
+        </button>
+        <button onClick={() => { setSelectedOrder(order); setShowOrderModal(true); }}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+          <FileText className="h-3.5 w-3.5" /> Details
+        </button>
+        <button onClick={() => navigate(`/admin/order/${order.orderId}`)}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#d80a4e] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#b8083e]">
+          <ExternalLink className="h-3.5 w-3.5" /> Full View
+        </button>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d80a4e]"></div>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-100 border-t-[#d80a4e]" />
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Compact Header */}
-      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mt-4 mb-4">
-        <div className="p-3">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="font-display text-lg font-bold text-gray-900">Orders Management</h2>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`px-3 py-1 rounded text-sm ${
-                  showFilters ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                🔍 Filters
-              </button>
-              <button
-                onClick={fetchOrders}
-                className="bg-[#d80a4e] text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-[#b8083e]"
-              >
-                🔄 Refresh
-              </button>
-            </div>
-          </div>
-          
-          {/* Compact Stats */}
-          <div className="grid grid-cols-7 gap-2">
-            <div className="bg-gray-50 p-2 rounded text-center">
-              <div className="text-lg font-bold text-gray-800">{stats.total}</div>
-              <div className="text-xs text-gray-600">Total</div>
-            </div>
-            <div className="bg-blue-50 p-2 rounded text-center">
-              <div className="text-lg font-bold text-blue-600">{stats.delhivery}</div>
-              <div className="text-xs text-blue-600">🚚 Del</div>
-            </div>
-            <div className="bg-green-50 p-2 rounded text-center">
-              <div className="text-lg font-bold text-green-600">{stats.self}</div>
-              <div className="text-xs text-green-600">🏠 Local</div>
-            </div>
-            <div className="bg-yellow-50 p-2 rounded text-center">
-              <div className="text-lg font-bold text-yellow-600">{stats.pending}</div>
-              <div className="text-xs text-yellow-600">Pending</div>
-            </div>
-            <div className="bg-blue-50 p-2 rounded text-center">
-              <div className="text-lg font-bold text-blue-600">{stats.confirmed}</div>
-              <div className="text-xs text-blue-600">Confirmed</div>
-            </div>
-            <div className="bg-purple-50 p-2 rounded text-center">
-              <div className="text-lg font-bold text-purple-600">{stats.shipped}</div>
-              <div className="text-xs text-purple-600">Shipped</div>
-            </div>
-            <div className="bg-green-50 p-2 rounded text-center">
-              <div className="text-lg font-bold text-green-600">{stats.delivered}</div>
-              <div className="text-xs text-green-600">Delivered</div>
-            </div>
-          </div>
+    <div className="mx-auto max-w-7xl space-y-4 p-4 sm:p-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-xl font-bold text-gray-900 sm:text-2xl">Orders</h2>
+          <p className="text-sm text-gray-500">{totalItems} total orders · {filteredOrders.length} shown</p>
         </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition sm:flex-none ${
+              showFilters ? 'border-[#d80a4e] bg-rose-50 text-[#d80a4e]' : 'border-gray-200 bg-white text-gray-700 hover:border-rose-200'
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" /> Filters
+          </button>
+          <button
+            onClick={fetchOrders}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#d80a4e] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#b8083e] sm:flex-none"
+          >
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+        {[
+          { label: 'Total', value: stats.total, tint: 'text-gray-900', bg: 'bg-white' },
+          { label: '🚚 Delhivery', value: stats.delhivery, tint: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: '🏠 Local', value: stats.self, tint: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Pending', value: stats.pending, tint: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Confirmed', value: stats.confirmed, tint: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Shipped', value: stats.shipped, tint: 'text-purple-600', bg: 'bg-purple-50' },
+          { label: 'Delivered', value: stats.delivered, tint: 'text-emerald-600', bg: 'bg-emerald-50' },
+        ].map((s) => (
+          <div key={s.label} className={`rounded-2xl border border-amber-100 ${s.bg} p-3 text-center shadow-sm`}>
+            <div className={`text-xl font-bold ${s.tint}`}>{s.value}</div>
+            <div className="mt-0.5 text-xs font-medium text-gray-500">{s.label}</div>
+          </div>
+        ))}
       </div>
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4">
+        <div className="rounded-2xl border border-amber-100 bg-white shadow-sm">
           <div className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {/* Search */}
@@ -457,22 +532,53 @@ const AdminOrders = () => {
       )}
 
       {filteredOrders.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">
+        <div className="rounded-2xl border border-dashed border-amber-200 bg-white py-16 text-center">
+          <ClipboardList className="mx-auto h-10 w-10 text-gray-300" />
+          <p className="mt-3 text-sm text-gray-500">
             {orders.length === 0 ? 'No orders found' : 'No orders match the current filters'}
           </p>
           {orders.length > 0 && (
-            <button
-              onClick={resetFilters}
-              className="mt-2 text-blue-500 hover:text-blue-700 text-sm"
-            >
-              Clear filters to see all orders
+            <button onClick={resetFilters} className="mt-2 text-sm font-medium text-[#d80a4e] hover:underline">
+              Clear filters
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4 flex-1 min-h-0">
-          <div className="h-full overflow-auto">
+        <>
+        {/* Mobile cards */}
+        <div className="space-y-3 lg:hidden">
+          {filteredOrders.map((order) => {
+            const provider = order.deliveryProvider || order.shipping?.provider;
+            const st = deriveOrderStatus(order);
+            return (
+              <div key={order.orderId} className={`rounded-2xl border border-amber-100 bg-white p-4 shadow-sm border-l-4 ${(provider === 'DELHIVERY' || provider === 'delhivery') ? 'border-l-blue-400' : 'border-l-emerald-400'}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900">#{order.orderId?.slice(-8)}</p>
+                    <p className="truncate text-sm text-gray-600">{order.customerName}</p>
+                    <p className="truncate text-xs text-gray-400">{order.customerPhone}</p>
+                  </div>
+                  {getProviderBadge(order)}
+                </div>
+                <p className="mt-2 line-clamp-2 text-xs text-gray-500" title={order.itemsString}>{order.itemsString}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${st.cls}`}>{st.label}</span>
+                  <PaymentBadge status={order.paymentStatus} />
+                  <DeliveryBadge status={order.deliveryStatus} />
+                </div>
+                <div className="mt-2 flex items-center justify-between text-sm">
+                  <span className="font-bold text-gray-900">₹{(order.totalAmount || 0).toFixed(2)}</span>
+                  <span className="text-xs text-gray-400">{new Date(order.orderDate).toLocaleDateString()}</span>
+                </div>
+                <div className="mt-3">{renderOrderActions(order, provider)}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden rounded-2xl border border-amber-100 bg-white shadow-sm lg:block">
+          <div className="overflow-auto">
             <table className="min-w-[2000px] w-full">
               <thead className="bg-[#d80a4e] text-white sticky top-0 z-10">
                 <tr>
@@ -586,123 +692,8 @@ const AdminOrders = () => {
                           <span className="text-gray-400 text-xs">No waybill</span>
                         )}
                       </td>
-                      <td className="px-2 py-2 text-sm">
-                        <div className="flex flex-col gap-1">
-                          {/* Payment Actions */}
-                          {order.paymentStatus === 'pending' && (
-                            <button
-                              onClick={() => handlePaymentUpdate(order.orderId, 'paid')}
-                              disabled={updatingOrder === order.orderId}
-                              className="bg-emerald-500 text-white px-2 py-1 rounded text-xs hover:bg-emerald-600 disabled:opacity-50"
-                            >
-                              {updatingOrder === order.orderId ? 'Updating...' : 'Mark Paid'}
-                            </button>
-                          )}
-                          
-                          {/* Order Status Actions */}
-                          {order.orderStatus === 'pending' && (
-                            <button
-                              onClick={() => handleStatusUpdate(order.orderId, 'confirmed')}
-                              disabled={updatingOrder === order.orderId}
-                              className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 disabled:opacity-50"
-                            >
-                              {updatingOrder === order.orderId ? 'Updating...' : 'Confirm'}
-                            </button>
-                          )}
-                          
-                          {/* Self-delivery (Local) Actions */}
-                          {(provider === 'SELF' || provider === 'self') && order.orderStatus === 'confirmed' && order.paymentStatus === 'paid' && (
-                            <>
-                              <div className="text-xs text-green-600 font-medium mb-1">🏠 Local Delivery</div>
-                              <button
-                                onClick={() => handleDeliveryStatusUpdate(order.orderId, 'OUT_FOR_DELIVERY')}
-                                disabled={updatingOrder === order.orderId}
-                                className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 disabled:opacity-50"
-                              >
-                                {updatingOrder === order.orderId ? 'Updating...' : 'Mark Out for Delivery'}
-                              </button>
-                              <button
-                                onClick={() => handleDeliveryStatusUpdate(order.orderId, 'DELIVERED')}
-                                disabled={updatingOrder === order.orderId}
-                                className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 disabled:opacity-50"
-                              >
-                                {updatingOrder === order.orderId ? 'Updating...' : 'Mark Delivered'}
-                              </button>
-                            </>
-                          )}
-                          
-                          {/* Self-delivery - Out for Delivery Actions */}
-                          {(provider === 'SELF' || provider === 'self') && order.deliveryStatus === 'OUT_FOR_DELIVERY' && (
-                            <>
-                              <div className="text-xs text-green-600 font-medium mb-1">🏠 Out for Delivery</div>
-                              <button
-                                onClick={() => handleDeliveryStatusUpdate(order.orderId, 'DELIVERED')}
-                                disabled={updatingOrder === order.orderId}
-                                className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 disabled:opacity-50"
-                              >
-                                {updatingOrder === order.orderId ? 'Updating...' : 'Mark Delivered'}
-                              </button>
-                            </>
-                          )}
-                          
-                          {/* Delhivery Actions */}
-                          {(provider === 'DELHIVERY' || provider === 'delhivery') && order.orderStatus === 'confirmed' && order.paymentStatus === 'paid' && !order.waybill && (
-                            <>
-                              <div className="text-xs text-blue-600 font-medium mb-1">🚚 Delhivery</div>
-                              <div className="text-xs text-gray-500 italic bg-blue-50 px-2 py-1 rounded">
-                                Auto-shipment pending
-                              </div>
-                              <button
-                                onClick={() => handleCreateShipment(order.orderId)}
-                                disabled={updatingOrder === order.orderId}
-                                className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 disabled:opacity-50"
-                              >
-                                {updatingOrder === order.orderId ? 'Creating...' : 'Force Create Shipment'}
-                              </button>
-                            </>
-                          )}
-                          
-                          {/* Delhivery Tracking */}
-                          {(provider === 'DELHIVERY' || provider === 'delhivery') && order.waybill && (
-                            <>
-                              <div className="text-xs text-blue-600 font-medium mb-1">🚚 Delhivery Active</div>
-                              <button
-                                onClick={() => handleTrackOrder(order.orderId)}
-                                className="bg-cyan-500 text-white px-2 py-1 rounded text-xs hover:bg-cyan-600"
-                              >
-                                Track Shipment
-                              </button>
-                            </>
-                          )}
-                          
-                          {/* Universal Actions */}
-                          <div className="border-t pt-1 mt-1">
-                            <button
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setShowPaymentModal(true);
-                              }}
-                              className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600 mb-1 w-full"
-                            >
-                              Payment Details
-                            </button>
-                            <button
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setShowOrderModal(true);
-                              }}
-                              className="bg-indigo-500 text-white px-2 py-1 rounded text-xs hover:bg-indigo-600 mb-1 w-full"
-                            >
-                              Order Details
-                            </button>
-                            <button
-                              onClick={() => navigate(`/admin/order/${order.orderId}`)}
-                              className="bg-teal-500 text-white px-2 py-1 rounded text-xs hover:bg-teal-600 w-full"
-                            >
-                              Full Details
-                            </button>
-                          </div>
-                        </div>
+                      <td className="px-2 py-2 align-top text-sm">
+                        {renderOrderActions(order, provider)}
                       </td>
                     </tr>
                   );
@@ -711,34 +702,31 @@ const AdminOrders = () => {
             </table>
           </div>
         </div>
+        </>
       )}
       {/* Pagination */}
-      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4">
-        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
-            <span>Items per page: {itemsPerPage}</span>
-            <span className="sm:ml-8">{(currentPage - 1) * itemsPerPage + 1} – {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}</span>
-            <span className="sm:ml-4 text-blue-600">Filtered: {filteredOrders.length}</span>
-          </div>
-          <div className="flex items-center justify-center sm:justify-end space-x-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ◀
-            </button>
-            <span className="text-xs md:text-sm text-gray-600">
-              {currentPage} / {totalItems > 0 ? Math.ceil(totalItems / itemsPerPage) : 1}
-            </span>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
-              disabled={currentPage >= Math.ceil(totalItems / itemsPerPage)}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ▶
-            </button>
-          </div>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs text-gray-500 sm:text-sm">
+          {totalItems === 0 ? '0 of 0' : `${(currentPage - 1) * itemsPerPage + 1}–${Math.min(currentPage * itemsPerPage, totalItems)} of ${totalItems}`}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="text-sm font-medium text-gray-700">
+            {currentPage} / {totalItems > 0 ? Math.ceil(totalItems / itemsPerPage) : 1}
+          </span>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
+            disabled={currentPage >= Math.ceil(totalItems / itemsPerPage)}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
       

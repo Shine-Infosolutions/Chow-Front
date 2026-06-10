@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { ShoppingCart, Users, CheckCircle, DollarSign, Package, FolderOpen, Layers, XCircle } from "lucide-react";
+import {
+  ShoppingCart, Users, CheckCircle, IndianRupee, XCircle,
+  Package, FolderOpen, Layers, ClipboardList, BadgePercent, ArrowRight,
+} from "lucide-react";
 import { useApi } from "../../contexts/index.jsx";
 
-const Dashboard = () => {
-  const { getDashboardStats, getFailedOrders, fetchItems, fetchCategories, getAllSubcategories, items, categories, loading, dashboardRefreshTrigger } = useApi();
+const Dashboard = ({ onNavigate }) => {
+  const {
+    getDashboardStats, fetchItems, fetchCategories, getAllSubcategories,
+    items, categories, loading, dashboardRefreshTrigger,
+  } = useApi();
   const [stats, setStats] = useState({
     newOrders: 0,
     totalCustomers: 0,
     ticketsResolved: 0,
     revenueToday: 0,
-    failedOrders: 0
+    failedOrders: 0,
   });
 
   useEffect(() => {
@@ -18,124 +24,106 @@ const Dashboard = () => {
 
   const loadDashboardStats = async () => {
     try {
-      // Get main stats from API
       const data = await getDashboardStats();
-      console.log('Dashboard API response:', data);
-      
       if (data && Object.keys(data).length > 0) {
         setStats({
           newOrders: data.newOrders || 0,
           totalCustomers: data.totalCustomers || 0,
           ticketsResolved: data.ticketsResolved || 0,
           revenueToday: data.revenueToday || 0,
-          failedOrders: data.failedOrders || 0
+          failedOrders: data.failedOrders || 0,
         });
       } else {
-        // Fallback: Calculate from existing data
         await loadFallbackStats();
       }
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
-      // Fallback: Calculate from existing data
       await loadFallbackStats();
     }
   };
 
   const loadFallbackStats = async () => {
     try {
-      // Fetch all data to calculate stats
       await fetchItems();
       await fetchCategories();
-      const subcats = await getAllSubcategories();
-      
-      // Calculate stats from fetched data
-      setStats({
-        totalOrders: 156, // Placeholder since we don't have orders data
-        totalUsers: 89, // Placeholder since we don't have users data
-        totalRevenue: 45000, // Placeholder since we don't have revenue data
-        ticketsResolved: 23, // Placeholder since we don't have tickets data
-        failedOrders: 12, // Placeholder for failed orders
-        totalProducts: items?.length || 0,
-        totalCategories: categories?.length || 0,
-        totalSubcategories: subcats?.length || 0
-      });
+      await getAllSubcategories();
     } catch (error) {
       console.error('Error loading fallback stats:', error);
     }
   };
 
+  const statCards = [
+    { key: 'newOrders', label: 'New Orders', value: stats.newOrders, icon: ShoppingCart, tint: 'bg-rose-50 text-[#d80a4e]', tab: 'orders' },
+    { key: 'revenueToday', label: 'Revenue Today', value: `₹${Number(stats.revenueToday || 0).toLocaleString('en-IN')}`, icon: IndianRupee, tint: 'bg-amber-50 text-amber-600', tab: 'orders' },
+    { key: 'totalCustomers', label: 'Customers', value: stats.totalCustomers, icon: Users, tint: 'bg-blue-50 text-blue-600' },
+    { key: 'ticketsResolved', label: 'Tickets Resolved', value: stats.ticketsResolved, icon: CheckCircle, tint: 'bg-emerald-50 text-emerald-600', tab: 'tickets' },
+    { key: 'failedOrders', label: 'Failed Orders', value: stats.failedOrders, icon: XCircle, tint: 'bg-red-50 text-red-600', tab: 'failed-orders' },
+  ];
+
+  const quickLinks = [
+    { label: 'Products', sub: `${items?.length || 0} items`, icon: Package, tab: 'products' },
+    { label: 'Categories', sub: `${categories?.length || 0} groups`, icon: FolderOpen, tab: 'categories' },
+    { label: 'Subcategories', sub: 'Organize menu', icon: Layers, tab: 'subcategories' },
+    { label: 'Orders', sub: 'View & manage', icon: ClipboardList, tab: 'orders' },
+    { label: 'Sweet Deal', sub: 'Promotions', icon: BadgePercent, tab: 'sweetdeal' },
+  ];
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-[#d80a4e]" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-14 w-14 animate-spin rounded-full border-4 border-rose-100 border-t-[#d80a4e]" />
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="mx-auto max-w-7xl p-4 sm:p-6">
       <div className="mb-5">
-        <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500">Overview of orders, customers and revenue</p>
+        <h1 className="font-display text-2xl font-bold text-gray-900 sm:text-3xl">Welcome back 👋</h1>
+        <p className="mt-1 text-sm text-gray-500">Here's what's happening at your shop today.</p>
       </div>
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 max-w-7xl">
-        
-        {/* New Orders */}
-        <div className="relative h-28 sm:h-32 lg:h-36 rounded-xl bg-gradient-to-r from-purple-700 to-pink-600 text-white shadow-lg overflow-hidden">
-          <div className="relative z-10 h-full flex items-center justify-between px-3 sm:px-4 lg:px-6">
-            <div>
-              <p className="text-xs font-medium opacity-90">New Orders</p>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mt-1">{stats.newOrders?.toLocaleString() || '0'}</h2>
-            </div>
-          </div>
-          <ShoppingCart className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-12 sm:w-16 lg:w-20 h-12 sm:h-16 lg:h-20 opacity-20" />
-        </div>
 
-        {/* Customers */}
-        <div className="relative h-28 sm:h-32 lg:h-36 rounded-xl bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-lg overflow-hidden">
-          <div className="relative z-10 h-full flex items-center justify-between px-3 sm:px-4 lg:px-6">
-            <div>
-              <p className="text-xs font-medium opacity-90">Customers</p>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mt-1">{stats.totalCustomers?.toLocaleString() || '0'}</h2>
-            </div>
-          </div>
-          <Users className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-12 sm:w-16 lg:w-20 h-12 sm:h-16 lg:h-20 opacity-20" />
-        </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-5">
+        {statCards.map(({ key, label, value, icon: Icon, tint, tab }) => (
+          <button
+            key={key}
+            onClick={() => tab && onNavigate?.(tab)}
+            disabled={!tab}
+            className={`flex flex-col items-start rounded-2xl border border-amber-100 bg-white p-4 text-left shadow-sm transition-all ${
+              tab ? 'hover:-translate-y-0.5 hover:shadow-md' : 'cursor-default'
+            }`}
+          >
+            <span className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl ${tint}`}>
+              <Icon className="h-5 w-5" />
+            </span>
+            <span className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              {typeof value === 'number' ? value.toLocaleString('en-IN') : value}
+            </span>
+            <span className="mt-0.5 text-xs font-medium text-gray-500">{label}</span>
+          </button>
+        ))}
+      </div>
 
-        {/* Ticket Resolved */}
-        <div className="relative h-28 sm:h-32 lg:h-36 rounded-xl bg-gradient-to-r from-emerald-700 to-green-400 text-white shadow-lg overflow-hidden">
-          <div className="relative z-10 h-full flex items-center justify-between px-3 sm:px-4 lg:px-6">
-            <div>
-              <p className="text-xs font-medium opacity-90">Ticket Resolved</p>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mt-1">{stats.ticketsResolved?.toLocaleString() || '0'}</h2>
-            </div>
-          </div>
-          <CheckCircle className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-12 sm:w-16 lg:w-20 h-12 sm:h-16 lg:h-20 opacity-20" />
-        </div>
-
-        {/* Revenue Today */}
-        <div className="relative h-28 sm:h-32 lg:h-36 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-400 text-white shadow-lg overflow-hidden">
-          <div className="relative z-10 h-full flex items-center justify-between px-3 sm:px-4 lg:px-6">
-            <div>
-              <p className="text-xs font-medium opacity-90">Revenue Today</p>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mt-1">₹{stats.revenueToday?.toLocaleString() || '0'}</h2>
-            </div>
-          </div>
-          <DollarSign className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-12 sm:w-16 lg:w-20 h-12 sm:h-16 lg:h-20 opacity-20" />
-        </div>
-
-        {/* Failed Orders */}
-        <div className="relative h-28 sm:h-32 lg:h-36 rounded-xl bg-gradient-to-r from-red-700 to-red-500 text-white shadow-lg overflow-hidden">
-          <div className="relative z-10 h-full flex items-center justify-between px-3 sm:px-4 lg:px-6">
-            <div>
-              <p className="text-xs font-medium opacity-90">Failed Orders</p>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mt-1">{stats.failedOrders?.toLocaleString() || '0'}</h2>
-            </div>
-          </div>
-          <XCircle className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-12 sm:w-16 lg:w-20 h-12 sm:h-16 lg:h-20 opacity-20" />
-        </div>
-
+      {/* Quick links */}
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-gray-400">Manage</h2>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
+        {quickLinks.map(({ label, sub, icon: Icon, tab }) => (
+          <button
+            key={label}
+            onClick={() => onNavigate?.(tab)}
+            className="group flex items-center gap-3 rounded-2xl border border-amber-100 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-md"
+          >
+            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-[#d80a4e] transition-colors group-hover:bg-[#d80a4e] group-hover:text-white">
+              <Icon className="h-5 w-5" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold text-gray-900">{label}</span>
+              <span className="block truncate text-xs text-gray-400">{sub}</span>
+            </span>
+            <ArrowRight className="ml-auto hidden h-4 w-4 text-gray-300 transition-colors group-hover:text-[#d80a4e] sm:block" />
+          </button>
+        ))}
       </div>
     </div>
   );

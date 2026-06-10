@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../../contexts/index.jsx';
 import { deriveOrderStatus, ORDER_STEPS, orderStepIndex } from '../../utils/orderStatus.js';
+import { ArrowLeft } from 'lucide-react';
 
 const OrderDetails = () => {
   const { orderId } = useParams();
@@ -148,46 +149,44 @@ const OrderDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d80a4e]"></div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-100 border-t-[#d80a4e]" />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Order not found</h2>
-          <button onClick={handleBack} className="bg-[#d80a4e] text-white px-6 py-2 rounded-lg hover:bg-[#b8083e]">
-            Back to Orders
-          </button>
-        </div>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <h2 className="mb-4 text-2xl font-bold text-gray-900">Order not found</h2>
+        <button onClick={handleBack} className="rounded-xl bg-[#d80a4e] px-6 py-2.5 font-semibold text-white hover:bg-[#b8083e]">
+          Back to Orders
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#d80a4e] to-[#8b1a3a] text-white p-6">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="font-display text-3xl font-bold">Order Details</h1>
-            <p className="text-pink-100 mt-1">#{order._id?.slice(-8)}</p>
+      <div className="bg-gradient-to-r from-[#d80a4e] to-[#8b1a3a] p-4 text-white sm:p-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              onClick={handleBack}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/25"
+            >
+              <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Back</span>
+            </button>
+            <div className="min-w-0">
+              <h1 className="font-display text-xl font-bold sm:text-2xl">Order Details</h1>
+              <p className="truncate text-sm text-pink-100">#{order._id?.slice(-8)}</p>
+            </div>
           </div>
-          <button
-            onClick={handleBack}
-            className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="mx-auto max-w-7xl p-4 sm:p-6">
         {/* Canonical status + stepper (matches what the customer sees) */}
         <div className="mb-6 rounded-2xl border border-amber-100 bg-white shadow-sm p-5">
           {(() => {

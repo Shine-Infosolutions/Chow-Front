@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../contexts/index.jsx';
+import {
+  RefreshCw, Trash2, ChevronLeft, ChevronRight, X, Mail, Phone, Receipt, Eye, MessageSquare,
+} from 'lucide-react';
+
+const STATUS_STYLES = {
+  resolved: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+  'in-progress': 'bg-amber-50 text-amber-700 ring-amber-200',
+  closed: 'bg-gray-100 text-gray-600 ring-gray-200',
+  open: 'bg-rose-50 text-[#d80a4e] ring-rose-200',
+};
 
 const Tickets = () => {
   const { getTickets, updateTicket, deleteTicket, replyToTicket, getTicketById } = useApi();
@@ -31,7 +41,7 @@ const Tickets = () => {
       const res = await replyToTicket(selectedMessage._id, reply.trim());
       setSelectedMessage(res.ticket);
       setReply('');
-      setTickets(prev => prev.map(t => (t._id === res.ticket._id
+      setTickets((prev) => prev.map((t) => (t._id === res.ticket._id
         ? { ...t, status: res.ticket.status, lastReplyBy: res.ticket.lastReplyBy, messages: res.ticket.messages }
         : t)));
     } catch (e) {
@@ -65,12 +75,8 @@ const Tickets = () => {
   const handleStatusUpdate = async (ticketId, status) => {
     try {
       await updateTicket(ticketId, { status });
-      setTickets(prevTickets =>
-        prevTickets.map(ticket =>
-          ticket._id === ticketId ? { ...ticket, status } : ticket
-        )
-      );
-      setSelectedMessage(prev => (prev && prev._id === ticketId ? { ...prev, status } : prev));
+      setTickets((prev) => prev.map((t) => (t._id === ticketId ? { ...t, status } : t)));
+      setSelectedMessage((prev) => (prev && prev._id === ticketId ? { ...prev, status } : prev));
     } catch (error) {
       console.error('Error updating ticket:', error);
     }
@@ -87,185 +93,184 @@ const Tickets = () => {
     }
   };
 
+  const StatusBadge = ({ status }) => (
+    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ring-1 ${STATUS_STYLES[status] || STATUS_STYLES.open}`}>
+      {(status || 'open').replace('-', ' ')}
+    </span>
+  );
+
+  const statusSelect = (value, onChange) => (
+    <select
+      value={value || 'open'}
+      onChange={onChange}
+      className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs text-gray-700 focus:border-[#d80a4e] focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/20"
+    >
+      <option value="open">Open</option>
+      <option value="in-progress">In Progress</option>
+      <option value="resolved">Resolved</option>
+      <option value="closed">Closed</option>
+    </select>
+  );
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d80a4e]"></div>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-100 border-t-[#d80a4e]" />
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Contact Messages</h2>
+    <div className="mx-auto max-w-6xl p-4 sm:p-6">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-xl font-bold text-gray-900 sm:text-2xl">Messages</h2>
+          <p className="text-sm text-gray-500">{totalItems} contact {totalItems === 1 ? 'message' : 'messages'} from customers.</p>
+        </div>
         <button
           onClick={fetchTickets}
-          className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-rose-200 hover:text-[#d80a4e]"
         >
-          Refresh
+          <RefreshCw className="h-4 w-4" /> Refresh
         </button>
       </div>
 
       {tickets.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No messages found</p>
+        <div className="rounded-2xl border border-dashed border-amber-200 bg-white py-16 text-center">
+          <MessageSquare className="mx-auto h-10 w-10 text-gray-300" />
+          <p className="mt-3 text-sm text-gray-500">No messages found.</p>
         </div>
       ) : (
         <>
-          <div className="mb-2 text-sm text-gray-600">
-            Total Messages: {totalItems}
+          {/* Mobile cards */}
+          <div className="space-y-3 lg:hidden">
+            {tickets.map((ticket) => (
+              <div key={ticket._id} className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="truncate font-semibold text-gray-900">{ticket.fullName}</h3>
+                    <p className="truncate text-xs text-gray-500">{ticket.email}</p>
+                  </div>
+                  <StatusBadge status={ticket.status} />
+                </div>
+                <p className="mt-2 line-clamp-1 text-sm text-gray-700">{ticket.subject || 'No subject'}</p>
+                <p className="mt-0.5 text-xs text-gray-400">{new Date(ticket.createdAt).toLocaleDateString()}</p>
+                <div className="mt-3 flex items-center gap-2">
+                  <button onClick={() => openTicket(ticket)} className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#d80a4e] px-3 py-2 text-sm font-medium text-white hover:bg-[#b8083e]">
+                    <Eye className="h-4 w-4" /> View
+                  </button>
+                  {statusSelect(ticket.status, (e) => handleStatusUpdate(ticket._id, e.target.value))}
+                  <button onClick={() => handleDelete(ticket._id)} className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
-          {/* Horizontal scroll wrapper */}
-          <div className="overflow-x-auto">
-            <table className="min-w-[800px] w-full">
-              <thead className="bg-[#d80a4e] text-white">
-                <tr>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Name</th>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Email</th>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Phone</th>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Subject</th>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Message</th>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Date</th>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Status</th>
-                  <th className="px-3 md:px-4 py-3 md:py-4 text-left text-xs md:text-sm font-semibold uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {tickets.map((ticket, index) => (
-                  <tr key={ticket._id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm font-medium text-gray-900 truncate">{ticket.fullName}</td>
-                    <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-700 truncate">{ticket.email}</td>
-                    <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-700">{ticket.phone || 'N/A'}</td>
-                    <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-700 truncate">{ticket.subject || 'N/A'}</td>
-                    <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm">
-                      <button
-                        onClick={() => openTicket(ticket)}
-                        className="bg-blue-500 text-white px-2 md:px-3 py-1 rounded-lg text-xs hover:bg-blue-600"
-                      >
-                        View
-                      </button>
-                    </td>
-                    <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-700">
-                      {new Date(ticket.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm">
-                      <span className={`px-2 py-1 rounded-full text-white text-xs font-medium ${
-                        ticket.status === 'resolved' ? 'bg-green-500' : 
-                        ticket.status === 'in-progress' ? 'bg-yellow-500' : 'bg-red-500'
-                      }`}>
-                        {ticket.status || 'Open'}
-                      </span>
-                    </td>
-                    <td className="px-2 md:px-3 py-2 md:py-3 text-xs md:text-sm">
-                      <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                        <select
-                          value={ticket.status || 'open'}
-                          onChange={(e) => handleStatusUpdate(ticket._id, e.target.value)}
-                          className="text-xs border rounded px-1 sm:px-2 py-1 flex-1 min-w-0"
-                        >
-                          <option value="open">Open</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="resolved">Resolved</option>
-                        </select>
-                        <button
-                          onClick={() => handleDelete(ticket._id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 whitespace-nowrap"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm lg:block">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[820px]">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    <th className="px-4 py-3.5">Customer</th>
+                    <th className="px-4 py-3.5">Subject</th>
+                    <th className="px-4 py-3.5">Date</th>
+                    <th className="px-4 py-3.5">Status</th>
+                    <th className="px-4 py-3.5 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {tickets.map((ticket) => (
+                    <tr key={ticket._id} className="transition-colors hover:bg-rose-50/40">
+                      <td className="px-4 py-3.5">
+                        <div className="font-medium text-gray-900">{ticket.fullName}</div>
+                        <div className="text-xs text-gray-500">{ticket.email}</div>
+                        <div className="text-xs text-gray-400">{ticket.phone || 'No phone'}</div>
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-gray-700">{ticket.subject || 'N/A'}</td>
+                      <td className="px-4 py-3.5 text-sm text-gray-500">{new Date(ticket.createdAt).toLocaleDateString()}</td>
+                      <td className="px-4 py-3.5"><StatusBadge status={ticket.status} /></td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => openTicket(ticket)} className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-rose-200 hover:bg-rose-50 hover:text-[#d80a4e]">
+                            <Eye className="h-3.5 w-3.5" /> View
+                          </button>
+                          {statusSelect(ticket.status, (e) => handleStatusUpdate(ticket._id, e.target.value))}
+                          <button onClick={() => handleDelete(ticket._id)} className="inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
+
+          {/* Pagination */}
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className="text-xs text-gray-500 sm:text-sm">
+              {totalItems === 0 ? '0 of 0' : `${(currentPage - 1) * itemsPerPage + 1}–${Math.min(currentPage * itemsPerPage, totalItems)} of ${totalItems}`}
+            </span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-medium text-gray-700">{currentPage} / {totalPages}</span>
+              <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage >= totalPages}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </>
       )}
-      
-      {/* Pagination */}
-      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mt-4">
-        <div className="bg-white px-3 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
-            <span>Items per page: {itemsPerPage}</span>
-            <span className="sm:ml-8">{(currentPage - 1) * itemsPerPage + 1} – {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}</span>
-          </div>
-          <div className="flex items-center justify-center sm:justify-end space-x-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ◀
-            </button>
-            <span className="text-xs md:text-sm text-gray-600">
-              {currentPage} / {totalItems > 0 ? Math.ceil(totalItems / itemsPerPage) : 1}
-            </span>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
-              disabled={currentPage >= Math.ceil(totalItems / itemsPerPage)}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ▶
-            </button>
-          </div>
-        </div>
-      </div>
-      
+
       {/* Message Modal */}
       {showModal && selectedMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
-            {/* Header */}
-            <div className="flex justify-between items-start gap-3 border-b border-gray-100 px-5 py-4">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setShowModal(false)}>
+          <div
+            className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4">
               <div className="min-w-0">
-                <h3 className="font-display text-base sm:text-lg font-bold text-gray-900 truncate">{selectedMessage.subject}</h3>
-                <p className="text-xs text-gray-500 capitalize">{selectedMessage.type?.replace('-', ' ')} · {selectedMessage.fullName}</p>
+                <h3 className="font-display truncate text-base font-bold text-gray-900 sm:text-lg">{selectedMessage.subject}</h3>
+                <p className="text-xs capitalize text-gray-500">{selectedMessage.type?.replace('-', ' ')} · {selectedMessage.fullName}</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-xl p-1">✕</button>
+              <button onClick={() => setShowModal(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
-            {/* Meta: contact, linked order (verify), status */}
-            <div className="border-b border-gray-100 px-5 py-3 space-y-2 text-sm">
+            <div className="space-y-2 border-b border-gray-100 px-5 py-3 text-sm">
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-gray-600">
-                <span><i className="fas fa-envelope mr-1 text-gray-400"></i>{selectedMessage.email}</span>
-                {selectedMessage.phone && <span><i className="fas fa-phone mr-1 text-gray-400"></i>{selectedMessage.phone}</span>}
+                <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-gray-400" />{selectedMessage.email}</span>
+                {selectedMessage.phone && <span className="inline-flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-gray-400" />{selectedMessage.phone}</span>}
               </div>
               <div className="flex items-center justify-between gap-2">
                 {selectedMessage.orderId ? (
-                  <button
-                    onClick={() => navigate(`/admin/order/${orderRef(selectedMessage.orderId)}`)}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-[#d80a4e] hover:underline"
-                  >
-                    <i className="fas fa-receipt"></i> Verify linked order #{orderRef(selectedMessage.orderId)?.slice(-6)}
+                  <button onClick={() => navigate(`/admin/order/${orderRef(selectedMessage.orderId)}`)} className="inline-flex items-center gap-1.5 text-xs font-medium text-[#d80a4e] hover:underline">
+                    <Receipt className="h-3.5 w-3.5" /> Verify order #{orderRef(selectedMessage.orderId)?.slice(-6)}
                   </button>
                 ) : (
                   <span className="text-xs text-gray-400">No linked order</span>
                 )}
-                <select
-                  value={selectedMessage.status || 'open'}
-                  onChange={(e) => handleStatusUpdate(selectedMessage._id, e.target.value)}
-                  className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40"
-                >
-                  <option value="open">Open</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="closed">Closed</option>
-                </select>
+                {statusSelect(selectedMessage.status, (e) => handleStatusUpdate(selectedMessage._id, e.target.value))}
               </div>
             </div>
 
-            {/* Thread */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-gray-50/50">
+            <div className="flex-1 space-y-3 overflow-y-auto bg-gray-50/60 px-5 py-4">
               {(selectedMessage.messages?.length
                 ? selectedMessage.messages
                 : [{ sender: 'user', senderName: selectedMessage.fullName, message: selectedMessage.message, createdAt: selectedMessage.createdAt }]
               ).map((m, i) => (
                 <div key={i} className={`flex ${m.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm ${m.sender === 'admin' ? 'bg-[#d80a4e] text-white' : 'bg-white border border-gray-200 text-gray-800'}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm ${m.sender === 'admin' ? 'bg-[#d80a4e] text-white' : 'border border-gray-200 bg-white text-gray-800'}`}>
                     <p className="whitespace-pre-wrap">{m.message}</p>
                     <p className={`mt-1 text-[10px] ${m.sender === 'admin' ? 'text-pink-100' : 'text-gray-400'}`}>
                       {m.senderName} · {new Date(m.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
@@ -275,19 +280,18 @@ const Tickets = () => {
               ))}
             </div>
 
-            {/* Reply */}
             {selectedMessage.status === 'closed' ? (
               <div className="border-t border-gray-100 px-5 py-3 text-center text-sm text-gray-400">Ticket closed</div>
             ) : (
-              <div className="border-t border-gray-100 px-5 py-3 flex gap-2">
+              <div className="flex gap-2 border-t border-gray-100 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                 <input
                   value={reply}
                   onChange={(e) => setReply(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleReply()}
                   placeholder="Reply to customer…"
-                  className="flex-1 px-3 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/40 text-sm"
+                  className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d80a4e]/30"
                 />
-                <button onClick={handleReply} disabled={sending || !reply.trim()} className="bg-[#d80a4e] text-white px-4 py-2 rounded-xl font-medium hover:bg-[#b8083e] disabled:opacity-50 text-sm">
+                <button onClick={handleReply} disabled={sending || !reply.trim()} className="rounded-xl bg-[#d80a4e] px-4 py-2 text-sm font-medium text-white hover:bg-[#b8083e] disabled:opacity-50">
                   {sending ? '…' : 'Send'}
                 </button>
               </div>

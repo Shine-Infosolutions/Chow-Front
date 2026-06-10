@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApi } from '../../contexts/index.jsx';
+import { RefreshCw, Trash2, ChevronLeft, ChevronRight, X, Eye, AlertTriangle } from 'lucide-react';
 
 const FailedOrders = () => {
   const { getFailedOrders, cleanFailedOrders } = useApi();
@@ -45,244 +46,182 @@ const FailedOrders = () => {
     }
   };
 
+  const itemsLabel = (order) =>
+    order.itemsString || order.items?.map((item) => `${item.itemId?.name || 'Item'} (${item.quantity})`).join(', ') || 'N/A';
+  const errorOf = (order) => order.razorpayData?.[0]?.errorDescription || order.errorMessage || 'Unknown error';
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 px-4">
-        <div className="animate-spin h-8 w-8 border-b-2 border-[#d80a4e] rounded-full" />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-100 border-t-[#d80a4e]" />
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 px-4 pt-4">
-        <h2 className="font-display text-xl md:text-2xl font-bold text-gray-900">Failed Orders Management</h2>
+    <div className="mx-auto max-w-7xl p-4 sm:p-6">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-xl font-bold text-gray-900 sm:text-2xl">Failed Orders</h2>
+          <p className="text-sm text-gray-500">{totalItems} failed or abandoned payment {totalItems === 1 ? 'attempt' : 'attempts'}.</p>
+        </div>
         <div className="flex gap-2">
-          <button
-            onClick={loadFailedOrders}
-            className="bg-[#d80a4e] text-white px-5 py-2.5 rounded-xl hover:bg-[#b8083e] font-medium"
-          >
-            Refresh
+          <button onClick={loadFailedOrders} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-rose-200 hover:text-[#d80a4e] sm:flex-none">
+            <RefreshCw className="h-4 w-4" /> Refresh
           </button>
-          <button
-            onClick={handleCleanFailedOrders}
-            className="bg-gray-600 text-white px-5 py-2.5 rounded-xl hover:bg-gray-700 font-medium"
-          >
-            Clean Failed Orders
+          <button onClick={handleCleanFailedOrders} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 sm:flex-none">
+            <Trash2 className="h-4 w-4" /> Clean All
           </button>
         </div>
       </div>
 
       {failedOrders.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No failed orders found</p>
+        <div className="rounded-2xl border border-dashed border-amber-200 bg-white py-16 text-center">
+          <AlertTriangle className="mx-auto h-10 w-10 text-gray-300" />
+          <p className="mt-3 text-sm text-gray-500">No failed orders. 🎉</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mx-4 mb-4 flex-1 min-h-0 overflow-hidden">
-          <div className="h-full overflow-auto">
-            <table className="min-w-[1400px] w-full">
-              <thead className="bg-red-600 text-white sticky top-0 z-10">
-                <tr>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[100px]">Order ID</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[150px]">Customer</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[200px]">Address</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[300px]">Items</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Subtotal</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Tax (5%)</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Delivery</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[60px]">Distance</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[80px]">Total</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[100px]">Status</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[200px]">Error</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[100px]">Date</th>
-                  <th className="px-2 py-3 text-left text-sm font-semibold uppercase min-w-[150px]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {failedOrders.map((order, index) => (
-                  <tr key={order._id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-red-50`}>
-                    <td className="px-2 py-2 text-sm font-medium text-gray-900">
-                      #{order._id?.slice(-8) || 'N/A'}
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      <div className="font-medium">{order.customerName || order.userId?.name || 'N/A'}</div>
-                      <div className="text-xs text-gray-500">{order.customerEmail || order.userId?.email || 'N/A'}</div>
-                      <div className="text-xs text-gray-500">{order.customerPhone || order.userId?.phone || 'N/A'}</div>
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      <div className="max-w-[200px] truncate" title={order.deliveryAddress || order.address}>
-                        {order.deliveryAddress || order.address || 'N/A'}
-                      </div>
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      <div className="max-w-[300px] truncate" title={order.items}>
-                        {order.itemsString || order.items?.map(item => `${item.itemId?.name || 'Item'} (${item.quantity})`).join(', ') || 'N/A'}
-                      </div>
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{(() => {
-                        const subtotal = order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
-                        return subtotal.toFixed(2);
-                      })()}
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{(() => {
-                        const subtotal = order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
-                        return (subtotal * 0.05).toFixed(2);
-                      })()}
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      ₹{(order.shipping?.total || 0).toFixed(2)}
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      {order.distance || 0} km
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700 font-semibold">
-                      ₹{(order.totalAmount || 0).toFixed(2)}
-                    </td>
-                    <td className="px-2 py-2 text-sm">
-                      <span className="px-2 py-1 rounded-full text-white text-xs font-medium bg-red-600">
-                        {order.status || 'Failed'}/{order.paymentStatus || 'Failed'}
-                      </span>
-                    </td>
-                    <td className="px-2 py-2 text-sm text-red-600">
-                      <div className="max-w-[200px] truncate" title={order.razorpayData?.[0]?.errorDescription || order.errorMessage}>
-                        {order.razorpayData?.[0]?.errorDescription || order.errorMessage || 'Unknown error'}
-                      </div>
-                    </td>
-                    <td className="px-2 py-2 text-sm text-gray-700">
-                      {new Date(order.createdAt || order.orderDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-2 py-2 text-sm">
-                      <button
-                        onClick={() => {
-                          setSelectedOrder(order);
-                          setShowModal(true);
-                        }}
-                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
-                      >
-                        View Details
-                      </button>
-                    </td>
+        <>
+          {/* Mobile cards */}
+          <div className="space-y-3 lg:hidden">
+            {failedOrders.map((order) => (
+              <div key={order._id} className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900">#{order._id?.slice(-8) || 'N/A'}</p>
+                    <p className="truncate text-sm text-gray-600">{order.customerName || order.userId?.name || 'N/A'}</p>
+                    <p className="truncate text-xs text-gray-400">{order.customerEmail || order.userId?.email || 'N/A'}</p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 ring-1 ring-red-200">
+                    {order.status || 'Failed'}
+                  </span>
+                </div>
+                <p className="mt-2 line-clamp-2 text-xs text-gray-500">{itemsLabel(order)}</p>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-sm font-bold text-gray-900">₹{(order.totalAmount || 0).toFixed(2)}</span>
+                  <span className="text-xs text-gray-400">{new Date(order.createdAt || order.orderDate).toLocaleDateString()}</span>
+                </div>
+                <p className="mt-2 line-clamp-1 text-xs text-red-500" title={errorOf(order)}>{errorOf(order)}</p>
+                <button onClick={() => { setSelectedOrder(order); setShowModal(true); }} className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-rose-50 px-3 py-2 text-sm font-medium text-[#d80a4e] hover:bg-rose-100">
+                  <Eye className="h-4 w-4" /> View Details
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm lg:block">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px]">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    <th className="px-4 py-3.5">Order</th>
+                    <th className="px-4 py-3.5">Customer</th>
+                    <th className="px-4 py-3.5">Items</th>
+                    <th className="px-4 py-3.5">Total</th>
+                    <th className="px-4 py-3.5">Error</th>
+                    <th className="px-4 py-3.5">Date</th>
+                    <th className="px-4 py-3.5 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {failedOrders.map((order) => (
+                    <tr key={order._id} className="transition-colors hover:bg-red-50/40">
+                      <td className="px-4 py-3.5 text-sm font-medium text-gray-900">#{order._id?.slice(-8) || 'N/A'}</td>
+                      <td className="px-4 py-3.5">
+                        <div className="text-sm font-medium text-gray-900">{order.customerName || order.userId?.name || 'N/A'}</div>
+                        <div className="text-xs text-gray-500">{order.customerEmail || order.userId?.email || 'N/A'}</div>
+                      </td>
+                      <td className="px-4 py-3.5"><div className="max-w-[220px] truncate text-sm text-gray-600" title={itemsLabel(order)}>{itemsLabel(order)}</div></td>
+                      <td className="px-4 py-3.5 text-sm font-semibold text-gray-900">₹{(order.totalAmount || 0).toFixed(2)}</td>
+                      <td className="px-4 py-3.5"><div className="max-w-[200px] truncate text-sm text-red-600" title={errorOf(order)}>{errorOf(order)}</div></td>
+                      <td className="px-4 py-3.5 text-sm text-gray-500">{new Date(order.createdAt || order.orderDate).toLocaleDateString()}</td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex justify-end">
+                          <button onClick={() => { setSelectedOrder(order); setShowModal(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-rose-200 hover:bg-rose-50 hover:text-[#d80a4e]">
+                            <Eye className="h-3.5 w-3.5" /> Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
-      
-      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm mt-4 mx-4">
-        <div className="bg-white px-3 md:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl">
-          <div className="flex flex-col sm:flex-row sm:items-center text-xs md:text-sm text-gray-700 gap-2 sm:gap-0">
-            <span>Items per page: {itemsPerPage}</span>
-            <span className="sm:ml-8">{(currentPage - 1) * itemsPerPage + 1} – {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}</span>
-          </div>
-          <div className="flex items-center justify-center sm:justify-end space-x-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ◀
-            </button>
-            <span className="text-xs md:text-sm text-gray-600">
-              {currentPage} / {totalPages}
+
+          {/* Pagination */}
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className="text-xs text-gray-500 sm:text-sm">
+              {totalItems === 0 ? '0 of 0' : `${(currentPage - 1) * itemsPerPage + 1}–${Math.min(currentPage * itemsPerPage, totalItems)} of ${totalItems}`}
             </span>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 text-xs md:text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ▶
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-display text-2xl font-bold text-gray-900">Failed Order Details</h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl p-1 hover:bg-gray-100 rounded"
-              >
-                ✕
+            <div className="flex items-center gap-2">
+              <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-medium text-gray-700">{currentPage} / {totalPages}</span>
+              <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40">
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
-            
-            <div className="space-y-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">All Order Fields</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                  {Object.entries(selectedOrder).filter(([key]) => key !== 'razorpayData').map(([key, value]) => {
-                    if (value === null || value === undefined) return null;
-                    
-                    const getFieldColor = (fieldKey) => {
-                      if (fieldKey.includes('payment') || fieldKey.includes('Payment')) return 'bg-green-50 border-green-200';
-                      if (fieldKey.includes('amount') || fieldKey.includes('Amount') || fieldKey.includes('price') || fieldKey.includes('Price')) return 'bg-emerald-50 border-emerald-200';
-                      if (fieldKey.includes('id') || fieldKey.includes('Id') || fieldKey.includes('ID')) return 'bg-blue-50 border-blue-200';
-                      if (fieldKey.includes('status') || fieldKey.includes('Status')) return 'bg-purple-50 border-purple-200';
-                      if (fieldKey.includes('date') || fieldKey.includes('Date') || fieldKey.includes('time') || fieldKey.includes('Time') || fieldKey.includes('At')) return 'bg-indigo-50 border-indigo-200';
-                      if (fieldKey.includes('address') || fieldKey.includes('Address')) return 'bg-orange-50 border-orange-200';
-                      if (fieldKey.includes('customer') || fieldKey.includes('Customer') || fieldKey.includes('user') || fieldKey.includes('User')) return 'bg-pink-50 border-pink-200';
-                      if (fieldKey.includes('item') || fieldKey.includes('Item')) return 'bg-yellow-50 border-yellow-200';
-                      return 'bg-gray-50 border-gray-200';
-                    };
-                    
-                    const formatValue = (val) => {
-                      if (typeof val === 'object' && val !== null) {
-                        if (Array.isArray(val)) {
-                          if (key === 'items') {
-                            return val.map(item => `${item.itemId?.name || 'Item'} (Qty: ${item.quantity})`).join(', ');
-                          }
-                          return val.length > 0 ? `${val.length} entries` : 'Empty';
-                        }
-                        if (key === 'shipping') {
-                          return `Provider: ${val.provider || 'N/A'}, Total: ₹${val.total || 0}, Charged: ${val.charged ? 'Yes' : 'No'}`;
-                        }
-                        return JSON.stringify(val, null, 2);
+          </div>
+        </>
+      )}
+
+      {/* Detail Modal */}
+      {showModal && selectedOrder && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setShowModal(false)}>
+          <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+              <h3 className="font-display text-lg font-bold text-gray-900 sm:text-xl">Failed Order Details</h3>
+              <button onClick={() => setShowModal(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+              <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2 lg:grid-cols-3">
+                {Object.entries(selectedOrder).filter(([key]) => key !== 'razorpayData').map(([key, value]) => {
+                  if (value === null || value === undefined) return null;
+
+                  const formatValue = (val) => {
+                    if (typeof val === 'object' && val !== null) {
+                      if (Array.isArray(val)) {
+                        if (key === 'items') return val.map((item) => `${item.itemId?.name || 'Item'} (Qty: ${item.quantity})`).join(', ');
+                        return val.length > 0 ? `${val.length} entries` : 'Empty';
                       }
-                      if (key.includes('At') || key.includes('date') || key.includes('Date')) {
-                        try {
-                          return new Date(val).toLocaleString('en-IN', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                          });
-                        } catch {
-                          return String(val);
-                        }
+                      if (key === 'shipping') return `Provider: ${val.provider || 'N/A'}, Total: ₹${val.total || 0}, Charged: ${val.charged ? 'Yes' : 'No'}`;
+                      return JSON.stringify(val, null, 2);
+                    }
+                    if (key.includes('At') || key.includes('date') || key.includes('Date')) {
+                      try {
+                        return new Date(val).toLocaleString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                      } catch {
+                        return String(val);
                       }
-                      if ((key.includes('amount') || key.includes('Amount') || key.includes('price') || key.includes('Price') || key.includes('fee') || key.includes('Fee')) && typeof val === 'number') {
-                        return `₹${val.toFixed(2)}`;
-                      }
-                      return String(val);
-                    };
-                    
-                    return (
-                      <div key={key} className={`p-3 rounded border ${getFieldColor(key)} ${typeof value === 'object' || String(value).length > 50 ? 'col-span-full' : ''}`}>
-                        <span className="font-medium text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}:</span>
-                        <div className={`mt-1 ${typeof value === 'object' ? 'font-mono text-xs whitespace-pre-wrap' : 'break-all'} text-gray-900`}>
-                          {formatValue(value)}
-                        </div>
+                    }
+                    if ((key.includes('amount') || key.includes('Amount') || key.includes('price') || key.includes('Price') || key.includes('fee') || key.includes('Fee')) && typeof val === 'number') {
+                      return `₹${val.toFixed(2)}`;
+                    }
+                    return String(val);
+                  };
+
+                  return (
+                    <div key={key} className={`rounded-xl border border-gray-100 bg-gray-50 p-3 ${typeof value === 'object' || String(value).length > 50 ? 'md:col-span-2 lg:col-span-3' : ''}`}>
+                      <span className="text-xs font-semibold capitalize text-gray-500">{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}</span>
+                      <div className={`mt-1 ${typeof value === 'object' ? 'whitespace-pre-wrap break-all font-mono text-xs' : 'break-all'} text-gray-900`}>
+                        {formatValue(value)}
                       </div>
-                    );
-                  })}  
-                </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-            
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-500 text-white px-5 py-2.5 rounded-xl hover:bg-gray-600 font-medium"
-              >
+
+            <div className="border-t border-gray-100 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+              <button onClick={() => setShowModal(false)} className="w-full rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 sm:w-auto sm:float-right">
                 Close
               </button>
             </div>
