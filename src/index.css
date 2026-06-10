@@ -221,3 +221,39 @@ body {
   .shine-on-hover::after { animation: none; opacity: 1; }
   .animate-fade-up { transform: none; }
 }
+
+/* ============================================================
+   SPLASH SCREEN — first-load brand animation
+   ============================================================ */
+@keyframes splashPop {
+  0%   { opacity: 0; transform: scale(0.6) translateY(12px); }
+  60%  { opacity: 1; transform: scale(1.06) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-splash-pop {
+  opacity: 0;
+  animation: splashPop 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes splashRing {
+  0%   { transform: scale(0.75); opacity: 0.55; }
+  70%  { opacity: 0; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.animate-splash-ring {
+  animation: splashRing 1.8s ease-out infinite;
+}
+
+@keyframes splashDot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+  40%           { transform: translateY(-7px); opacity: 1; }
+}
+.animate-splash-dot {
+  animation: splashDot 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-splash-pop { animation: none; opacity: 1; }
+  .animate-splash-ring,
+  .animate-splash-dot { animation: none; }
+}

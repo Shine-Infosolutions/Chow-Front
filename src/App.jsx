@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { ApiProvider, CartProvider, NotificationProvider } from './contexts/index.jsx';
+import { ApiProvider, CartProvider, NotificationProvider, useApi } from './contexts/index.jsx';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ActiveOrderBar from './components/ActiveOrderBar';
+import SplashScreen from './components/SplashScreen';
 
 import Home from './pages/Home/Home';
 import Shop from './pages/Shop/Shop';
@@ -25,17 +26,35 @@ import ProductDetail from './pages/ProductDetail/ProductDetail';
 
 const AppContent = () => {
   const location = useLocation();
+  const { categories } = useApi();
+  const [showSplash, setShowSplash] = useState(true);
 
   // ✅ Scroll to top on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
 
+  // Hide splash once homepage data is in (with a small beat for the animation).
+  useEffect(() => {
+    if (categories.length > 0) {
+      const t = setTimeout(() => setShowSplash(false), 900);
+      return () => clearTimeout(t);
+    }
+  }, [categories]);
+
+  // Hard cap so the splash never blocks the app if the API is slow/down.
+  useEffect(() => {
+    const cap = setTimeout(() => setShowSplash(false), 5000);
+    return () => clearTimeout(cap);
+  }, []);
+
   // ✅ Detect admin routes
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <div className="App min-h-screen flex flex-col">
+      {/* First-load brand splash (covers initial data fetch) */}
+      <SplashScreen show={showSplash} />
       {/* Header only for non-admin */}
       {!isAdminRoute && <Header />}
 

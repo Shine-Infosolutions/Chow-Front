@@ -271,7 +271,7 @@ const Home = () => {
             {categoryItems.map(product => (
               <div
                 key={product._id}
-                className="min-w-full sm:min-w-[260px] lg:min-w-[300px] flex-shrink-0"
+                className="w-[78%] min-w-[78%] sm:w-[260px] sm:min-w-[260px] lg:w-[300px] lg:min-w-[300px] flex-shrink-0"
               >
                 <ProductCard product={product} />
               </div>
