@@ -8,6 +8,8 @@ import ActiveOrderBar from './components/ActiveOrderBar';
 import SplashScreen from './components/SplashScreen';
 import MiniCart from './components/MiniCart';
 import BottomNav from './components/BottomNav';
+import PushSync from './components/PushSync';
+import InstallPrompt from './components/InstallPrompt';
 
 import Home from './pages/Home/Home';
 import Shop from './pages/Shop/Shop';
@@ -124,6 +126,10 @@ const AppContent = () => {
       {/* Slide-out cart + app-like mobile bottom nav (non-admin) */}
       {!isAdminRoute && <MiniCart />}
       {!isAdminRoute && <BottomNav />}
+
+      {/* PWA: keep push subscription synced to the logged-in user + offer install */}
+      <PushSync />
+      <InstallPrompt />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApi } from '../../contexts/index.jsx';
 import Breadcrumb from '../../components/Breadcrumb.jsx';
+import PushToggle from '../../components/PushToggle.jsx';
 import { useSeo } from '../../hooks/useSeo.js';
 
 const Profile = () => {
@@ -305,6 +306,11 @@ const Profile = () => {
               </div>
             )}
           </form>
+        </div>
+
+        {/* Push notifications opt-in */}
+        <div className="mt-5">
+          <PushToggle audience="customer" />
         </div>
       </div>
     </div>

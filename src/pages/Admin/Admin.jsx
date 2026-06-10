@@ -14,6 +14,7 @@ import Tickets from './Tickets.jsx';
 import FailedOrders from './FailedOrders.jsx';
 import SweetDeal from './SweetDeal.jsx';
 import Customers from './Customers.jsx';
+import PushToggle from '../../components/PushToggle.jsx';
 import logo from '../../assets/logo.png';
 
 const TABS = [
@@ -184,6 +185,11 @@ const Admin = () => {
 
         {/* Content */}
         <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-20 lg:pb-0">
+          {activeTab === 'dashboard' && (
+            <div className="px-4 pt-4 sm:px-6">
+              <PushToggle audience="admin" />
+            </div>
+          )}
           {renderContent()}
         </main>
       </div>
